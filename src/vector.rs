@@ -141,26 +141,136 @@ impl Div<f64> for &Vector {
 }
 
 impl AddAssign<&Vector> for Vector {
-    fn add_assign(&mut self, vector: &Vector) -> () {
+    fn add_assign(&mut self, vector: &Vector) {
         self.x += vector.x;
         self.y += vector.y;
     }
 }
 impl SubAssign<&Vector> for Vector {
-    fn sub_assign(&mut self, vector: &Vector) -> () {
+    fn sub_assign(&mut self, vector: &Vector) {
         self.x -= vector.x;
         self.y -= vector.y;
     }
 }
 impl MulAssign<f64> for Vector {
-    fn mul_assign(&mut self, factor: f64) -> () {
+    fn mul_assign(&mut self, factor: f64) {
         self.x *= factor;
         self.y *= factor;
     }
 }
 impl DivAssign<f64> for Vector {
-    fn div_assign(&mut self, factor: f64) -> () {
+    fn div_assign(&mut self, factor: f64) {
         self.x /= factor;
         self.y /= factor;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn squared_length() {
+        let vector = Vector::new(3.0, 4.0);
+        assert_eq!(vector.squared_length(), 25.0);
+    }
+    #[test]
+    fn length() {
+        let vector = Vector::new(3.0, 4.0);
+        assert_eq!(vector.length(), 5.0);
+    }
+    #[test]
+    fn length_is_hypot() {
+        let vector = Vector::new(8.0, 6.0);
+        assert_eq!(vector.length(), vector.x.hypot(vector.y));
+    }
+    #[test]
+    fn get_normalized() {
+        let vector = Vector::new(8.0, 6.0).get_normalized();
+        assert_eq!(vector.x, 0.8);
+        assert_eq!(vector.y, 0.6);
+    }
+    #[test]
+    fn dot() {
+        let first = Vector::new(3.0, 5.0);
+        let second = Vector::new(4.0, 2.0);
+        assert_eq!(first.dot(&second), 22.0);
+    }
+    #[test]
+    fn dot_self_is_squared_length() {
+        let vector = Vector::new(7.5, 4.0);
+        assert_eq!(vector.dot(&vector), vector.squared_length());
+    }
+    #[test]
+    fn cross() {
+        let first = Vector::new(5.0, 4.0);
+        let second = Vector::new(3.0, 2.0);
+        assert_eq!(first.cross(&second), 2.0);
+    }
+    #[test]
+    fn add() {
+        let first = Vector::new(4.0, 5.0);
+        let second = Vector::new(2.0, 3.0);
+        let sum = &first + &second;
+        assert_eq!(sum.x, 6.0);
+        assert_eq!(sum.y, 8.0);
+    }
+    #[test]
+    fn sub() {
+        let first = Vector::new(4.0, 5.0);
+        let second = Vector::new(2.0, 3.0);
+        let difference = &first - &second;
+        assert_eq!(difference.x, 2.0);
+        assert_eq!(difference.y, 2.0);
+    }
+    #[test]
+    fn mul() {
+        let vector = Vector::new(2.0, 4.0);
+        let multiplied = &vector * 2.5;
+        assert_eq!(multiplied.x, 5.0);
+        assert_eq!(multiplied.y, 10.0);
+    }
+    #[test]
+    fn mul_transitive() {
+        let vector = Vector::new(2.0, 4.0);
+        let first_multiplied = &vector * 2.5;
+        let second_multiplied = 2.5 * &vector;
+        assert_eq!(first_multiplied.x, second_multiplied.x);
+        assert_eq!(first_multiplied.y, second_multiplied.y);
+    }
+    #[test]
+    fn div() {
+        let vector = Vector::new(4.0, 2.0);
+        let divided = &vector / 2.0;
+        assert_eq!(divided.x, 2.0);
+        assert_eq!(divided.y, 1.0);
+    }
+    #[test]
+    fn add_assign() {
+        let mut vector = Vector::new(1.0, -2.0);
+        vector += &Vector::new(-5.0, 3.0);
+        assert_eq!(vector.x, -4.0);
+        assert_eq!(vector.y, 1.0);
+    }
+    #[test]
+    fn sub_assign() {
+        let mut vector = Vector::new(1.0, -2.0);
+        vector -= &Vector::new(-5.0, 3.0);
+        assert_eq!(vector.x, 6.0);
+        assert_eq!(vector.y, -5.0);
+    }
+    #[test]
+    fn mul_assign() {
+        let mut vector = Vector::new(3.25, 2.5);
+        vector *= 4.0;
+        assert_eq!(vector.x, 13.0);
+        assert_eq!(vector.y, 10.0);
+    }
+    #[test]
+    fn div_assign() {
+        let mut vector = Vector::new(3.25, 2.5);
+        vector /= 0.5;
+        assert_eq!(vector.x, 6.5);
+        assert_eq!(vector.y, 5.0);
     }
 }
