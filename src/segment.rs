@@ -75,3 +75,36 @@ impl PartialEq for Segment {
             || (self.start == segment.end && self.end == segment.start)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn squared_length() {
+        let segment = Segment::from(((1.0, 1.0), (4.0, 5.0)));
+        assert_eq!(segment.squared_length(), 25.0);
+    }
+    #[test]
+    fn length() {
+        let segment = Segment::from(((1.0, 1.0), (4.0, 5.0)));
+        assert_eq!(segment.length(), 5.0);
+    }
+    #[test]
+    fn intersect() {
+        let first = Segment::from(((-1.0, -1.0), (2.0, 2.0)));
+        let second = Segment::from(((-3.0, 3.0), (5.0, -5.0)));
+        let intersection = first.intersect(&second);
+        assert!(intersection.is_some());
+        let intersection = intersection.unwrap();
+        assert_eq!(intersection.x, 0.0);
+        assert_eq!(intersection.y, 0.0);
+    }
+    #[test]
+    fn intersect_parallel() {
+        let first = Segment::from(((-1.0, -1.0), (-3.0, -1.0)));
+        let second = Segment::from(((-1.0, 4.0), (-3.0, 4.0)));
+        let intersection = first.intersect(&second);
+        assert!(intersection.is_none());
+    }
+}
