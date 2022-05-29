@@ -45,6 +45,9 @@ impl Vector {
     pub fn cross(&self, vector: &Self) -> f64 {
         self.y * vector.x - self.x * vector.y
     }
+    pub fn interpolate(&self, vector: &Self, factor: f64) -> Self {
+        self + &(&(vector - self) * factor)
+    }
 }
 
 impl Debug for Vector {
@@ -206,6 +209,14 @@ mod tests {
         let first = Vector::new(5.0, 4.0);
         let second = Vector::new(3.0, 2.0);
         assert_eq!(first.cross(&second), 2.0);
+    }
+    #[test]
+    fn interpolate() {
+        let first = Vector::new(5.0, 6.0);
+        let second = Vector::new(1.0, -2.0);
+        let interpolation = first.interpolate(&second, 0.25);
+        assert_eq!(interpolation.x, 4.0);
+        assert_eq!(interpolation.y, 4.0);
     }
     #[test]
     fn add() {
