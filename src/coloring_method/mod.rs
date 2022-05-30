@@ -1,6 +1,6 @@
 use palette::{Mix, Shade};
 
-use super::vector::Vector;
+use super::{utility, vector::Vector};
 
 pub trait ColoringMethod<Color>
 where
@@ -21,5 +21,7 @@ where
 }
 
 mod linear_gradient;
+mod radial_gradient;
 
 pub use self::linear_gradient::LinearGradient;
+pub use self::radial_gradient::RadialGradient;
