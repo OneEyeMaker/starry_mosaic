@@ -31,7 +31,7 @@ impl Segment {
             let numerator = segment_vector.cross(&start_vector);
             let factor = numerator / denominator;
             if factor > 0.0 && factor < 1.0 {
-                return Some(&self.start + &(factor * &self_vector));
+                return Some(self.start.interpolate(&self.end, factor));
             }
         }
         None

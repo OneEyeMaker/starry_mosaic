@@ -46,7 +46,10 @@ impl Vector {
         self.y * vector.x - self.x * vector.y
     }
     pub fn interpolate(&self, vector: &Self, factor: f64) -> Self {
-        self + &(&(vector - self) * factor)
+        Self {
+            x: self.x + (vector.x - self.x) * factor,
+            y: self.y + (vector.y - self.y) * factor,
+        }
     }
 }
 
