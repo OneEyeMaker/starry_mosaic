@@ -1,11 +1,11 @@
-use palette::{Gradient, Mix, Shade};
+use palette::{Gradient, Mix};
 
 use super::{utility, ColoringMethod, Vector};
 
 #[derive(Clone, Debug)]
 pub struct RadialGradient<Color>
 where
-    Color: Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
+    Color: Mix<Scalar = f64> + Clone,
 {
     gradient: Gradient<Color>,
     inner_center: Vector,
@@ -18,7 +18,7 @@ where
 
 impl<Color> RadialGradient<Color>
 where
-    Color: Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
+    Color: Mix<Scalar = f64> + Clone,
 {
     pub fn new(
         colors: &[(f64, Color)],
@@ -101,9 +101,9 @@ where
 
 impl<Color> ColoringMethod<Color> for RadialGradient<Color>
 where
-    Color: Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
+    Color: Mix<Scalar = f64> + Clone,
 {
-    fn interpolate(&self, point: &Vector, center_point: &Vector, distance_limit: f64) -> Color {
+    fn interpolate(&self, point: &Vector, center_point: &Vector) -> Color {
         let smoothed_point = center_point.interpolate(point, self.smoothness);
         let point_vector = &smoothed_point - &self.inner_center;
         let alpha = self.direction_squared_length - self.radius_difference.powi(2);
@@ -111,10 +111,6 @@ where
         let gamma = point_vector.squared_length() - self.inner_radius.powi(2);
         let discriminant = beta * beta - alpha * gamma;
         let interpolation_factor = (beta - discriminant.sqrt()) / alpha;
-        let distance = point.distance_to(&center_point);
-        let lighten_factor = (1.0 - distance / distance_limit).powi(2);
-        self.gradient
-            .get(interpolation_factor)
-            .lighten(lighten_factor)
+        self.gradient.get(interpolation_factor)
     }
 }

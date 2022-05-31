@@ -1,11 +1,11 @@
-use palette::{Gradient, Mix, Shade};
+use palette::{Gradient, Mix};
 
 use super::{ColoringMethod, Vector};
 
 #[derive(Clone, Debug)]
 pub struct LinearGradient<Color>
 where
-    Color: Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
+    Color: Mix<Scalar = f64> + Clone,
 {
     gradient: Gradient<Color>,
     start_point: Vector,
@@ -16,7 +16,7 @@ where
 
 impl<Color> LinearGradient<Color>
 where
-    Color: Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
+    Color: Mix<Scalar = f64> + Clone,
 {
     pub fn new(
         colors: &[(f64, Color)],
@@ -80,16 +80,12 @@ where
 
 impl<Color> ColoringMethod<Color> for LinearGradient<Color>
 where
-    Color: Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
+    Color: Mix<Scalar = f64> + Clone,
 {
-    fn interpolate(&self, point: &Vector, center_point: &Vector, distance_limit: f64) -> Color {
+    fn interpolate(&self, point: &Vector, center_point: &Vector) -> Color {
         let smoothed_point = center_point.interpolate(point, self.smoothness);
         let interpolation_factor = (&smoothed_point - &self.start_point).dot(&self.direction)
             / self.direction_squared_length;
-        let distance = point.distance_to(center_point);
-        let lighten_factor = (1.0 - distance / distance_limit).powi(2);
-        self.gradient
-            .get(interpolation_factor)
-            .lighten(lighten_factor)
+        self.gradient.get(interpolation_factor)
     }
 }
