@@ -20,19 +20,21 @@ impl<Color> RadialGradient<Color>
 where
     Color: Mix<Scalar = f64> + Clone,
 {
-    pub fn new(
-        colors: &[(f64, Color)],
+    pub fn new<ColorGradient>(
+        gradient: ColorGradient,
         inner_center: Vector,
         inner_radius: f64,
         outer_center: Vector,
         outer_radius: f64,
         smoothness: f64,
-    ) -> Self {
-        let gradient = Gradient::with_domain(Vec::from(colors));
+    ) -> Self
+    where
+        ColorGradient: Into<Gradient<Color>>,
+    {
         let direction = &outer_center - &inner_center;
         let direction_squared_length = direction.squared_length();
         let mut radial_gradient = Self {
-            gradient,
+            gradient: gradient.into(),
             inner_center,
             direction,
             direction_squared_length,
@@ -44,15 +46,18 @@ where
         radial_gradient
     }
     #[inline(always)]
-    pub fn new_smooth(
-        colors: &[(f64, Color)],
+    pub fn new_smooth<ColorGradient>(
+        gradient: ColorGradient,
         inner_center: Vector,
         inner_radius: f64,
         outer_center: Vector,
         outer_radius: f64,
-    ) -> Self {
+    ) -> Self
+    where
+        ColorGradient: Into<Gradient<Color>>,
+    {
         Self::new(
-            colors,
+            gradient,
             inner_center,
             inner_radius,
             outer_center,
@@ -61,15 +66,18 @@ where
         )
     }
     #[inline(always)]
-    pub fn new_step(
-        colors: &[(f64, Color)],
+    pub fn new_step<ColorGradient>(
+        gradient: ColorGradient,
         inner_center: Vector,
         inner_radius: f64,
         outer_center: Vector,
         outer_radius: f64,
-    ) -> Self {
+    ) -> Self
+    where
+        ColorGradient: Into<Gradient<Color>>,
+    {
         Self::new(
-            colors,
+            gradient,
             inner_center,
             inner_radius,
             outer_center,
@@ -78,21 +86,38 @@ where
         )
     }
     #[inline(always)]
-    pub fn new_simple(
-        colors: &[(f64, Color)],
+    pub fn new_simple<ColorGradient>(
+        gradient: ColorGradient,
         center: Vector,
         radius: f64,
         smoothness: f64,
-    ) -> Self {
-        Self::new(colors, center.clone(), 0.0, center, radius, smoothness)
+    ) -> Self
+    where
+        ColorGradient: Into<Gradient<Color>>,
+    {
+        Self::new(gradient, center.clone(), 0.0, center, radius, smoothness)
     }
     #[inline(always)]
-    pub fn new_simple_smooth(colors: &[(f64, Color)], center: Vector, radius: f64) -> Self {
-        Self::new_simple(colors, center, radius, 1.0)
+    pub fn new_simple_smooth<ColorGradient>(
+        gradient: ColorGradient,
+        center: Vector,
+        radius: f64,
+    ) -> Self
+    where
+        ColorGradient: Into<Gradient<Color>>,
+    {
+        Self::new_simple(gradient, center, radius, 1.0)
     }
     #[inline(always)]
-    pub fn new_simple_step(colors: &[(f64, Color)], center: Vector, radius: f64) -> Self {
-        Self::new_simple(colors, center, radius, 0.0)
+    pub fn new_simple_step<ColorGradient>(
+        gradient: ColorGradient,
+        center: Vector,
+        radius: f64,
+    ) -> Self
+    where
+        ColorGradient: Into<Gradient<Color>>,
+    {
+        Self::new_simple(gradient, center, radius, 0.0)
     }
     pub fn inner_center(&self) -> Vector {
         self.inner_center.clone()

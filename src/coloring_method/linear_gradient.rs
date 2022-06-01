@@ -18,13 +18,15 @@ impl<Color> LinearGradient<Color>
 where
     Color: Mix<Scalar = f64> + Clone,
 {
-    pub fn new(
-        colors: &[(f64, Color)],
+    pub fn new<ColorGradient>(
+        gradient: ColorGradient,
         start_point: Vector,
         end_point: Vector,
         smoothness: f64,
-    ) -> Self {
-        let gradient = Gradient::with_domain(Vec::from(colors));
+    ) -> Self
+    where
+        ColorGradient: Into<Gradient<Color>>,
+    {
         let direction = if start_point != end_point {
             &end_point - &start_point
         } else {
@@ -32,7 +34,7 @@ where
         };
         let direction_squared_length = direction.squared_length();
         Self {
-            gradient,
+            gradient: gradient.into(),
             start_point,
             direction,
             direction_squared_length,
@@ -40,12 +42,26 @@ where
         }
     }
     #[inline(always)]
-    pub fn new_smooth(colors: &[(f64, Color)], start_point: Vector, end_point: Vector) -> Self {
-        Self::new(colors, start_point, end_point, 1.0)
+    pub fn new_smooth<ColorGradient>(
+        gradient: ColorGradient,
+        start_point: Vector,
+        end_point: Vector,
+    ) -> Self
+    where
+        ColorGradient: Into<Gradient<Color>>,
+    {
+        Self::new(gradient, start_point, end_point, 1.0)
     }
     #[inline(always)]
-    pub fn new_step(colors: &[(f64, Color)], start_point: Vector, end_point: Vector) -> Self {
-        Self::new(colors, start_point, end_point, 0.0)
+    pub fn new_step<ColorGradient>(
+        gradient: ColorGradient,
+        start_point: Vector,
+        end_point: Vector,
+    ) -> Self
+    where
+        ColorGradient: Into<Gradient<Color>>,
+    {
+        Self::new(gradient, start_point, end_point, 0.0)
     }
     pub fn start_point(&self) -> Vector {
         self.start_point.clone()

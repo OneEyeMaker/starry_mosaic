@@ -19,22 +19,43 @@ impl<Color> ConicGradient<Color>
 where
     Color: Mix<Scalar = f64> + Clone,
 {
-    pub fn new(colors: &[(f64, Color)], center_point: Vector, angle: f64, smoothness: f64) -> Self {
-        let gradient = Gradient::with_domain(Vec::from(colors));
+    pub fn new<ColorGradient>(
+        gradient: ColorGradient,
+        center_point: Vector,
+        angle: f64,
+        smoothness: f64,
+    ) -> Self
+    where
+        ColorGradient: Into<Gradient<Color>>,
+    {
         Self {
-            gradient,
+            gradient: gradient.into(),
             center_point,
             angle: angle % (2.0 * consts::PI),
             smoothness: smoothness.clamp(0.0, 1.0),
         }
     }
     #[inline(always)]
-    pub fn new_smooth(colors: &[(f64, Color)], center_point: Vector, angle: f64) -> Self {
-        Self::new(colors, center_point, angle, 1.0)
+    pub fn new_smooth<ColorGradient>(
+        gradient: ColorGradient,
+        center_point: Vector,
+        angle: f64,
+    ) -> Self
+    where
+        ColorGradient: Into<Gradient<Color>>,
+    {
+        Self::new(gradient, center_point, angle, 1.0)
     }
     #[inline(always)]
-    pub fn new_step(colors: &[(f64, Color)], center_point: Vector, angle: f64) -> Self {
-        Self::new(colors, center_point, angle, 0.0)
+    pub fn new_step<ColorGradient>(
+        gradient: ColorGradient,
+        center_point: Vector,
+        angle: f64,
+    ) -> Self
+    where
+        ColorGradient: Into<Gradient<Color>>,
+    {
+        Self::new(gradient, center_point, angle, 0.0)
     }
     pub fn center_point(&self) -> Vector {
         self.center_point.clone()
