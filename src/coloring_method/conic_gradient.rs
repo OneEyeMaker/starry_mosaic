@@ -36,6 +36,24 @@ where
     pub fn new_step(colors: &[(f64, Color)], center_point: Vector, angle: f64) -> Self {
         Self::new(colors, center_point, angle, 0.0)
     }
+    pub fn center_point(&self) -> Vector {
+        self.center_point.clone()
+    }
+    pub fn set_center_point(&mut self, center_point: Vector) {
+        self.center_point = center_point;
+    }
+    pub fn angle(&self) -> f64 {
+        self.angle
+    }
+    pub fn set_angle(&mut self, angle: f64) {
+        self.angle = angle % (2.0 * consts::PI);
+    }
+    pub fn smoothness(&self) -> f64 {
+        self.smoothness
+    }
+    pub fn set_smoothness(&mut self, smoothness: f64) {
+        self.smoothness = smoothness.clamp(0.0, 1.0);
+    }
 }
 
 impl<Color> ColoringMethod<Color> for ConicGradient<Color>
