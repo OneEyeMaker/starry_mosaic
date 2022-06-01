@@ -1,6 +1,6 @@
 use palette::Mix;
 
-use super::{utility, vector::Vector};
+use super::vector::Vector;
 
 pub trait ColoringMethod<Color>
 where

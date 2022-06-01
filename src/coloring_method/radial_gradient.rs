@@ -1,6 +1,6 @@
 use palette::{Gradient, Mix};
 
-use super::{utility, ColoringMethod, Vector};
+use super::{ColoringMethod, Vector};
 
 #[derive(Clone, Debug)]
 pub struct RadialGradient<Color>
@@ -31,20 +31,17 @@ where
         let gradient = Gradient::with_domain(Vec::from(colors));
         let direction = &outer_center - &inner_center;
         let direction_squared_length = direction.squared_length();
-        let radius_difference = if utility::approx_eq(inner_radius, outer_radius) {
-            1.0
-        } else {
-            outer_radius - inner_radius
-        };
-        Self {
+        let mut radial_gradient = Self {
             gradient,
             inner_center,
             direction,
             direction_squared_length,
             inner_radius,
-            radius_difference,
+            radius_difference: outer_radius - inner_radius,
             smoothness: smoothness.clamp(0.0, 1.0),
-        }
+        };
+        radial_gradient.fit_inner_circle_into_outer();
+        radial_gradient
     }
     #[inline(always)]
     pub fn new_smooth(
@@ -96,6 +93,47 @@ where
     #[inline(always)]
     pub fn new_simple_step(colors: &[(f64, Color)], center: Vector, radius: f64) -> Self {
         Self::new_simple(colors, center, radius, 0.0)
+    }
+    pub fn inner_center(&self) -> Vector {
+        self.inner_center.clone()
+    }
+    pub fn set_inner_center(&mut self, inner_center: Vector) {
+        let outer_center = &self.inner_center + &self.direction;
+        self.inner_center = inner_center;
+        self.set_outer_center(outer_center);
+    }
+    pub fn inner_radius(&self) -> f64 {
+        self.inner_radius
+    }
+    pub fn set_inner_radius(&mut self, inner_radius: f64) {
+        let outer_radius = self.inner_radius + self.radius_difference;
+        self.inner_radius = inner_radius;
+        self.set_outer_radius(outer_radius);
+    }
+    pub fn outer_center(&self) -> Vector {
+        &self.inner_center + &self.direction
+    }
+    pub fn set_outer_center(&mut self, outer_center: Vector) {
+        self.direction = &outer_center - &self.inner_center;
+        self.direction_squared_length = self.direction.squared_length();
+        self.fit_inner_circle_into_outer();
+    }
+    pub fn outer_radius(&self) -> f64 {
+        self.inner_radius + self.radius_difference
+    }
+    pub fn set_outer_radius(&mut self, outer_radius: f64) {
+        self.radius_difference = outer_radius - self.inner_radius;
+        self.fit_inner_circle_into_outer();
+    }
+    pub fn smoothness(&self) -> f64 {
+        self.smoothness
+    }
+    pub fn set_smoothness(&mut self, smoothness: f64) {
+        self.smoothness = smoothness.clamp(0.0, 1.0);
+    }
+    #[inline(always)]
+    fn fit_inner_circle_into_outer(&mut self) {
+        self.radius_difference = self.radius_difference.max(self.direction.length() + 1.0);
     }
 }
 
