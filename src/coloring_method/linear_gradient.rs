@@ -105,3 +105,149 @@ where
         self.gradient.get(interpolation_factor)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use palette::{encoding::Srgb, white_point::D65, Hsl, Lch, LinSrgb};
+
+    use super::*;
+
+    fn create_rgb_gradient() -> Gradient<LinSrgb<f64>> {
+        Gradient::from(vec![
+            (0.0, LinSrgb::new(1.0, 0.0, 0.0)),
+            (0.5, LinSrgb::new(0.0, 1.0, 0.0)),
+            (1.0, LinSrgb::new(0.0, 0.0, 1.0)),
+        ])
+    }
+    fn create_hsl_gradient() -> Gradient<Hsl<Srgb, f64>> {
+        Gradient::from(vec![
+            (0.0, Hsl::new(0.0, 1.0, 0.5)),
+            (0.5, Hsl::new(120.0, 1.0, 0.5)),
+            (1.0, Hsl::new(240.0, 1.0, 0.5)),
+        ])
+    }
+    fn create_lch_gradient() -> Gradient<Lch<D65, f64>> {
+        Gradient::from(vec![
+            (0.0, Lch::new(50.0, 100.0, 40.0)),
+            (0.5, Lch::new(90.0, 110.0, 130.0)),
+            (1.0, Lch::new(30.0, 130.0, 300.0)),
+        ])
+    }
+    #[test]
+    fn create_with_null_direction_vector() {
+        let gradient = create_rgb_gradient();
+        let point = Vector::new(100.0, 100.0);
+        let linear_gradient = LinearGradient::new_smooth(gradient, point.clone(), point);
+        assert!(linear_gradient.direction_squared_length > 0.0);
+    }
+    #[test]
+    fn set_start_point_equal_to_end_point() {
+        let gradient = create_hsl_gradient();
+        let mut linear_gradient =
+            LinearGradient::new_smooth(gradient, Vector::new(0.0, 0.0), Vector::new(100.0, 100.0));
+        linear_gradient.set_start_point(linear_gradient.end_point());
+        assert!(linear_gradient.direction_squared_length > 0.0);
+    }
+    #[test]
+    fn set_end_point_equal_to_start_point() {
+        let gradient = create_lch_gradient();
+        let mut linear_gradient =
+            LinearGradient::new_smooth(gradient, Vector::new(0.0, 0.0), Vector::new(100.0, 100.0));
+        linear_gradient.set_end_point(linear_gradient.start_point());
+        assert!(linear_gradient.direction_squared_length > 0.0);
+    }
+    #[test]
+    fn interpolate_smooth() {
+        let gradient = create_rgb_gradient();
+        let linear_gradient = LinearGradient::new_smooth(
+            gradient.clone(),
+            Vector::new(0.0, 0.0),
+            Vector::new(100.0, 100.0),
+        );
+        let center_point = Vector::new(25.0, 25.0);
+        for index in 0..=5 {
+            let index = index as f64;
+            let point = Vector::new(index * 10.0, index * 10.0);
+            assert_eq!(
+                linear_gradient.interpolate(&point, &center_point),
+                gradient.get(index / 10.0)
+            );
+        }
+        let center_point = Vector::new(75.0, 75.0);
+        for index in 5..=10 {
+            let index = index as f64;
+            let point = Vector::new(index * 10.0, index * 10.0);
+            assert_eq!(
+                linear_gradient.interpolate(&point, &center_point),
+                gradient.get(index / 10.0)
+            );
+        }
+    }
+    #[test]
+    fn interpolate_step() {
+        let gradient = create_lch_gradient();
+        let linear_gradient = LinearGradient::new_step(
+            gradient.clone(),
+            Vector::new(0.0, 0.0),
+            Vector::new(100.0, 100.0),
+        );
+        let center_point = Vector::new(25.0, 25.0);
+        for index in 0..=5 {
+            let index = index as f64;
+            let point = Vector::new(index * 10.0, index * 10.0);
+            assert_eq!(
+                linear_gradient.interpolate(&point, &center_point),
+                gradient.get(0.25)
+            );
+        }
+        let center_point = Vector::new(75.0, 75.0);
+        for index in 5..=10 {
+            let index = index as f64;
+            let point = Vector::new(index * 10.0, index * 10.0);
+            assert_eq!(
+                linear_gradient.interpolate(&point, &center_point),
+                gradient.get(0.75)
+            );
+        }
+    }
+    #[test]
+    fn interpolate_semi_step() {
+        let gradient = create_hsl_gradient();
+        let linear_gradient = LinearGradient::new(
+            gradient.clone(),
+            Vector::new(0.0, 0.0),
+            Vector::new(100.0, 100.0),
+            0.5,
+        );
+        let center_point = Vector::new(25.0, 25.0);
+        for index in 0..=5 {
+            let index = index as f64;
+            let point = Vector::new(index * 10.0, index * 10.0);
+            assert_eq!(
+                linear_gradient.interpolate(&point, &center_point),
+                gradient.get(0.125 + index / 20.0)
+            );
+        }
+        let center_point = Vector::new(75.0, 75.0);
+        for index in 5..=10 {
+            let index = index as f64;
+            let point = Vector::new(index * 10.0, index * 10.0);
+            assert_eq!(
+                linear_gradient.interpolate(&point, &center_point),
+                gradient.get(0.625 + (index - 5.0) / 20.0)
+            );
+        }
+    }
+    #[test]
+    fn interpolate_with_minimal_distance() {
+        let gradient = create_rgb_gradient();
+        let start_point = Vector::new(50.0, 50.0);
+        let end_point = Vector::new(51.0, 50.0);
+        let linear_gradient =
+            LinearGradient::new_smooth(gradient.clone(), start_point.clone(), end_point.clone());
+        assert_ne!(
+            linear_gradient.interpolate(&start_point, &start_point),
+            linear_gradient.interpolate(&end_point, &end_point)
+        );
+    }
+}
