@@ -89,3 +89,120 @@ where
         self.gradient.get(clamped_angle / (2.0 * consts::PI))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{super::tests, *};
+
+    #[test]
+    fn interpolate_smooth() {
+        let gradient = tests::create_rgb_gradient();
+        let conic_gradient = ConicGradient::new_smooth(
+            gradient.clone(),
+            Vector::new(100.0, 100.0),
+            consts::FRAC_PI_4,
+        );
+        let center_point = Vector::new(100.0, 150.0);
+        assert_eq!(
+            conic_gradient.interpolate(&Vector::new(150.0, 150.0), &center_point),
+            gradient.get(0.0)
+        );
+        assert_eq!(
+            conic_gradient.interpolate(&Vector::new(100.0, 150.0), &center_point),
+            gradient.get(0.125)
+        );
+        assert_eq!(
+            conic_gradient.interpolate(&Vector::new(50.0, 150.0), &center_point),
+            gradient.get(0.25)
+        );
+        let center_point = Vector::new(100.0, 50.0);
+        assert_eq!(
+            conic_gradient.interpolate(&Vector::new(50.0, 50.0), &center_point),
+            gradient.get(0.5)
+        );
+        assert_eq!(
+            conic_gradient.interpolate(&Vector::new(100.0, 50.0), &center_point),
+            gradient.get(0.625)
+        );
+        assert_eq!(
+            conic_gradient.interpolate(&Vector::new(150.0, 50.0), &center_point),
+            gradient.get(0.75)
+        );
+    }
+    #[test]
+    fn interpolate_step() {
+        let gradient = tests::create_lch_gradient();
+        let conic_gradient = ConicGradient::new_step(
+            gradient.clone(),
+            Vector::new(100.0, 100.0),
+            -consts::FRAC_PI_4,
+        );
+        let center_point = Vector::new(150.0, 150.0);
+        assert_eq!(
+            conic_gradient.interpolate(&Vector::new(150.0, 150.0), &center_point),
+            gradient.get(0.25)
+        );
+        assert_eq!(
+            conic_gradient.interpolate(&Vector::new(100.0, 150.0), &center_point),
+            gradient.get(0.25)
+        );
+        assert_eq!(
+            conic_gradient.interpolate(&Vector::new(50.0, 150.0), &center_point),
+            gradient.get(0.25)
+        );
+        let center_point = Vector::new(50.0, 50.0);
+        assert_eq!(
+            conic_gradient.interpolate(&Vector::new(50.0, 50.0), &center_point),
+            gradient.get(0.75)
+        );
+        assert_eq!(
+            conic_gradient.interpolate(&Vector::new(100.0, 50.0), &center_point),
+            gradient.get(0.75)
+        );
+        assert_eq!(
+            conic_gradient.interpolate(&Vector::new(150.0, 50.0), &center_point),
+            gradient.get(0.75)
+        );
+    }
+    #[test]
+    fn interpolate_semi_step() {
+        let gradient = tests::create_hsl_gradient();
+        let conic_gradient = ConicGradient::new(
+            gradient.clone(),
+            Vector::new(100.0, 100.0),
+            consts::FRAC_PI_4,
+            0.5,
+        );
+        let center_point = Vector::new(150.0, 100.0);
+        assert_eq!(
+            conic_gradient.interpolate(&Vector::new(100.0, 150.0), &center_point),
+            gradient.get(0.0)
+        );
+        assert_eq!(
+            conic_gradient.interpolate(&Vector::new(100.0, 50.0), &center_point),
+            gradient.get(0.75)
+        );
+        let center_point = Vector::new(50.0, 100.0);
+        assert_eq!(
+            conic_gradient.interpolate(&Vector::new(100.0, 150.0), &center_point),
+            gradient.get(0.25)
+        );
+        assert_eq!(
+            conic_gradient.interpolate(&Vector::new(100.0, 50.0), &center_point),
+            gradient.get(0.5)
+        );
+    }
+    #[test]
+    fn interpolate_at_center() {
+        let gradient = tests::create_lch_gradient();
+        let conic_gradient =
+            ConicGradient::new_smooth(gradient.clone(), Vector::new(100.0, 100.0), 0.0);
+        assert_eq!(
+            conic_gradient.interpolate(
+                &conic_gradient.center_point(),
+                &conic_gradient.center_point()
+            ),
+            gradient.get(0.0)
+        );
+    }
+}
