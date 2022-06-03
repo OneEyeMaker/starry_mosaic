@@ -4,6 +4,12 @@ use palette::{Gradient, IntoColor, LinSrgb, Mix, Shade};
 use super::{coloring_method::*, vector::Vector};
 
 pub trait Mosaic {
+    fn draw_single_colored<Color>(&self, color: Color) -> RgbImage
+    where
+        Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
+    {
+        self.draw(color)
+    }
     fn draw_linear_gradient<Color, ColorGradient>(
         &self,
         gradient: ColorGradient,

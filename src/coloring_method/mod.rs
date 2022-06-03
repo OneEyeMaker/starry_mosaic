@@ -9,6 +9,15 @@ where
     fn interpolate(&self, point: &Vector, center_point: &Vector) -> Color;
 }
 
+impl<Color> ColoringMethod<Color> for Color
+where
+    Color: Mix<Scalar = f64> + Clone,
+{
+    fn interpolate(&self, _point: &Vector, _center_point: &Vector) -> Color {
+        self.clone()
+    }
+}
+
 mod conic_gradient;
 mod linear_gradient;
 mod radial_gradient;
