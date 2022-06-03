@@ -2,6 +2,8 @@ use std::cmp::Ordering;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
+use voronoice::Point;
+
 use super::utility;
 
 #[derive(Clone, Default)]
@@ -77,6 +79,38 @@ impl From<(f64, f64)> for Vector {
         Self {
             x: tuple.0,
             y: tuple.1,
+        }
+    }
+}
+impl From<&Point> for Vector {
+    fn from(point: &Point) -> Self {
+        Self {
+            x: point.x,
+            y: point.y,
+        }
+    }
+}
+impl From<Point> for Vector {
+    fn from(point: Point) -> Self {
+        Self {
+            x: point.x,
+            y: point.y,
+        }
+    }
+}
+impl From<&Vector> for Point {
+    fn from(vector: &Vector) -> Self {
+        Self {
+            x: vector.x,
+            y: vector.y,
+        }
+    }
+}
+impl From<Vector> for Point {
+    fn from(vector: Vector) -> Self {
+        Self {
+            x: vector.x,
+            y: vector.y,
         }
     }
 }

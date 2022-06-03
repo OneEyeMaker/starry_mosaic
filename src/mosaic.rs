@@ -1,5 +1,5 @@
 use image::RgbImage;
-use palette::{Gradient, IntoColor, LinSrgb, Mix};
+use palette::{Gradient, IntoColor, LinSrgb, Mix, Shade};
 
 use super::{coloring_method::*, vector::Vector};
 
@@ -12,7 +12,7 @@ pub trait Mosaic {
         smoothness: f64,
     ) -> RgbImage
     where
-        Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Clone,
+        Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
         ColorGradient: Into<Gradient<Color>>,
     {
         self.draw(LinearGradient::new(
@@ -32,7 +32,7 @@ pub trait Mosaic {
         smoothness: f64,
     ) -> RgbImage
     where
-        Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Clone,
+        Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
         ColorGradient: Into<Gradient<Color>>,
     {
         self.draw(RadialGradient::new(
@@ -52,7 +52,7 @@ pub trait Mosaic {
         smoothness: f64,
     ) -> RgbImage
     where
-        Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Clone,
+        Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
         ColorGradient: Into<Gradient<Color>>,
     {
         self.draw(RadialGradient::new_simple(
@@ -67,7 +67,7 @@ pub trait Mosaic {
         smoothness: f64,
     ) -> RgbImage
     where
-        Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Clone,
+        Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
         ColorGradient: Into<Gradient<Color>>,
     {
         self.draw(ConicGradient::new(
@@ -79,6 +79,6 @@ pub trait Mosaic {
     }
     fn draw<Color, Method>(&self, coloring_method: Method) -> RgbImage
     where
-        Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Clone,
+        Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
         Method: ColoringMethod<Color>;
 }
