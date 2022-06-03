@@ -177,3 +177,200 @@ where
         self.gradient.get(interpolation_factor)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{super::tests, *};
+
+    #[test]
+    fn set_inner_center() {
+        let gradient = tests::create_rgb_gradient();
+        let mut radial_gradient = RadialGradient::new_smooth(
+            gradient,
+            Vector::new(150.0, 250.0),
+            50.0,
+            Vector::new(250.0, 250.0),
+            200.0,
+        );
+        radial_gradient.set_inner_center(Vector::new(50.0, 250.0));
+        assert!(radial_gradient.radius_difference > radial_gradient.direction.length());
+        assert!(radial_gradient.outer_radius() > 200.0);
+    }
+    #[test]
+    fn set_inner_radius() {
+        let gradient = tests::create_rgb_gradient();
+        let mut radial_gradient = RadialGradient::new_smooth(
+            gradient,
+            Vector::new(150.0, 250.0),
+            50.0,
+            Vector::new(250.0, 250.0),
+            200.0,
+        );
+        radial_gradient.set_inner_radius(150.0);
+        assert!(radial_gradient.radius_difference > radial_gradient.direction.length());
+        assert!(radial_gradient.outer_radius() > 200.0);
+    }
+    #[test]
+    fn set_outer_center() {
+        let gradient = tests::create_rgb_gradient();
+        let mut radial_gradient = RadialGradient::new_smooth(
+            gradient,
+            Vector::new(150.0, 250.0),
+            50.0,
+            Vector::new(250.0, 250.0),
+            200.0,
+        );
+        radial_gradient.set_outer_center(Vector::new(350.0, 250.0));
+        assert!(radial_gradient.radius_difference > radial_gradient.direction.length());
+        assert!(radial_gradient.outer_radius() > 200.0);
+    }
+    #[test]
+    fn set_outer_radius() {
+        let gradient = tests::create_rgb_gradient();
+        let mut radial_gradient = RadialGradient::new_smooth(
+            gradient,
+            Vector::new(150.0, 250.0),
+            50.0,
+            Vector::new(250.0, 250.0),
+            200.0,
+        );
+        radial_gradient.set_outer_radius(100.0);
+        assert!(radial_gradient.radius_difference > radial_gradient.direction.length());
+        assert!(radial_gradient.outer_radius() > 100.0);
+    }
+    #[test]
+    fn interpolate_smooth() {
+        let gradient = tests::create_rgb_gradient();
+        let radial_gradient = RadialGradient::new_smooth(
+            gradient.clone(),
+            Vector::new(250.0, 150.0),
+            50.0,
+            Vector::new(250.0, 250.0),
+            200.0,
+        );
+        let center_point = Vector::new(250.0, 325.0);
+        for index in 0..=5 {
+            let index = index as f64;
+            let point = Vector::new(250.0, 200.0 + index * 50.0);
+            assert_eq!(
+                radial_gradient.interpolate(&point, &center_point),
+                gradient.get(index / 5.0)
+            );
+        }
+        let center_point = Vector::new(250.0, 75.0);
+        for index in 0..=5 {
+            let index = index as f64;
+            let point = Vector::new(250.0, 100.0 - index * 10.0);
+            assert_eq!(
+                radial_gradient.interpolate(&point, &center_point),
+                gradient.get(index / 5.0)
+            );
+        }
+    }
+    #[test]
+    fn interpolate_step() {
+        let gradient = tests::create_lch_gradient();
+        let radial_gradient = RadialGradient::new_step(
+            gradient.clone(),
+            Vector::new(250.0, 150.0),
+            50.0,
+            Vector::new(250.0, 250.0),
+            200.0,
+        );
+        let center_point = Vector::new(250.0, 325.0);
+        for index in 0..=5 {
+            let index = index as f64;
+            let point = Vector::new(250.0, 200.0 + index * 50.0);
+            assert_eq!(
+                radial_gradient.interpolate(&point, &center_point),
+                gradient.get(0.5)
+            );
+        }
+        let center_point = Vector::new(250.0, 75.0);
+        for index in 0..=5 {
+            let index = index as f64;
+            let point = Vector::new(250.0, 100.0 - index * 10.0);
+            assert_eq!(
+                radial_gradient.interpolate(&point, &center_point),
+                gradient.get(0.5)
+            );
+        }
+    }
+    #[test]
+    fn interpolate_semi_step() {
+        let gradient = tests::create_hsl_gradient();
+        let radial_gradient = RadialGradient::new(
+            gradient.clone(),
+            Vector::new(250.0, 150.0),
+            50.0,
+            Vector::new(250.0, 250.0),
+            200.0,
+            0.5,
+        );
+        let center_point = Vector::new(250.0, 325.0);
+        for index in 0..=5 {
+            let index = index as f64;
+            let point = Vector::new(250.0, 200.0 + index * 50.0);
+            assert_eq!(
+                radial_gradient.interpolate(&point, &center_point),
+                gradient.get(0.25 + index / 10.0)
+            );
+        }
+        let center_point = Vector::new(250.0, 75.0);
+        for index in 0..=5 {
+            let index = index as f64;
+            let point = Vector::new(250.0, 100.0 - index * 10.0);
+            assert_eq!(
+                radial_gradient.interpolate(&point, &center_point),
+                gradient.get(0.25 + index / 10.0)
+            );
+        }
+    }
+    #[test]
+    fn interpolate_center_position() {
+        let gradient = tests::create_hsl_gradient();
+        let radial_gradient = RadialGradient::new_smooth(
+            gradient.clone(),
+            Vector::new(150.0, 250.0),
+            50.0,
+            Vector::new(250.0, 250.0),
+            200.0,
+        );
+        assert_eq!(
+            radial_gradient
+                .interpolate(&radial_gradient.inner_center, &radial_gradient.inner_center),
+            gradient.get(0.0)
+        );
+    }
+    #[test]
+    fn interpolate_edge_positions() {
+        let gradient = tests::create_lch_gradient();
+        let radial_gradient = RadialGradient::new_smooth(
+            gradient.clone(),
+            Vector::new(350.0, 250.0),
+            50.0,
+            Vector::new(250.0, 250.0),
+            200.0,
+        );
+        let point = Vector::new(0.0, 250.0);
+        assert_eq!(
+            radial_gradient.interpolate(&point, &radial_gradient.inner_center),
+            gradient.get(1.0)
+        );
+        let point = Vector::new(500.0, 250.0);
+        assert_eq!(
+            radial_gradient.interpolate(&point, &radial_gradient.inner_center),
+            gradient.get(1.0)
+        );
+        let point = Vector::new(250.0, 0.0);
+        assert_eq!(
+            radial_gradient.interpolate(&point, &radial_gradient.inner_center),
+            gradient.get(1.0)
+        );
+        let point = Vector::new(250.0, 500.0);
+        assert_eq!(
+            radial_gradient.interpolate(&point, &radial_gradient.inner_center),
+            gradient.get(1.0)
+        );
+    }
+}
