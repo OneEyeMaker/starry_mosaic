@@ -4,12 +4,19 @@ use voronoice::Voronoi;
 
 use super::{coloring_method::ColoringMethod, mosaic::Mosaic, vector::Vector};
 
+#[derive(Clone, Debug)]
 pub struct StarryMosaic {
     voronoi: Voronoi,
     image_size: (u32, u32),
 }
 
 impl StarryMosaic {
+    pub(crate) fn new(voronoi: Voronoi, image_size: (u32, u32)) -> Self {
+        Self {
+            voronoi,
+            image_size,
+        }
+    }
     fn calculate_maximum_cell_distances(&self) -> Vec<f64> {
         let mut maximum_cell_distances = vec![0.0f64; self.voronoi.cells().len()];
         self.voronoi.iter_cells().for_each(|cell| {

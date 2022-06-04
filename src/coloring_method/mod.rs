@@ -13,6 +13,7 @@ impl<Color> ColoringMethod<Color> for Color
 where
     Color: Mix<Scalar = f64> + Clone,
 {
+    #[inline(always)]
     fn interpolate(&self, _point: &Vector, _center_point: &Vector) -> Color {
         self.clone()
     }
