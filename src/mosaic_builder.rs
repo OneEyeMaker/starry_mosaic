@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::f64::consts;
 
-use voronoice::{BoundingBox, Point, Voronoi, VoronoiBuilder};
+use voronoice::{BoundingBox, Point, VoronoiBuilder};
 
 use super::{segment::Segment, starry_mosaic::StarryMosaic, vector::Vector};
 
@@ -16,6 +16,37 @@ pub struct MosaicBuilder {
 }
 
 impl MosaicBuilder {
+    pub fn set_image_size(&mut self, width: u32, height: u32) -> &mut Self {
+        self.image_size = (width.max(1), height.max(1));
+        self
+    }
+    pub fn set_points_count(&mut self, points_count: usize) -> &mut Self {
+        self.points_count = points_count.max(3);
+        self
+    }
+    pub fn set_center_point(&mut self, center_point: Vector) -> &mut Self {
+        self.center_point = Vector::new(
+            center_point.x.clamp(0.0, self.image_size.0 as f64),
+            center_point.y.clamp(0.0, self.image_size.1 as f64),
+        );
+        self
+    }
+    pub fn set_rotation_angle(&mut self, rotation_angle: f64) -> &mut Self {
+        self.rotation_angle = rotation_angle;
+        self
+    }
+    pub fn set_scale(&mut self, scale: f64) -> &mut Self {
+        self.scale = scale.max(0.001);
+        self
+    }
+    pub fn set_simple_pattern(&mut self) -> &mut Self {
+        self.is_complex_pattern = false;
+        self
+    }
+    pub fn set_complex_pattern(&mut self) -> &mut Self {
+        self.is_complex_pattern = true;
+        self
+    }
     pub fn build_starry(&self) -> Option<StarryMosaic> {
         let points = self.build_key_points();
         let image_size = (self.image_size.0 as f64, self.image_size.1 as f64);
