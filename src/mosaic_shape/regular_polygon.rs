@@ -13,6 +13,14 @@ impl RegularPolygon {
     }
 }
 
+impl Default for RegularPolygon {
+    fn default() -> Self {
+        Self {
+            corners_count: 8,
+        }
+    }
+}
+
 impl MosaicShape for RegularPolygon {
     fn set_up_points(
         &self,

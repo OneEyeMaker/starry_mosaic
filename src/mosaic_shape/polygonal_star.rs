@@ -7,6 +7,22 @@ pub struct PolygonalStar {
     corners_count: usize,
 }
 
+impl PolygonalStar {
+    pub fn new(corners_count: usize) -> Self {
+        Self {
+            corners_count: corners_count.max(3),
+        }
+    }
+}
+
+impl Default for PolygonalStar {
+    fn default() -> Self {
+        Self {
+            corners_count: 8,
+        }
+    }
+}
+
 impl MosaicShape for PolygonalStar {
     fn set_up_points(
         &self,
