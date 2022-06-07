@@ -48,3 +48,7 @@ pub trait PolygonalShape: MosaicShape {
         points
     }
 }
+
+mod regular_polygon;
+
+pub use regular_polygon::RegularPolygon;
