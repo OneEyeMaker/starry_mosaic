@@ -49,6 +49,8 @@ pub trait PolygonalShape: MosaicShape {
     }
 }
 
+mod polygonal_star;
 mod regular_polygon;
 
+pub use polygonal_star::PolygonalStar;
 pub use regular_polygon::RegularPolygon;
