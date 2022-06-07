@@ -26,7 +26,7 @@ pub trait MosaicShape {
 
 pub trait PolygonalShape: MosaicShape {
     fn corners_count(&self) -> usize;
-    fn set_up_points(
+    fn calculate_polygon_points(
         &self,
         image_size: (u32, u32),
         center_point: Vector,
