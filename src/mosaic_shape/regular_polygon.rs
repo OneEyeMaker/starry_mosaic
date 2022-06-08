@@ -1,23 +1,28 @@
-use super::{MosaicShape, PolygonalShape, Segment, Vector};
+use super::{helpers, MosaicShape, Segment, Vector};
 
 #[derive(Clone, Debug)]
 pub struct RegularPolygon {
-    corners_count: usize,
+    corners_count: u32,
 }
 
 impl RegularPolygon {
-    pub fn new(corners_count: usize) -> Self {
+    pub fn new(corners_count: u32) -> Self {
         Self {
             corners_count: corners_count.max(3),
         }
+    }
+    #[inline(always)]
+    pub fn corners_count(&self) -> u32 {
+        self.corners_count
+    }
+    pub fn set_corners_count(&mut self, corners_count: u32) {
+        self.corners_count = corners_count.max(3);
     }
 }
 
 impl Default for RegularPolygon {
     fn default() -> Self {
-        Self {
-            corners_count: 8,
-        }
+        Self { corners_count: 8 }
     }
 }
 
@@ -29,7 +34,8 @@ impl MosaicShape for RegularPolygon {
         rotation_angle: f64,
         scale: f64,
     ) -> Vec<Vector> {
-        self.calculate_polygon_points(image_size, center_point, rotation_angle, scale)
+        let radius = image_size.0.min(image_size.1) as f64 * scale;
+        helpers::set_up_polygon_points(self.corners_count, radius, center_point, rotation_angle)
     }
     fn connect_points(&self, shape_points: &Vec<Vector>) -> Vec<Segment> {
         let points_count = shape_points.len();
@@ -43,12 +49,5 @@ impl MosaicShape for RegularPolygon {
             }
         }
         segments
-    }
-}
-
-impl PolygonalShape for RegularPolygon {
-    #[inline(always)]
-    fn corners_count(&self) -> usize {
-        self.corners_count
     }
 }

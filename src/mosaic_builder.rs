@@ -27,7 +27,7 @@ impl MosaicBuilder {
     }
     pub fn set_shape<Shape>(&mut self, shape: Shape) -> &mut Self
     where
-        Shape: MosaicShape + 'static,
+        Shape: 'static + MosaicShape,
     {
         self.shape = Box::new(shape);
         self
