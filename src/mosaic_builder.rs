@@ -95,3 +95,55 @@ impl Default for MosaicBuilder {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::f64::consts;
+
+    use super::*;
+
+    #[test]
+    fn set_image_size() {
+        let mut builder = MosaicBuilder::default();
+        builder.set_image_size(320, 640);
+        assert_eq!(builder.image_size, (320, 640));
+    }
+    #[test]
+    fn set_incorrect_image_size() {
+        let mut builder = MosaicBuilder::default();
+        builder.set_image_size(0, 0);
+        assert!(builder.image_size.0 > 0);
+        assert!(builder.image_size.1 > 0);
+    }
+    #[test]
+    fn set_center_point() {
+        let mut builder = MosaicBuilder::default();
+        builder.set_center_point(Vector::new(320.0, 160.0));
+        assert_eq!(builder.center_point, Vector::new(320.0, 160.0));
+    }
+    #[test]
+    fn set_center_point_out_of_bounds() {
+        let mut builder = MosaicBuilder::default();
+        builder.set_center_point(Vector::new(-320.0, 10240.0));
+        assert_eq!(builder.center_point.x, 0.0);
+        assert_eq!(builder.center_point.y, builder.image_size.1 as f64);
+    }
+    #[test]
+    fn set_rotation() {
+        let mut builder = MosaicBuilder::default();
+        builder.set_rotation_angle(consts::FRAC_PI_4);
+        assert_eq!(builder.rotation_angle, consts::FRAC_PI_4);
+    }
+    #[test]
+    fn set_scale() {
+        let mut builder = MosaicBuilder::default();
+        builder.set_scale(1.25);
+        assert_eq!(builder.scale, 1.25);
+    }
+    #[test]
+    fn set_zero_scale() {
+        let mut builder = MosaicBuilder::default();
+        builder.set_scale(0.0);
+        assert!(builder.scale > 0.0);
+    }
+}
