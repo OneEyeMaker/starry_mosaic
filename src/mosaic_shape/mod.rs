@@ -1,6 +1,6 @@
 use super::{segment::Segment, vector::Vector};
 
-pub trait MosaicShape {
+pub trait MosaicShape: MosaicShapeBase {
     fn set_up_points(
         &self,
         image_size: (u32, u32),
@@ -19,6 +19,26 @@ pub trait MosaicShape {
             }
         }
         points
+    }
+}
+
+pub trait MosaicShapeBase {
+    fn clone_box(&self) -> Box<dyn MosaicShape>;
+}
+
+impl<T> MosaicShapeBase for T
+where
+    T: 'static + MosaicShape + Clone,
+{
+    fn clone_box(&self) -> Box<dyn MosaicShape> {
+        Box::new(self.clone())
+    }
+}
+
+impl Clone for Box<dyn MosaicShape> {
+    #[inline(always)]
+    fn clone(&self) -> Self {
+        self.clone_box()
     }
 }
 

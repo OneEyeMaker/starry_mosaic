@@ -8,6 +8,7 @@ use super::{
     vector::Vector,
 };
 
+#[derive(Clone)]
 pub struct MosaicBuilder {
     shape: Box<dyn MosaicShape>,
     image_size: (u32, u32),
@@ -17,11 +18,11 @@ pub struct MosaicBuilder {
 }
 
 impl MosaicBuilder {
-    pub fn set_regular_polygon_shape(&mut self, corners_count: usize) -> &mut Self {
+    pub fn set_regular_polygon_shape(&mut self, corners_count: u32) -> &mut Self {
         self.shape = Box::new(RegularPolygon::new(corners_count));
         self
     }
-    pub fn set_polygonal_star_shape(&mut self, corners_count: usize) -> &mut Self {
+    pub fn set_polygonal_star_shape(&mut self, corners_count: u32) -> &mut Self {
         self.shape = Box::new(PolygonalStar::new(corners_count));
         self
     }
