@@ -37,7 +37,7 @@ impl MosaicShape for PolygonalStar {
         scale: f64,
     ) -> Vec<Vector> {
         let corners_count = self.corners_count as f64;
-        let radius = image_size.0.min(image_size.1) as f64 * scale;
+        let radius = image_size.0.min(image_size.1) as f64 * 0.5 * scale;
         let inner_rotation_angle = rotation_angle + consts::PI / corners_count;
         let inner_radius = radius
             * (consts::PI * (corners_count * 0.5 - 2.0) / corners_count).sin()
