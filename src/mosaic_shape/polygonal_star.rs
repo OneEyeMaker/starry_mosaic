@@ -79,3 +79,90 @@ impl MosaicShape for PolygonalStar {
         segments
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn set_corners_count() {
+        let mut star = PolygonalStar::default();
+        star.set_corners_count(12);
+        assert_eq!(star.corners_count, 12);
+    }
+    #[test]
+    fn set_incorrect_corners_count() {
+        let mut star = PolygonalStar::default();
+        star.set_corners_count(1);
+        assert_eq!(star.corners_count, 3);
+    }
+    #[test]
+    fn set_up_points() {
+        let star = PolygonalStar::new(4);
+        let points = star.set_up_points(
+            (400, 400),
+            Vector::new(200.0, 200.0),
+            consts::FRAC_PI_4,
+            0.5,
+        );
+        assert_eq!(points.len(), 8);
+        for index in 0..4 {
+            let angle = consts::FRAC_PI_2 * index as f64;
+            assert_eq!(
+                points[index],
+                Vector::new(200.0 + 100.0 * angle.cos(), 200.0 + 100.0 * angle.sin())
+            );
+        }
+        for index in 4..8 {
+            assert_eq!(points[index], Vector::new(200.0, 200.0));
+        }
+    }
+    #[test]
+    fn connect_points() {
+        let star = PolygonalStar::new(4);
+        let points = star.set_up_points(
+            (400, 400),
+            Vector::new(200.0, 200.0),
+            consts::FRAC_PI_4,
+            0.5,
+        );
+        let segments = star.connect_points(&points);
+        let segment = Segment::from(((100.0, 200.0), (300.0, 200.0)));
+        assert!(segments.contains(&segment));
+        let segment = Segment::from(((200.0, 100.0), (200.0, 300.0)));
+        assert!(segments.contains(&segment));
+    }
+    #[test]
+    fn connect_points_of_hexagonal_star() {
+        let star = PolygonalStar::new(6);
+        let points = star.set_up_points(
+            (400, 400),
+            Vector::new(200.0, 200.0),
+            consts::FRAC_PI_3,
+            0.5,
+        );
+        let segments = star.connect_points(&points);
+        let segment = Segment::from(((100.0, 200.0), (250.0, 200.0 - 50.0 / 3.0f64.sqrt())));
+        assert!(segments.contains(&segment));
+        let segment = Segment::from(((100.0, 200.0), (250.0, 200.0 + 50.0 / 3.0f64.sqrt())));
+        assert!(segments.contains(&segment));
+        let segment = Segment::from(((100.0, 200.0), (300.0, 200.0)));
+        assert!(!segments.contains(&segment));
+    }
+    #[test]
+    fn intersect_segments_with_even_corners_count() {
+        let star = PolygonalStar::new(8);
+        let points = star.set_up_points((400, 400), Vector::new(200.0, 200.0), 0.0, 0.5);
+        let segments = star.connect_points(&points);
+        let intersections = star.intersect_segments(&segments);
+        assert!(!intersections.contains(&Vector::new(200.0, 200.0)));
+    }
+    #[test]
+    fn intersect_segments_with_odd_corners_count() {
+        let star = PolygonalStar::new(7);
+        let points = star.set_up_points((400, 400), Vector::new(200.0, 200.0), 0.0, 0.5);
+        let segments = star.connect_points(&points);
+        let intersections = star.intersect_segments(&segments);
+        assert!(intersections.contains(&Vector::new(200.0, 200.0)));
+    }
+}

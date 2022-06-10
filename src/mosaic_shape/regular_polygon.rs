@@ -105,16 +105,19 @@ mod tests {
         assert!(segments.contains(&segment));
     }
     #[test]
-    fn intersect_segments() {
+    fn intersect_segments_with_even_corners_count() {
         let polygon = RegularPolygon::new(8);
-        let points = polygon.set_up_points(
-            (400, 400),
-            Vector::new(200.0, 200.0),
-            consts::FRAC_PI_8,
-            0.5,
-        );
+        let points = polygon.set_up_points((400, 400), Vector::new(200.0, 200.0), 0.0, 0.5);
         let segments = polygon.connect_points(&points);
         let intersections = polygon.intersect_segments(&segments);
         assert!(intersections.contains(&Vector::new(200.0, 200.0)));
+    }
+    #[test]
+    fn intersect_segments_with_odd_corners_count() {
+        let polygon = RegularPolygon::new(9);
+        let points = polygon.set_up_points((400, 400), Vector::new(200.0, 200.0), 0.0, 0.5);
+        let segments = polygon.connect_points(&points);
+        let intersections = polygon.intersect_segments(&segments);
+        assert!(!intersections.contains(&Vector::new(200.0, 200.0)));
     }
 }
