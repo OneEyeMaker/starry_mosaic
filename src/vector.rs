@@ -6,6 +6,45 @@ use voronoice::Point;
 
 use super::utility;
 
+/// Represents 2D vector.
+///
+/// Also represents 2D point because a point is result of moving origin by vector
+/// and so has similar properties.
+///
+/// # Features
+///
+/// ## Vector math
+///
+/// This type provides implementation for different mathematical operations with vectors.
+///
+/// ```
+/// use starry_mosaic::Vector;
+///
+/// let first_vector = Vector::new(1.0, -4.0);
+/// let second_vector = Vector::new(3.0, 5.0);
+/// let sum = &first_vector + &second_vector;
+///
+/// assert_eq!(sum, Vector::new(4.0, 1.0));
+/// assert_eq!(&sum - &first_vector, second_vector);
+///
+/// let scaled_sum = 4.0 * &sum;
+///
+/// assert_eq!(scaled_sum, Vector::new(16.0, 4.0));
+/// assert_eq!(&scaled_sum / 4.0, sum);
+/// ```
+///
+/// ## Comparison of almost identical vectors
+///
+/// Comparison of vectors takes into account the error of floating point calculations.
+///
+/// ```
+/// use starry_mosaic::Vector;
+///
+/// let vector = Vector::new(5.0, 2.5);
+/// let similar_vector = Vector::new(5.0 + f64::EPSILON * 4.0, 2.5 - f64::EPSILON * 2.0);
+///
+/// assert_eq!(vector, similar_vector);
+/// ```
 #[derive(Clone, Default)]
 pub struct Vector {
     pub x: f64,
@@ -13,27 +52,87 @@ pub struct Vector {
 }
 
 impl Vector {
+    /// Builds 2D vector from its coordinates.
     #[inline(always)]
     pub fn new(x: f64, y: f64) -> Self {
-        Vector {
-            x,
-            y,
-        }
+        Vector { x, y }
     }
+
+    /// Calculates squared length (squared magnitude) of vector.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::Vector;
+    ///
+    /// let vector = Vector::new(3.0, 4.0);
+    ///
+    /// assert_eq!(vector.squared_length(), 25.0);
+    /// ```
     pub fn squared_length(&self) -> f64 {
         self.x * self.x + self.y * self.y
     }
+
+    /// Calculates length (magnitude) of vector.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::Vector;
+    ///
+    /// let vector = Vector::new(3.0, 4.0);
+    ///
+    /// assert_eq!(vector.length(), 5.0);
+    /// ```
     pub fn length(&self) -> f64 {
         self.squared_length().sqrt()
     }
+
+    /// Finds squared distance from this to another point.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::Vector;
+    ///
+    /// let start_point = Vector::new(-1.0, 7.0);
+    /// let end_point = Vector::new(4.0, -5.0);
+    ///
+    /// assert_eq!(start_point.squared_distance_to(&end_point), 169.0);
+    /// ```
     #[inline(always)]
     pub fn squared_distance_to(&self, vector: &Vector) -> f64 {
         (self - vector).squared_length()
     }
+
+    /// Finds distance from this to another point.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::Vector;
+    ///
+    /// let start_point = Vector::new(6.0, -7.0);
+    /// let end_point = Vector::new(1.0, 5.0);
+    ///
+    /// assert_eq!(start_point.distance_to(&end_point), 13.0);
+    /// ```
     #[inline(always)]
     pub fn distance_to(&self, vector: &Vector) -> f64 {
         (self - vector).length()
     }
+
+    /// Creates normalized vector (one with same direction and magnitude of 1).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::Vector;
+    ///
+    /// let vector = Vector::new(8.0, 6.0);
+    ///
+    /// assert_eq!(vector.get_normalized(), Vector::new(0.8, 0.6));
+    /// ```
     pub fn get_normalized(&self) -> Self {
         let length = self.length();
         Self {
@@ -41,12 +140,55 @@ impl Vector {
             y: self.y / length,
         }
     }
+
+    /// Computes dot product between two vectors.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::Vector;
+    ///
+    /// let first_vector = Vector::new(2.5, -3.0);
+    /// let second_vector = Vector::new(-4.0, 7.0);
+    ///
+    /// assert_eq!(first_vector.dot(&second_vector), -31.0);
+    /// assert_eq!(first_vector.dot(&second_vector), second_vector.dot(&first_vector));
+    /// ```
     pub fn dot(&self, vector: &Self) -> f64 {
         self.x * vector.x + self.y * vector.y
     }
+
+    /// Computes difference between products of opposite coordinates of two vectors.
+    ///
+    /// Named so because algorithm is similar to one of cross product of 3D vectors.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::Vector;
+    ///
+    /// let source_vector = Vector::new(2.0, -4.5);
+    /// let target_vector = Vector::new(-1.5, 3.0);
+    ///
+    /// assert_eq!(source_vector.cross(&target_vector), 0.75);
+    /// ```
     pub fn cross(&self, vector: &Self) -> f64 {
         self.y * vector.x - self.x * vector.y
     }
+
+    /// Calculates linear interpolation between two vectors or points.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::Vector;
+    ///
+    /// let start_point = Vector::new(-2.0, 3.0);
+    /// let end_point = Vector::new(7.0, -1.0);
+    /// let interpolated_point = start_point.interpolate(&end_point, 0.4);
+    ///
+    /// assert_eq!(interpolated_point, Vector::new(1.6, 1.4));
+    /// ```
     pub fn interpolate(&self, vector: &Self, factor: f64) -> Self {
         Self {
             x: self.x + (vector.x - self.x) * factor,
