@@ -1,6 +1,6 @@
 use palette::{Gradient, Mix};
 
-use super::{ColoringMethod, Vector};
+use super::{super::utility, ColoringMethod, Vector};
 
 #[derive(Clone, Debug)]
 pub struct LinearGradient<Color>
@@ -27,19 +27,17 @@ where
     where
         ColorGradient: Into<Gradient<Color>>,
     {
-        let direction = if start_point != end_point {
-            &end_point - &start_point
-        } else {
-            Vector::new(1.0, 0.0)
-        };
+        let direction = &end_point - &start_point;
         let direction_squared_length = direction.squared_length();
-        Self {
+        let mut linear_gradient = Self {
             gradient: gradient.into(),
             start_point,
             direction,
             direction_squared_length,
             smoothness: smoothness.clamp(0.0, 1.0),
-        }
+        };
+        linear_gradient.set_end_point(end_point);
+        linear_gradient
     }
     #[inline(always)]
     pub fn new_smooth<ColorGradient>(
@@ -88,7 +86,7 @@ where
         self.direction = if self.start_point != end_point {
             &end_point - &self.start_point
         } else {
-            Vector::new(1.0, 0.0)
+            Vector::new(utility::EPSILON * 2.0, 0.0)
         };
         self.direction_squared_length = self.direction.squared_length();
     }

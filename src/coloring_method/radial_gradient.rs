@@ -1,6 +1,6 @@
 use palette::{Gradient, Mix};
 
-use super::{ColoringMethod, Vector};
+use super::{super::utility, ColoringMethod, Vector};
 
 #[derive(Clone, Debug)]
 pub struct RadialGradient<Color>
@@ -158,7 +158,9 @@ where
     }
     #[inline(always)]
     fn fit_inner_circle_into_outer(&mut self) {
-        self.radius_difference = self.radius_difference.max(self.direction.length() + 1.0);
+        self.radius_difference = self
+            .radius_difference
+            .max(self.direction.length() + utility::EPSILON * 2.0);
     }
 }
 
