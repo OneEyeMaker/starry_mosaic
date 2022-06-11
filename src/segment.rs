@@ -2,26 +2,86 @@ use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 
 use super::{utility, vector::Vector};
 
+/// Represents 2D line segment.
+///
+/// # Examples
+///
+/// Order of points that bound line segment does *__not__* matter.
+///
+/// ```
+/// use starry_mosaic::{Segment, Vector};
+///
+/// let start_point = Vector::new(6.4, -2.3);
+/// let end_point = Vector::new(1.7, 7.8);
+///
+/// let segment = Segment::new(start_point.clone(), end_point.clone());
+/// let inverse_segment = Segment::new(end_point.clone(), start_point.clone());
+///
+/// assert_eq!(segment, inverse_segment);
+/// ```
 #[derive(Clone, Default)]
 pub struct Segment {
+    /// [Point][`Vector`] that is the boundary of line segment.
     pub start: Vector,
+
+    /// [Point][`Vector`] that is the boundary of line segment.
     pub end: Vector,
 }
 
 impl Segment {
+    /// Build line segment from two points bounding it.
+    ///
+    /// Note that order of points does *__not__* matter.
     #[inline(always)]
     pub fn new(start: Vector, end: Vector) -> Self {
-        Segment {
-            start,
-            end,
-        }
+        Segment { start, end }
     }
+
+    /// Calculates squared length of line segment.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::{Segment, Vector};
+    ///
+    /// let segment = Segment::new(Vector::new(2.0, -7.0), Vector::new(7.0, 5.0));
+    ///
+    /// assert_eq!(segment.squared_length(), 169.0);
+    /// ```
     pub fn squared_length(&self) -> f64 {
         self.start.squared_distance_to(&self.end)
     }
+
+    /// Calculates length of line segment.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::{Segment, Vector};
+    ///
+    /// let segment = Segment::new(Vector::new(-2.0, 6.0), Vector::new(10.0, 1.0));
+    ///
+    /// assert_eq!(segment.length(), 13.0);
+    /// ```
     pub fn length(&self) -> f64 {
         self.start.distance_to(&self.end)
     }
+
+    /// Computes point of intersection of this line segment with another one, if such point exists.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::{Segment, Vector};
+    ///
+    /// let first_segment = Segment::new(Vector::new(-2.0, 2.0), Vector::new(3.5, -3.5));
+    /// let second_segment = Segment::new(Vector::new(-3.0, -1.5), Vector::new(6.0, 3.0));
+    /// let intersection = first_segment.intersect(&second_segment);
+    ///
+    /// assert!(intersection.is_some());
+    /// let point = intersection.unwrap();
+    /// assert_eq!(point, Vector::new(0.0, 0.0));
+    /// ```
     pub fn intersect(&self, segment: &Self) -> Option<Vector> {
         let self_vector = &self.end - &self.start;
         let segment_vector = &segment.end - &segment.start;

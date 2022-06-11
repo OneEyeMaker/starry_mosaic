@@ -11,9 +11,7 @@ use super::utility;
 /// Also represents 2D point because a point is result of moving origin by vector
 /// and so has similar properties.
 ///
-/// # Features
-///
-/// ## Vector math
+/// # Examples
 ///
 /// This type provides implementation for different mathematical operations with vectors.
 ///
@@ -33,8 +31,6 @@ use super::utility;
 /// assert_eq!(&scaled_sum / 4.0, sum);
 /// ```
 ///
-/// ## Comparison of almost identical vectors
-///
 /// Comparison of vectors takes into account the error of floating point calculations.
 ///
 /// ```
@@ -47,7 +43,10 @@ use super::utility;
 /// ```
 #[derive(Clone, Default)]
 pub struct Vector {
+    /// X coordinate (abscissa) of vector.
     pub x: f64,
+
+    /// Y coordinate (ordinate) of vector.
     pub y: f64,
 }
 
