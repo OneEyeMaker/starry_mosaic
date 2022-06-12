@@ -18,41 +18,41 @@ pub struct MosaicBuilder {
 }
 
 impl MosaicBuilder {
-    pub fn set_regular_polygon_shape(&mut self, corners_count: u32) -> &mut Self {
+    pub fn set_regular_polygon_shape(mut self, corners_count: u32) -> Self {
         self.shape = Box::new(RegularPolygon::new(corners_count));
         self
     }
-    pub fn set_polygonal_star_shape(&mut self, corners_count: u32) -> &mut Self {
+    pub fn set_polygonal_star_shape(mut self, corners_count: u32) -> Self {
         self.shape = Box::new(PolygonalStar::new(corners_count));
         self
     }
-    pub fn set_shape<Shape>(&mut self, shape: Shape) -> &mut Self
+    pub fn set_shape<Shape>(mut self, shape: Shape) -> Self
     where
         Shape: 'static + MosaicShape,
     {
         self.shape = Box::new(shape);
         self
     }
-    pub fn set_image_size(&mut self, width: u32, height: u32) -> &mut Self {
+    pub fn set_image_size(mut self, width: u32, height: u32) -> Self {
         self.image_size = (width.max(1), height.max(1));
         self
     }
-    pub fn set_center_point(&mut self, center_point: Vector) -> &mut Self {
+    pub fn set_center_point(mut self, center_point: Vector) -> Self {
         self.center_point = Vector::new(
             center_point.x.clamp(0.0, self.image_size.0 as f64),
             center_point.y.clamp(0.0, self.image_size.1 as f64),
         );
         self
     }
-    pub fn set_rotation_angle(&mut self, rotation_angle: f64) -> &mut Self {
+    pub fn set_rotation_angle(mut self, rotation_angle: f64) -> Self {
         self.rotation_angle = rotation_angle;
         self
     }
-    pub fn set_scale(&mut self, scale: f64) -> &mut Self {
+    pub fn set_scale(mut self, scale: f64) -> Self {
         self.scale = scale.max(0.001);
         self
     }
-    pub fn build_starry(&self) -> Option<StarryMosaic> {
+    pub fn build_starry(self) -> Option<StarryMosaic> {
         let points = self.build_shape();
         let image_size = (self.image_size.0 as f64, self.image_size.1 as f64);
         let center = Point {
@@ -104,46 +104,39 @@ mod tests {
 
     #[test]
     fn set_image_size() {
-        let mut builder = MosaicBuilder::default();
-        builder.set_image_size(320, 640);
+        let builder = MosaicBuilder::default().set_image_size(320, 640);
         assert_eq!(builder.image_size, (320, 640));
     }
     #[test]
     fn set_incorrect_image_size() {
-        let mut builder = MosaicBuilder::default();
-        builder.set_image_size(0, 0);
+        let builder = MosaicBuilder::default().set_image_size(0, 0);
         assert!(builder.image_size.0 > 0);
         assert!(builder.image_size.1 > 0);
     }
     #[test]
     fn set_center_point() {
-        let mut builder = MosaicBuilder::default();
-        builder.set_center_point(Vector::new(320.0, 160.0));
+        let builder = MosaicBuilder::default().set_center_point(Vector::new(320.0, 160.0));
         assert_eq!(builder.center_point, Vector::new(320.0, 160.0));
     }
     #[test]
     fn set_center_point_out_of_bounds() {
-        let mut builder = MosaicBuilder::default();
-        builder.set_center_point(Vector::new(-320.0, 10240.0));
+        let builder = MosaicBuilder::default().set_center_point(Vector::new(-320.0, 10240.0));
         assert_eq!(builder.center_point.x, 0.0);
         assert_eq!(builder.center_point.y, builder.image_size.1 as f64);
     }
     #[test]
     fn set_rotation() {
-        let mut builder = MosaicBuilder::default();
-        builder.set_rotation_angle(consts::FRAC_PI_4);
+        let builder = MosaicBuilder::default().set_rotation_angle(consts::FRAC_PI_4);
         assert_eq!(builder.rotation_angle, consts::FRAC_PI_4);
     }
     #[test]
     fn set_scale() {
-        let mut builder = MosaicBuilder::default();
-        builder.set_scale(1.25);
+        let builder = MosaicBuilder::default().set_scale(1.25);
         assert_eq!(builder.scale, 1.25);
     }
     #[test]
     fn set_zero_scale() {
-        let mut builder = MosaicBuilder::default();
-        builder.set_scale(0.0);
+        let builder = MosaicBuilder::default().set_scale(0.0);
         assert!(builder.scale > 0.0);
     }
 }
