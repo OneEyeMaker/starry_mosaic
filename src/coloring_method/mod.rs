@@ -2,10 +2,72 @@ use palette::Mix;
 
 use super::vector::Vector;
 
+/// Defines color of every pixel of every piece of mosaic image.
+///
+/// `ColoringMethod` generates color depending on position of pixel that is currently being drawn
+/// and position of the key point of mosaic fragment.
+///
+/// # Examples
+///
+/// Next implementation paints every mosaic fragment in checkerboard pattern.
+///
+/// ```
+/// use palette::{LinSrgb, Mix};
+/// use starry_mosaic::{coloring_method::ColoringMethod, Vector};
+///
+/// struct CheckerboardPattern<Color>
+/// where
+///     Color: Mix<Scalar = f64> + Clone,
+/// {
+///     primary: Color,
+///     secondary: Color,
+/// }
+/// impl<Color> ColoringMethod<Color> for CheckerboardPattern<Color>
+/// where
+///     Color: Mix<Scalar = f64> + Clone,
+/// {
+///     fn interpolate(&self, point: &Vector, key_point: &Vector) -> Color {
+///         if (point.x < key_point.x) == (point.y < key_point.y) {
+///             self.primary.clone()
+///         } else {
+///             self.secondary.clone()
+///         }
+///     }
+/// }
+///
+/// fn main() {
+///     let pattern = CheckerboardPattern {
+///         primary: LinSrgb::new(1.0f64, 1.0, 0.0),
+///         secondary: LinSrgb::new(0.0f64, 0.0, 1.0),
+///     };
+///     let key_point = Vector::new(100.0, 100.0);
+///     assert_eq!(
+///         pattern.interpolate(&Vector::new(50.0, 50.0), &key_point),
+///         pattern.primary,
+///     );
+///     assert_eq!(
+///         pattern.interpolate(&Vector::new(50.0, 150.0), &key_point),
+///         pattern.secondary,
+///     );
+///     assert_eq!(
+///         pattern.interpolate(&Vector::new(150.0, 50.0), &key_point),
+///         pattern.secondary,
+///     );
+///     assert_eq!(
+///         pattern.interpolate(&Vector::new(150.0, 150.0), &key_point),
+///         pattern.primary,
+///     );
+/// }
+/// ```
 pub trait ColoringMethod<Color>
 where
     Color: Mix<Scalar = f64> + Clone,
 {
+    /// Defines color of current pixel by interpolating between its position and
+    /// position of the key point of mosaic fragment.
+    ///
+    /// * `point`: position of pixel that is currently being drawn.
+    /// * `key_point`: position of key point of current mosaic fragment.
     fn interpolate(&self, point: &Vector, key_point: &Vector) -> Color;
 }
 
