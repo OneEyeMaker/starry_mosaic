@@ -168,8 +168,8 @@ impl<Color> ColoringMethod<Color> for RadialGradient<Color>
 where
     Color: Mix<Scalar = f64> + Clone,
 {
-    fn interpolate(&self, point: &Vector, center_point: &Vector) -> Color {
-        let smoothed_point = center_point.interpolate(point, self.smoothness);
+    fn interpolate(&self, point: &Vector, key_point: &Vector) -> Color {
+        let smoothed_point = key_point.interpolate(point, self.smoothness);
         let point_vector = &smoothed_point - &self.inner_center;
         let alpha = self.direction_squared_length - self.radius_difference.powi(2);
         let beta = point_vector.dot(&self.direction) + self.inner_radius * self.radius_difference;
@@ -250,21 +250,21 @@ mod tests {
             Vector::new(250.0, 250.0),
             200.0,
         );
-        let center_point = Vector::new(250.0, 325.0);
+        let key_point = Vector::new(250.0, 325.0);
         for index in 0..=5 {
             let index = index as f64;
             let point = Vector::new(250.0, 200.0 + index * 50.0);
             assert_eq!(
-                radial_gradient.interpolate(&point, &center_point),
+                radial_gradient.interpolate(&point, &key_point),
                 gradient.get(index / 5.0)
             );
         }
-        let center_point = Vector::new(250.0, 75.0);
+        let key_point = Vector::new(250.0, 75.0);
         for index in 0..=5 {
             let index = index as f64;
             let point = Vector::new(250.0, 100.0 - index * 10.0);
             assert_eq!(
-                radial_gradient.interpolate(&point, &center_point),
+                radial_gradient.interpolate(&point, &key_point),
                 gradient.get(index / 5.0)
             );
         }
@@ -279,21 +279,21 @@ mod tests {
             Vector::new(250.0, 250.0),
             200.0,
         );
-        let center_point = Vector::new(250.0, 325.0);
+        let key_point = Vector::new(250.0, 325.0);
         for index in 0..=5 {
             let index = index as f64;
             let point = Vector::new(250.0, 200.0 + index * 50.0);
             assert_eq!(
-                radial_gradient.interpolate(&point, &center_point),
+                radial_gradient.interpolate(&point, &key_point),
                 gradient.get(0.5)
             );
         }
-        let center_point = Vector::new(250.0, 75.0);
+        let key_point = Vector::new(250.0, 75.0);
         for index in 0..=5 {
             let index = index as f64;
             let point = Vector::new(250.0, 100.0 - index * 10.0);
             assert_eq!(
-                radial_gradient.interpolate(&point, &center_point),
+                radial_gradient.interpolate(&point, &key_point),
                 gradient.get(0.5)
             );
         }
@@ -309,21 +309,21 @@ mod tests {
             200.0,
             0.5,
         );
-        let center_point = Vector::new(250.0, 325.0);
+        let key_point = Vector::new(250.0, 325.0);
         for index in 0..=5 {
             let index = index as f64;
             let point = Vector::new(250.0, 200.0 + index * 50.0);
             assert_eq!(
-                radial_gradient.interpolate(&point, &center_point),
+                radial_gradient.interpolate(&point, &key_point),
                 gradient.get(0.25 + index / 10.0)
             );
         }
-        let center_point = Vector::new(250.0, 75.0);
+        let key_point = Vector::new(250.0, 75.0);
         for index in 0..=5 {
             let index = index as f64;
             let point = Vector::new(250.0, 100.0 - index * 10.0);
             assert_eq!(
-                radial_gradient.interpolate(&point, &center_point),
+                radial_gradient.interpolate(&point, &key_point),
                 gradient.get(0.25 + index / 10.0)
             );
         }
