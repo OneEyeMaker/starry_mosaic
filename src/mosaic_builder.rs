@@ -3,6 +3,7 @@ use std::cmp::Ordering;
 use voronoice::{BoundingBox, Point, VoronoiBuilder};
 
 use super::{
+    mosaic::Mosaic,
     mosaic_shape::{MosaicShape, PolygonalStar, RegularPolygon},
     starry_mosaic::StarryMosaic,
     vector::Vector,
@@ -99,6 +100,21 @@ impl Default for MosaicBuilder {
             center_point: Vector::new(200.0, 200.0),
             rotation_angle: 0.0,
             scale: 0.75,
+        }
+    }
+}
+
+impl<MosaicImage> From<&MosaicImage> for MosaicBuilder
+where
+    MosaicImage: Mosaic,
+{
+    fn from(mosaic: &MosaicImage) -> Self {
+        Self {
+            shape: mosaic.shape(),
+            image_size: mosaic.image_size(),
+            center_point: mosaic.center(),
+            rotation_angle: mosaic.rotation_angle(),
+            scale: mosaic.scale(),
         }
     }
 }
