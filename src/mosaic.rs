@@ -156,7 +156,7 @@ pub trait Mosaic {
     fn draw_conic_gradient<Color, ColorGradient>(
         &self,
         gradient: ColorGradient,
-        center_point: Vector,
+        center: Vector,
         angle: f64,
         smoothness: f64,
     ) -> RgbImage
@@ -164,36 +164,31 @@ pub trait Mosaic {
         Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
         ColorGradient: Into<Gradient<Color>>,
     {
-        self.draw(ConicGradient::new(
-            gradient,
-            center_point,
-            angle,
-            smoothness,
-        ))
+        self.draw(ConicGradient::new(gradient, center, angle, smoothness))
     }
     fn draw_conic_smooth_gradient<Color, ColorGradient>(
         &self,
         gradient: ColorGradient,
-        center_point: Vector,
+        center: Vector,
         angle: f64,
     ) -> RgbImage
     where
         Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
         ColorGradient: Into<Gradient<Color>>,
     {
-        self.draw(ConicGradient::new_smooth(gradient, center_point, angle))
+        self.draw(ConicGradient::new_smooth(gradient, center, angle))
     }
     fn draw_conic_step_gradient<Color, ColorGradient>(
         &self,
         gradient: ColorGradient,
-        center_point: Vector,
+        center: Vector,
         angle: f64,
     ) -> RgbImage
     where
         Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
         ColorGradient: Into<Gradient<Color>>,
     {
-        self.draw(ConicGradient::new_step(gradient, center_point, angle))
+        self.draw(ConicGradient::new_step(gradient, center, angle))
     }
     fn draw<Color, Method>(&self, coloring_method: Method) -> RgbImage
     where
