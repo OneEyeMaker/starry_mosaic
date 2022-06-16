@@ -1,20 +1,22 @@
 use image::RgbImage;
 use palette::{IntoColor, LinSrgb, Mix, Shade};
 
-use super::coloring_method::*;
+use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 
 pub trait Mosaic {
     fn draw<Color, Method>(&self, coloring_method: Method) -> RgbImage
     where
         Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
         Method: ColoringMethod<Color>;
+    fn image_size(&self) -> (u32, u32);
+    fn center(&self) -> Vector;
+    fn rotation_angle(&self) -> f64;
+    fn scale(&self) -> f64;
+    fn shape(&self) -> Box<dyn MosaicShape>;
 }
 
 #[cfg(feature = "mosaic_with_preset_coloring")]
 use palette::Gradient;
-
-#[cfg(feature = "mosaic_with_preset_coloring")]
-use super::vector::Vector;
 
 #[cfg(feature = "mosaic_with_preset_coloring")]
 pub trait MosaicWithPresetColoring: Mosaic {

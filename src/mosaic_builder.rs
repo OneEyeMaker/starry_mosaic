@@ -64,7 +64,14 @@ impl MosaicBuilder {
             .set_sites(points)
             .build();
         match voronoi {
-            Some(voronoi) => Some(StarryMosaic::new(voronoi, self.image_size)),
+            Some(voronoi) => Some(StarryMosaic::new(
+                voronoi,
+                self.image_size,
+                self.center_point,
+                self.rotation_angle,
+                self.scale,
+                self.shape,
+            )),
             None => None,
         }
     }
