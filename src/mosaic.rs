@@ -4,6 +4,13 @@ use palette::{Gradient, IntoColor, LinSrgb, Mix, Shade};
 use super::{coloring_method::*, vector::Vector};
 
 pub trait Mosaic {
+    fn draw<Color, Method>(&self, coloring_method: Method) -> RgbImage
+    where
+        Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
+        Method: ColoringMethod<Color>;
+}
+
+pub trait MosaicWithPresetColoring: Mosaic {
     fn draw_single_colored<Color>(&self, color: Color) -> RgbImage
     where
         Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
@@ -190,8 +197,4 @@ pub trait Mosaic {
     {
         self.draw(ConicGradient::new_step(gradient, center, angle))
     }
-    fn draw<Color, Method>(&self, coloring_method: Method) -> RgbImage
-    where
-        Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
-        Method: ColoringMethod<Color>;
 }
