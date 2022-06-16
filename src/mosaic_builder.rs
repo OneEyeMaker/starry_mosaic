@@ -13,7 +13,7 @@ use super::{
 pub struct MosaicBuilder {
     shape: Box<dyn MosaicShape>,
     image_size: (u32, u32),
-    center_point: Vector,
+    center: Vector,
     rotation_angle: f64,
     scale: f64,
 }
@@ -38,10 +38,10 @@ impl MosaicBuilder {
         self.image_size = (width.max(1), height.max(1));
         self
     }
-    pub fn set_center_point(mut self, center_point: Vector) -> Self {
-        self.center_point = Vector::new(
-            center_point.x.clamp(0.0, self.image_size.0 as f64),
-            center_point.y.clamp(0.0, self.image_size.1 as f64),
+    pub fn set_center(mut self, center: Vector) -> Self {
+        self.center = Vector::new(
+            center.x.clamp(0.0, self.image_size.0 as f64),
+            center.y.clamp(0.0, self.image_size.1 as f64),
         );
         self
     }
@@ -68,7 +68,7 @@ impl MosaicBuilder {
             Some(voronoi) => Some(StarryMosaic::new(
                 voronoi,
                 self.image_size,
-                self.center_point,
+                self.center,
                 self.rotation_angle,
                 self.scale,
                 self.shape,
@@ -79,7 +79,7 @@ impl MosaicBuilder {
     fn build_shape(&self) -> Vec<Point> {
         let mut initial_points = self.shape.set_up_points(
             self.image_size,
-            self.center_point.clone(),
+            self.center.clone(),
             self.rotation_angle,
             self.scale,
         );
@@ -97,7 +97,7 @@ impl Default for MosaicBuilder {
         Self {
             shape: Box::new(RegularPolygon::default()),
             image_size: (400, 400),
-            center_point: Vector::new(200.0, 200.0),
+            center: Vector::new(200.0, 200.0),
             rotation_angle: 0.0,
             scale: 0.75,
         }
@@ -112,7 +112,7 @@ where
         Self {
             shape: mosaic.shape(),
             image_size: mosaic.image_size(),
-            center_point: mosaic.center(),
+            center: mosaic.center(),
             rotation_angle: mosaic.rotation_angle(),
             scale: mosaic.scale(),
         }
@@ -137,15 +137,15 @@ mod tests {
         assert!(builder.image_size.1 > 0);
     }
     #[test]
-    fn set_center_point() {
-        let builder = MosaicBuilder::default().set_center_point(Vector::new(320.0, 160.0));
-        assert_eq!(builder.center_point, Vector::new(320.0, 160.0));
+    fn set_center() {
+        let builder = MosaicBuilder::default().set_center(Vector::new(320.0, 160.0));
+        assert_eq!(builder.center, Vector::new(320.0, 160.0));
     }
     #[test]
-    fn set_center_point_out_of_bounds() {
-        let builder = MosaicBuilder::default().set_center_point(Vector::new(-320.0, 10240.0));
-        assert_eq!(builder.center_point.x, 0.0);
-        assert_eq!(builder.center_point.y, builder.image_size.1 as f64);
+    fn set_center_out_of_bounds() {
+        let builder = MosaicBuilder::default().set_center(Vector::new(-320.0, 10240.0));
+        assert_eq!(builder.center.x, 0.0);
+        assert_eq!(builder.center.y, builder.image_size.1 as f64);
     }
     #[test]
     fn set_rotation() {
