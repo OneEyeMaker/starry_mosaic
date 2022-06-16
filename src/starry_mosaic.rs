@@ -2,19 +2,36 @@ use image::{Rgb, RgbImage};
 use palette::{IntoColor, LinSrgb, Mix, Pixel, Shade};
 use voronoice::Voronoi;
 
-use super::{coloring_method::ColoringMethod, mosaic::Mosaic, vector::Vector};
+use super::{
+    coloring_method::ColoringMethod, mosaic::Mosaic, mosaic_shape::MosaicShape, vector::Vector,
+};
 
 #[derive(Clone, Debug)]
 pub struct StarryMosaic {
     voronoi: Voronoi,
     image_size: (u32, u32),
+    center: Vector,
+    rotation_angle: f64,
+    scale: f64,
+    shape: Box<dyn MosaicShape>,
 }
 
 impl StarryMosaic {
-    pub(crate) fn new(voronoi: Voronoi, image_size: (u32, u32)) -> Self {
+    pub(crate) fn new(
+        voronoi: Voronoi,
+        image_size: (u32, u32),
+        center: Vector,
+        rotation_angle: f64,
+        scale: f64,
+        shape: Box<dyn MosaicShape>,
+    ) -> Self {
         Self {
             voronoi,
             image_size,
+            center,
+            rotation_angle,
+            scale,
+            shape,
         }
     }
     fn calculate_maximum_cell_distances(&self) -> Vec<f64> {
@@ -66,5 +83,20 @@ impl Mosaic for StarryMosaic {
             *pixel = Rgb(color.into_format().into_raw())
         }
         mosaic_image
+    }
+    fn image_size(&self) -> (u32, u32) {
+        self.image_size
+    }
+    fn center(&self) -> Vector {
+        self.center.clone()
+    }
+    fn rotation_angle(&self) -> f64 {
+        self.rotation_angle
+    }
+    fn scale(&self) -> f64 {
+        self.scale
+    }
+    fn shape(&self) -> Box<dyn MosaicShape> {
+        self.shape.clone()
     }
 }

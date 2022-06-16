@@ -1,6 +1,8 @@
+use std::fmt::Debug;
+
 use super::{segment::Segment, vector::Vector};
 
-pub trait MosaicShape: MosaicShapeBase {
+pub trait MosaicShape: Debug + MosaicShapeBase {
     fn set_up_points(
         &self,
         image_size: (u32, u32),
