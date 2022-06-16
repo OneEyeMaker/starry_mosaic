@@ -12,6 +12,8 @@ pub mod mosaic_shape;
 
 mod mosaic;
 pub use self::mosaic::Mosaic;
+#[cfg(feature = "mosaic_with_preset_coloring")]
+pub use self::mosaic::MosaicWithPresetColoring;
 
 mod mosaic_builder;
 pub use self::mosaic_builder::MosaicBuilder;

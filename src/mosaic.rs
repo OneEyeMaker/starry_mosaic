@@ -1,7 +1,7 @@
 use image::RgbImage;
-use palette::{Gradient, IntoColor, LinSrgb, Mix, Shade};
+use palette::{IntoColor, LinSrgb, Mix, Shade};
 
-use super::{coloring_method::*, vector::Vector};
+use super::coloring_method::*;
 
 pub trait Mosaic {
     fn draw<Color, Method>(&self, coloring_method: Method) -> RgbImage
@@ -10,6 +10,13 @@ pub trait Mosaic {
         Method: ColoringMethod<Color>;
 }
 
+#[cfg(feature = "mosaic_with_preset_coloring")]
+use palette::Gradient;
+
+#[cfg(feature = "mosaic_with_preset_coloring")]
+use super::vector::Vector;
+
+#[cfg(feature = "mosaic_with_preset_coloring")]
 pub trait MosaicWithPresetColoring: Mosaic {
     fn draw_single_colored<Color>(&self, color: Color) -> RgbImage
     where
