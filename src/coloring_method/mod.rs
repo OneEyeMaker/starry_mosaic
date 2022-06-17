@@ -66,8 +66,12 @@ where
     /// Defines color of current pixel by interpolating between its position and
     /// position of the key point of mosaic fragment.
     ///
+    /// # Arguments
+    ///
     /// * `point`: position of pixel that is currently being drawn.
     /// * `key_point`: position of key point of current mosaic fragment.
+    ///
+    /// returns: [`Color`] - color of current pixel of mosaic image.
     fn interpolate(&self, point: &Vector, key_point: &Vector) -> Color;
 }
 

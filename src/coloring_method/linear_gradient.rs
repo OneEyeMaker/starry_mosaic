@@ -2,6 +2,7 @@ use palette::{Gradient, Mix};
 
 use super::{super::utility, ColoringMethod, Vector};
 
+/// Defines linear gradient for painting mosaic images.
 #[derive(Clone, Debug)]
 pub struct LinearGradient<Color>
 where
@@ -18,6 +19,42 @@ impl<Color> LinearGradient<Color>
 where
     Color: Mix<Scalar = f64> + Clone,
 {
+    /// Creates linear gradient along the line connecting two given points.
+    ///
+    /// # Arguments
+    ///
+    /// * `gradient`: list of colors or colors stops of gradient.
+    /// * `start_point`: starting point of line along which the gradient is drawn.
+    /// * `end_point`: end point of line along which the gradient is drawn.
+    /// * `smoothness`: smoothness of gradient ranging from 0.0 to 1.0;
+    /// see [`LinearGradient::smoothness`] for more information.
+    ///
+    /// returns: [`LinearGradient<Color>`] - linear gradient along the line connecting two points;
+    /// if these points are equal returns horizontal step gradient.
+    ///
+    /// # Examples
+    ///
+    /// Next example creates linear semi-step gradient from (0.0, 0.0) to (100.0, 100.0)
+    ///
+    /// ```
+    /// use palette::Hsl;
+    /// use starry_mosaic::{coloring_method::{ColoringMethod, LinearGradient}, Vector};
+    ///
+    /// let gradient = vec![
+    ///     (0.1, Hsl::new(0.0f64, 1.0, 0.5)),
+    ///     (0.5, Hsl::new(120.0f64, 1.0, 0.5)),
+    ///     (0.9, Hsl::new(240.0f64, 1.0, 0.5)),
+    /// ];
+    /// let start_point = Vector::new(0.0, 0.0);
+    /// let end_point = Vector::new(100.0, 100.0);
+    /// let linear_semi_step_gradient = LinearGradient::new(gradient, start_point, end_point, 0.4);
+    ///
+    /// let key_point = Vector::new(50.0, 50.0);
+    /// assert_eq!(
+    ///     linear_semi_step_gradient.interpolate(&Vector::new(0.0, 20.0), &key_point),
+    ///     Hsl::new(72.0f64, 1.0, 0.5)
+    /// );
+    /// ```
     pub fn new<ColorGradient>(
         gradient: ColorGradient,
         start_point: Vector,
@@ -39,6 +76,46 @@ where
         linear_gradient.set_end_point(end_point);
         linear_gradient
     }
+
+    /// Creates linear smooth gradient along the line connecting two given points.
+    ///
+    /// # Arguments
+    ///
+    /// * `gradient`: list of colors or colors stops of gradient.
+    /// * `start_point`: starting point of line along which the gradient is drawn.
+    /// * `end_point`: end point of line along which the gradient is drawn.
+    ///
+    /// returns: [`LinearGradient<Color>`] - linear smooth gradient along the line connecting
+    /// two points; if these points are equal returns horizontal step gradient.
+    ///
+    /// # See Also
+    ///
+    /// * [`LinearGradient::new`].
+    /// * [`LinearGradient::smoothness`].
+    ///
+    /// # Examples
+    ///
+    /// Next example creates linear smooth gradient from (0.0, 0.0) to (100.0, 100.0)
+    ///
+    /// ```
+    /// use palette::Hsl;
+    /// use starry_mosaic::{coloring_method::{ColoringMethod, LinearGradient}, Vector};
+    ///
+    /// let gradient = vec![
+    ///     (0.1, Hsl::new(0.0f64, 1.0, 0.5)),
+    ///     (0.5, Hsl::new(120.0f64, 1.0, 0.5)),
+    ///     (0.9, Hsl::new(240.0f64, 1.0, 0.5)),
+    /// ];
+    /// let start_point = Vector::new(0.0, 0.0);
+    /// let end_point = Vector::new(100.0, 100.0);
+    /// let linear_smooth_gradient = LinearGradient::new(gradient, start_point, end_point, 1.0);
+    ///
+    /// let key_point = Vector::new(50.0, 50.0);
+    /// assert_eq!(
+    ///     linear_smooth_gradient.interpolate(&Vector::new(0.0, 20.0), &key_point),
+    ///     Hsl::new(0.0f64, 1.0, 0.5)
+    /// );
+    /// ```
     #[inline(always)]
     pub fn new_smooth<ColorGradient>(
         gradient: ColorGradient,
@@ -50,6 +127,46 @@ where
     {
         Self::new(gradient, start_point, end_point, 1.0)
     }
+
+    /// Creates linear step gradient along the line connecting two given points.
+    ///
+    /// # Arguments
+    ///
+    /// * `gradient`: list of colors or colors stops of gradient.
+    /// * `start_point`: starting point of line along which the gradient is drawn.
+    /// * `end_point`: end point of line along which the gradient is drawn.
+    ///
+    /// returns: [`LinearGradient<Color>`] - linear step gradient along the line connecting
+    /// two points; if these points are equal returns horizontal step gradient.
+    ///
+    /// # See Also
+    ///
+    /// * [`LinearGradient::new`].
+    /// * [`LinearGradient::smoothness`].
+    ///
+    /// # Examples
+    ///
+    /// Next example creates linear step gradient from (0.0, 0.0) to (100.0, 100.0)
+    ///
+    /// ```
+    /// use palette::Hsl;
+    /// use starry_mosaic::{coloring_method::{ColoringMethod, LinearGradient}, Vector};
+    ///
+    /// let gradient = vec![
+    ///     (0.1, Hsl::new(0.0f64, 1.0, 0.5)),
+    ///     (0.5, Hsl::new(120.0f64, 1.0, 0.5)),
+    ///     (0.9, Hsl::new(240.0f64, 1.0, 0.5)),
+    /// ];
+    /// let start_point = Vector::new(0.0, 0.0);
+    /// let end_point = Vector::new(100.0, 100.0);
+    /// let linear_step_gradient = LinearGradient::new(gradient, start_point, end_point, 0.0);
+    ///
+    /// let key_point = Vector::new(50.0, 50.0);
+    /// assert_eq!(
+    ///     linear_step_gradient.interpolate(&Vector::new(0.0, 20.0), &key_point),
+    ///     Hsl::new(120.0f64, 1.0, 0.5)
+    /// );
+    /// ```
     #[inline(always)]
     pub fn new_step<ColorGradient>(
         gradient: ColorGradient,
@@ -61,26 +178,76 @@ where
     {
         Self::new(gradient, start_point, end_point, 0.0)
     }
+
+    /// Starting point of line along which linear gradient is drawn.
     pub fn start_point(&self) -> Vector {
         self.start_point.clone()
     }
+
+    /// Sets starting point of line along which linear gradient is drawn.
     pub fn set_start_point(&mut self, start_point: Vector) {
         let end_point = &self.start_point + &self.direction;
         self.start_point = start_point;
         self.set_direction(end_point);
     }
+
+    /// End point of line along which linear gradient is drawn.
     pub fn end_point(&self) -> Vector {
         &self.start_point + &self.direction
     }
+
+    /// Sets end point of line along which linear gradient is drawn.
     pub fn set_end_point(&mut self, end_point: Vector) {
         self.set_direction(end_point);
     }
+
+    /// Smoothness of linear gradient ranging from 0.0 to 1.0.
+    ///
+    /// Completely smooth gradient (with `smoothness` = 1.0) changes color every pixel and
+    /// *ignores* pattern of mosaic.
+    ///
+    /// In contrast, step gradient (with `smoothness` = 0.0) changes its color every
+    /// key point of mosaic. Since every mosaic fragment contains a key point then step gradient
+    /// changes color once per mosaic fragment.
+    ///
+    /// Values of `smoothness` between 0.0 and 1.0 can give interesting and even
+    /// surprising results.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use palette::LinSrgb;
+    /// use starry_mosaic::{coloring_method::LinearGradient, Vector};
+    ///
+    /// let gradient = vec![
+    ///     (0.2, LinSrgb::new(1.0f64, 0.0, 0.0)),
+    ///     (0.4, LinSrgb::new(1.0f64, 1.0, 0.0)),
+    ///     (0.6, LinSrgb::new(0.0f64, 1.0, 0.0)),
+    ///     (0.8, LinSrgb::new(0.0f64, 0.0, 1.0)),
+    /// ];
+    /// let linear_smooth_gradient = LinearGradient::new_smooth(
+    ///     gradient.clone(),
+    ///     Vector::new(100.0, 100.0),
+    ///     Vector::new(0.0, 50.0),
+    /// );
+    /// let linear_step_gradient = LinearGradient::new_step(
+    ///     gradient,
+    ///     Vector::new(100.0, 100.0),
+    ///     Vector::new(0.0, 50.0),
+    /// );
+    ///
+    /// assert_eq!(linear_smooth_gradient.smoothness(), 1.0);
+    /// assert_eq!(linear_step_gradient.smoothness(), 0.0);
+    /// ```
     pub fn smoothness(&self) -> f64 {
         self.smoothness
     }
+
+    /// Sets smoothness of linear gradient (ranging from 0.0 to 1.0).
     pub fn set_smoothness(&mut self, smoothness: f64) {
         self.smoothness = smoothness.clamp(0.0, 1.0);
     }
+
     #[inline(always)]
     fn set_direction(&mut self, end_point: Vector) {
         self.direction = if self.start_point != end_point {
