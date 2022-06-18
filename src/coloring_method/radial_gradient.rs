@@ -38,8 +38,8 @@ where
             inner_center,
             direction,
             direction_squared_length,
-            inner_radius,
-            radius_difference: outer_radius - inner_radius,
+            inner_radius: inner_radius.max(0.0),
+            radius_difference: outer_radius.max(0.0) - inner_radius.max(0.0),
             smoothness: smoothness.clamp(0.0, 1.0),
         };
         radial_gradient.fit_inner_circle_into_outer();
@@ -132,7 +132,7 @@ where
     }
     pub fn set_inner_radius(&mut self, inner_radius: f64) {
         let outer_radius = self.inner_radius + self.radius_difference;
-        self.inner_radius = inner_radius;
+        self.inner_radius = inner_radius.max(0.0);
         self.set_outer_radius(outer_radius);
     }
     pub fn outer_center(&self) -> Vector {
@@ -147,7 +147,7 @@ where
         self.inner_radius + self.radius_difference
     }
     pub fn set_outer_radius(&mut self, outer_radius: f64) {
-        self.radius_difference = outer_radius - self.inner_radius;
+        self.radius_difference = outer_radius.max(0.0) - self.inner_radius;
         self.fit_inner_circle_into_outer();
     }
     pub fn smoothness(&self) -> f64 {
@@ -213,6 +213,20 @@ mod tests {
         assert!(radial_gradient.outer_radius() > 200.0);
     }
     #[test]
+    fn set_negative_inner_radius() {
+        let gradient = tests::create_rgb_gradient();
+        let mut radial_gradient = RadialGradient::new_smooth(
+            gradient,
+            Vector::new(150.0, 250.0),
+            50.0,
+            Vector::new(250.0, 250.0),
+            200.0,
+        );
+        radial_gradient.set_inner_radius(-150.0);
+        assert!(radial_gradient.radius_difference > radial_gradient.direction.length());
+        assert_eq!(radial_gradient.inner_radius, 0.0);
+    }
+    #[test]
     fn set_outer_center() {
         let gradient = tests::create_rgb_gradient();
         let mut radial_gradient = RadialGradient::new_smooth(
@@ -239,6 +253,20 @@ mod tests {
         radial_gradient.set_outer_radius(100.0);
         assert!(radial_gradient.radius_difference > radial_gradient.direction.length());
         assert!(radial_gradient.outer_radius() > 100.0);
+    }
+    #[test]
+    fn set_negative_outer_radius() {
+        let gradient = tests::create_rgb_gradient();
+        let mut radial_gradient = RadialGradient::new_smooth(
+            gradient,
+            Vector::new(150.0, 250.0),
+            50.0,
+            Vector::new(250.0, 250.0),
+            200.0,
+        );
+        radial_gradient.set_outer_radius(-100.0);
+        assert!(radial_gradient.radius_difference > radial_gradient.direction.length());
+        assert!(radial_gradient.outer_radius() > 150.0);
     }
     #[test]
     fn interpolate_smooth() {
