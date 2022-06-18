@@ -4,6 +4,7 @@ use palette::{Gradient, Mix};
 
 use super::{ColoringMethod, Vector};
 
+/// Defines conic gradient for painting mosaic images.
 #[derive(Clone, Debug)]
 pub struct ConicGradient<Color>
 where
@@ -19,6 +20,47 @@ impl<Color> ConicGradient<Color>
 where
     Color: Mix<Scalar = f64> + Clone,
 {
+    /// Creates conic gradient around given point.
+    ///
+    /// # Arguments
+    ///
+    /// * `gradient`: list of colors or colors stops of gradient.
+    /// * `center`: center point around which the gradient is drawn.
+    /// * `angle`: angle at which to begin the gradient, in radians.
+    /// * `smoothness`: smoothness of gradient ranging from 0.0 to 1.0;
+    /// see [`ConicGradient::smoothness`] for more information.
+    ///
+    /// returns: ConicGradient<Color> - conic gradient around center point.
+    ///
+    /// # Examples
+    ///
+    /// Next example creates conic semi-step gradient.
+    /// ```
+    /// use std::f64::consts;
+    ///
+    /// use palette::LinSrgb;
+    /// use starry_mosaic::{coloring_method::{ColoringMethod, ConicGradient}, Vector};
+    ///
+    /// let gradient = vec![
+    ///     (0.0, LinSrgb::new(1.0f64, 0.0, 0.0)),
+    ///     (0.25, LinSrgb::new(1.0f64, 1.0, 0.0)),
+    ///     (0.5, LinSrgb::new(0.0f64, 0.0, 1.0)),
+    ///     (0.75, LinSrgb::new(1.0f64, 1.0, 0.0)),
+    ///     (1.0, LinSrgb::new(1.0f64, 0.0, 0.0)),
+    /// ];
+    /// let conic_semi_step_gradient = ConicGradient::new(
+    ///     gradient,
+    ///     Vector::new(100.0, 100.0),
+    ///     -consts::FRAC_PI_2,
+    ///     0.5,
+    /// );
+    ///
+    /// let key_point = Vector::new(200.0, 100.0);
+    /// assert_eq!(
+    ///     conic_semi_step_gradient.interpolate(&Vector::new(100.0, 0.0), &key_point),
+    ///     LinSrgb::new(1.0f64, 0.5, 0.0),
+    /// );
+    /// ```
     pub fn new<ColorGradient>(
         gradient: ColorGradient,
         center: Vector,
@@ -35,6 +77,50 @@ where
             smoothness: smoothness.clamp(0.0, 1.0),
         }
     }
+
+    /// Creates conic smooth gradient around given point.
+    ///
+    /// # Arguments
+    ///
+    /// * `gradient`: list of colors or colors stops of gradient.
+    /// * `center`: center point around which the gradient is drawn.
+    /// * `angle`: angle at which to begin the gradient, in radians.
+    ///
+    /// returns: ConicGradient<Color> - conic smooth gradient around center point.
+    ///
+    /// # See also
+    ///
+    /// * [`ConicGradient::new`].
+    /// * [`ConicGradient::smoothness`].
+    ///
+    /// # Examples
+    ///
+    /// Next example creates conic smooth gradient.
+    /// ```
+    /// use std::f64::consts;
+    ///
+    /// use palette::LinSrgb;
+    /// use starry_mosaic::{coloring_method::{ColoringMethod, ConicGradient}, Vector};
+    ///
+    /// let gradient = vec![
+    ///     (0.0, LinSrgb::new(1.0f64, 0.0, 0.0)),
+    ///     (0.25, LinSrgb::new(1.0f64, 1.0, 0.0)),
+    ///     (0.5, LinSrgb::new(0.0f64, 0.0, 1.0)),
+    ///     (0.75, LinSrgb::new(1.0f64, 1.0, 0.0)),
+    ///     (1.0, LinSrgb::new(1.0f64, 0.0, 0.0)),
+    /// ];
+    /// let conic_smooth_gradient = ConicGradient::new_smooth(
+    ///     gradient,
+    ///     Vector::new(100.0, 100.0),
+    ///     -consts::FRAC_PI_2,
+    /// );
+    ///
+    /// let key_point = Vector::new(200.0, 100.0);
+    /// assert_eq!(
+    ///     conic_smooth_gradient.interpolate(&Vector::new(100.0, 0.0), &key_point),
+    ///     LinSrgb::new(1.0f64, 0.0, 0.0),
+    /// );
+    /// ```
     #[inline(always)]
     pub fn new_smooth<ColorGradient>(gradient: ColorGradient, center: Vector, angle: f64) -> Self
     where
@@ -42,6 +128,50 @@ where
     {
         Self::new(gradient, center, angle, 1.0)
     }
+
+    /// Creates conic step gradient around given point.
+    ///
+    /// # Arguments
+    ///
+    /// * `gradient`: list of colors or colors stops of gradient.
+    /// * `center`: center point around which the gradient is drawn.
+    /// * `angle`: angle at which to begin the gradient, in radians.
+    ///
+    /// returns: ConicGradient<Color> - conic step gradient around center point.
+    ///
+    /// # See also
+    ///
+    /// * [`ConicGradient::new`].
+    /// * [`ConicGradient::smoothness`].
+    ///
+    /// # Examples
+    ///
+    /// Next example creates conic step gradient.
+    /// ```
+    /// use std::f64::consts;
+    ///
+    /// use palette::LinSrgb;
+    /// use starry_mosaic::{coloring_method::{ColoringMethod, ConicGradient}, Vector};
+    ///
+    /// let gradient = vec![
+    ///     (0.0, LinSrgb::new(1.0f64, 0.0, 0.0)),
+    ///     (0.25, LinSrgb::new(1.0f64, 1.0, 0.0)),
+    ///     (0.5, LinSrgb::new(0.0f64, 0.0, 1.0)),
+    ///     (0.75, LinSrgb::new(1.0f64, 1.0, 0.0)),
+    ///     (1.0, LinSrgb::new(1.0f64, 0.0, 0.0)),
+    /// ];
+    /// let conic_step_gradient = ConicGradient::new_step(
+    ///     gradient,
+    ///     Vector::new(100.0, 100.0),
+    ///     -consts::FRAC_PI_2,
+    /// );
+    ///
+    /// let key_point = Vector::new(200.0, 100.0);
+    /// assert_eq!(
+    ///     conic_step_gradient.interpolate(&Vector::new(100.0, 0.0), &key_point),
+    ///     LinSrgb::new(1.0f64, 1.0, 0.0),
+    /// );
+    /// ```
     #[inline(always)]
     pub fn new_step<ColorGradient>(gradient: ColorGradient, center: Vector, angle: f64) -> Self
     where
@@ -49,21 +179,70 @@ where
     {
         Self::new(gradient, center, angle, 0.0)
     }
+
+    /// Center point around which conic gradient is drawn.
     pub fn center(&self) -> Vector {
         self.center.clone()
     }
+
+    /// Sets center point around which conic gradient is drawn.
     pub fn set_center(&mut self, center: Vector) {
         self.center = center;
     }
+
+    /// Angle at which to begin conic gradient, in radians.
     pub fn angle(&self) -> f64 {
         self.angle
     }
+
+    /// Sets angle at which to begin conic gradient, in radians.
     pub fn set_angle(&mut self, angle: f64) {
         self.angle = angle % (2.0 * consts::PI);
     }
+
+    /// Smoothness of conic gradient ranging from 0.0 to 1.0.
+    ///
+    /// Completely smooth gradient (with `smoothness` = 1.0) changes color every pixel and
+    /// *ignores* pattern of mosaic.
+    ///
+    /// In contrast, step gradient (with `smoothness` = 0.0) changes its color every
+    /// key point of mosaic. Since every mosaic fragment contains a key point then step gradient
+    /// changes color once per mosaic fragment.
+    ///
+    /// Values of `smoothness` between 0.0 and 1.0 can give interesting and even
+    /// surprising results.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use palette::LinSrgb;
+    /// use starry_mosaic::{coloring_method::ConicGradient, Vector};
+    ///
+    /// let gradient = vec![
+    ///     (0.2, LinSrgb::new(1.0f64, 0.0, 0.0)),
+    ///     (0.4, LinSrgb::new(1.0f64, 1.0, 0.0)),
+    ///     (0.6, LinSrgb::new(0.0f64, 1.0, 0.0)),
+    ///     (0.8, LinSrgb::new(0.0f64, 0.0, 1.0)),
+    /// ];
+    /// let conic_smooth_gradient = ConicGradient::new_smooth(
+    ///     gradient.clone(),
+    ///     Vector::new(100.0, 100.0),
+    ///     0.0,
+    /// );
+    /// let conic_step_gradient = ConicGradient::new_step(
+    ///     gradient,
+    ///     Vector::new(100.0, 100.0),
+    ///     0.0,
+    /// );
+    ///
+    /// assert_eq!(conic_smooth_gradient.smoothness(), 1.0);
+    /// assert_eq!(conic_step_gradient.smoothness(), 0.0);
+    /// ```
     pub fn smoothness(&self) -> f64 {
         self.smoothness
     }
+
+    /// Sets smoothness of conic gradient (ranging from 0.0 to 1.0).
     pub fn set_smoothness(&mut self, smoothness: f64) {
         self.smoothness = smoothness.clamp(0.0, 1.0);
     }

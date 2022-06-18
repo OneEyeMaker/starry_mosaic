@@ -88,7 +88,7 @@ where
     /// returns: [`LinearGradient<Color>`] - linear smooth gradient along the line connecting
     /// two points; if these points are equal returns horizontal step gradient.
     ///
-    /// # See Also
+    /// # See also
     ///
     /// * [`LinearGradient::new`].
     /// * [`LinearGradient::smoothness`].
@@ -139,7 +139,7 @@ where
     /// returns: [`LinearGradient<Color>`] - linear step gradient along the line connecting
     /// two points; if these points are equal returns horizontal step gradient.
     ///
-    /// # See Also
+    /// # See also
     ///
     /// * [`LinearGradient::new`].
     /// * [`LinearGradient::smoothness`].
