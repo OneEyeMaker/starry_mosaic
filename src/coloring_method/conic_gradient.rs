@@ -34,7 +34,7 @@ where
     ///
     /// # Examples
     ///
-    /// Next example creates conic semi-step gradient.
+    /// Next example creates conic semi-step gradient around point with coordinates (100.0, 100.0).
     /// ```
     /// use std::f64::consts;
     ///
@@ -95,7 +95,7 @@ where
     ///
     /// # Examples
     ///
-    /// Next example creates conic smooth gradient.
+    /// Next example creates conic smooth gradient around point with coordinates (100.0, 100.0).
     /// ```
     /// use std::f64::consts;
     ///
@@ -146,7 +146,7 @@ where
     ///
     /// # Examples
     ///
-    /// Next example creates conic step gradient.
+    /// Next example creates conic step gradient around point with coordinates (100.0, 100.0).
     /// ```
     /// use std::f64::consts;
     ///

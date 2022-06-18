@@ -34,7 +34,7 @@ where
     ///
     /// # Examples
     ///
-    /// Next example creates linear semi-step gradient from (0.0, 0.0) to (100.0, 100.0)
+    /// Next example creates linear semi-step gradient from (0.0, 0.0) to (100.0, 100.0).
     ///
     /// ```
     /// use palette::Hsl;
@@ -95,7 +95,7 @@ where
     ///
     /// # Examples
     ///
-    /// Next example creates linear smooth gradient from (0.0, 0.0) to (100.0, 100.0)
+    /// Next example creates linear smooth gradient from (0.0, 0.0) to (100.0, 100.0).
     ///
     /// ```
     /// use palette::Hsl;
@@ -146,7 +146,7 @@ where
     ///
     /// # Examples
     ///
-    /// Next example creates linear step gradient from (0.0, 0.0) to (100.0, 100.0)
+    /// Next example creates linear step gradient from (0.0, 0.0) to (100.0, 100.0).
     ///
     /// ```
     /// use palette::Hsl;
