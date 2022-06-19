@@ -207,3 +207,6 @@ pub trait MosaicWithPresetColoring: Mosaic {
         self.draw(ConicGradient::new_step(gradient, center, angle))
     }
 }
+
+#[cfg(feature = "mosaic_with_preset_coloring")]
+impl<MosaicImage> MosaicWithPresetColoring for MosaicImage where MosaicImage: Mosaic {}
