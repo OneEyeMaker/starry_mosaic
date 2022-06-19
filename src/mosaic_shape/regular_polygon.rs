@@ -30,12 +30,12 @@ impl MosaicShape for RegularPolygon {
     fn set_up_points(
         &self,
         image_size: (u32, u32),
-        center_point: Vector,
+        center: Vector,
         rotation_angle: f64,
         scale: f64,
     ) -> Vec<Vector> {
         let radius = image_size.0.min(image_size.1) as f64 * 0.5 * scale;
-        helpers::set_up_polygon_points(self.corners_count, radius, center_point, rotation_angle)
+        helpers::set_up_polygon_points(self.corners_count, radius, center, rotation_angle)
     }
     fn connect_points(&self, shape_points: &Vec<Vector>) -> Vec<Segment> {
         let points_count = shape_points.len();

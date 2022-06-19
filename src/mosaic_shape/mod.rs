@@ -6,7 +6,7 @@ pub trait MosaicShape: Debug + MosaicShapeBase {
     fn set_up_points(
         &self,
         image_size: (u32, u32),
-        center_point: Vector,
+        center: Vector,
         rotation_angle: f64,
         scale: f64,
     ) -> Vec<Vector>;

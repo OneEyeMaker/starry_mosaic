@@ -32,7 +32,7 @@ impl MosaicShape for PolygonalStar {
     fn set_up_points(
         &self,
         image_size: (u32, u32),
-        center_point: Vector,
+        center: Vector,
         rotation_angle: f64,
         scale: f64,
     ) -> Vec<Vector> {
@@ -45,13 +45,13 @@ impl MosaicShape for PolygonalStar {
         let mut points = helpers::set_up_polygon_points(
             self.corners_count,
             radius,
-            center_point.clone(),
+            center.clone(),
             rotation_angle,
         );
         let mut inner_points = helpers::set_up_polygon_points(
             self.corners_count,
             inner_radius,
-            center_point,
+            center,
             inner_rotation_angle,
         );
         points.append(&mut inner_points);
