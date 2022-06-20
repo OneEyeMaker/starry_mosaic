@@ -194,6 +194,18 @@ impl Vector {
             y: self.y + (vector.y - self.y) * factor,
         }
     }
+    pub fn rotate(&self, angle: f64) -> Self {
+        let sine = angle.sin();
+        let cosine = angle.cos();
+        Self {
+            x: self.x * cosine - self.y * sine,
+            y: self.x * sine + self.y * cosine,
+        }
+    }
+    #[inline(always)]
+    pub fn rotate_around_pivot(&self, angle: f64, pivot: &Self) -> Self {
+        &(self - pivot).rotate(angle) + pivot
+    }
 }
 
 impl Debug for Vector {
@@ -348,6 +360,8 @@ impl DivAssign<f64> for Vector {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts;
+
     use super::*;
 
     #[test]
@@ -395,6 +409,36 @@ mod tests {
         let interpolation = first.interpolate(&second, 0.25);
         assert_eq!(interpolation.x, 4.0);
         assert_eq!(interpolation.y, 4.0);
+    }
+    #[test]
+    fn rotate() {
+        let vector = Vector::new(4.0, 0.0);
+        assert_eq!(vector.rotate(consts::FRAC_PI_2), Vector::new(0.0, 4.0));
+        assert_eq!(
+            vector.rotate(consts::FRAC_PI_3),
+            Vector::new(2.0, 2.0 * 3.0f64.sqrt())
+        );
+        assert_eq!(
+            vector.rotate(consts::FRAC_PI_6),
+            Vector::new(2.0 * 3.0f64.sqrt(), 2.0)
+        );
+    }
+    #[test]
+    fn rotate_around_pivot() {
+        let vector = Vector::new(5.0, 2.0);
+        let pivot = Vector::new(1.0, 2.0);
+        assert_eq!(
+            vector.rotate_around_pivot(consts::FRAC_PI_2, &pivot),
+            Vector::new(1.0, 6.0)
+        );
+        assert_eq!(
+            vector.rotate_around_pivot(consts::FRAC_PI_3, &pivot),
+            Vector::new(3.0, 2.0 + 2.0 * 3.0f64.sqrt())
+        );
+        assert_eq!(
+            vector.rotate_around_pivot(consts::FRAC_PI_6, &pivot),
+            Vector::new(1.0 + 2.0 * 3.0f64.sqrt(), 4.0)
+        );
     }
     #[test]
     fn add() {
