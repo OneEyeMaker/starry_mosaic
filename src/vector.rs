@@ -89,6 +89,12 @@ impl Vector {
 
     /// Finds squared distance from this to another point.
     ///
+    /// # Arguments
+    ///
+    /// * `point`: point to which squared distance is calculated.
+    ///
+    /// returns: f64 - squared distance between this and another point.
+    ///
     /// # Examples
     ///
     /// ```
@@ -100,11 +106,17 @@ impl Vector {
     /// assert_eq!(start_point.squared_distance_to(&end_point), 169.0);
     /// ```
     #[inline(always)]
-    pub fn squared_distance_to(&self, vector: &Vector) -> f64 {
-        (self - vector).squared_length()
+    pub fn squared_distance_to(&self, point: &Self) -> f64 {
+        (self - point).squared_length()
     }
 
     /// Finds distance from this to another point.
+    ///
+    /// # Arguments
+    ///
+    /// * `point`: point to which distance is calculated.
+    ///
+    /// returns: f64 - distance between this and another point.
     ///
     /// # Examples
     ///
@@ -117,8 +129,8 @@ impl Vector {
     /// assert_eq!(start_point.distance_to(&end_point), 13.0);
     /// ```
     #[inline(always)]
-    pub fn distance_to(&self, vector: &Vector) -> f64 {
-        (self - vector).length()
+    pub fn distance_to(&self, point: &Self) -> f64 {
+        (self - point).length()
     }
 
     /// Creates normalized vector (one with same direction and magnitude of 1).
@@ -140,7 +152,13 @@ impl Vector {
         }
     }
 
-    /// Computes dot product between two vectors.
+    /// Computes dot product of two vectors.
+    ///
+    /// # Arguments
+    ///
+    /// * `vector`: vector, operand of dot product.
+    ///
+    /// returns: f64 - dot product of two vectors.
     ///
     /// # Examples
     ///
@@ -161,6 +179,12 @@ impl Vector {
     ///
     /// Named so because algorithm is similar to one of cross product of 3D vectors.
     ///
+    /// # Arguments
+    ///
+    /// * `vector`: vector, second operand of cross product.
+    ///
+    /// returns: f64 - difference between products of opposite coordinates of vectors.
+    ///
     /// # Examples
     ///
     /// ```
@@ -177,6 +201,13 @@ impl Vector {
 
     /// Calculates linear interpolation between two vectors or points.
     ///
+    /// # Arguments
+    ///
+    /// * `vector`: point (or vector) with which current point (vector) is interpolated.
+    /// * `factor`: interpolation factor ranging from 0.0 to 1.0.
+    ///
+    /// returns: [`Vector`] - result of linear interpolation between two points or vectors.
+    ///
     /// # Examples
     ///
     /// ```
@@ -189,11 +220,31 @@ impl Vector {
     /// assert_eq!(interpolated_point, Vector::new(1.6, 1.4));
     /// ```
     pub fn interpolate(&self, vector: &Self, factor: f64) -> Self {
+        let factor = factor.clamp(0.0, 1.0);
         Self {
             x: self.x + (vector.x - self.x) * factor,
             y: self.y + (vector.y - self.y) * factor,
         }
     }
+    /// Rotates current point around origin (0.0, 0.0).
+    ///
+    /// # Arguments
+    ///
+    /// * `angle`: rotation angle.
+    ///
+    /// returns: [`Vector`] - point resulting from rotation of current point by angle.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::f64::consts;
+    ///
+    /// use starry_mosaic::Vector;
+    ///
+    /// let point = Vector::new(4.0 * 2.0f64.sqrt(), 4.0 * 2.0f64.sqrt());
+    ///
+    /// assert_eq!(point.rotate(consts::FRAC_PI_4), Vector::new(0.0, 8.0));
+    /// ```
     pub fn rotate(&self, angle: f64) -> Self {
         let sine = angle.sin();
         let cosine = angle.cos();
@@ -202,6 +253,31 @@ impl Vector {
             y: self.x * sine + self.y * cosine,
         }
     }
+    /// Rotates current point around pivot point.
+    ///
+    /// # Arguments
+    ///
+    /// * `angle`: rotation angle.
+    /// * `pivot`: pivot point around which rotation is performed.
+    ///
+    /// returns: [`Vector`] point resulting from rotation of current point around pivot point
+    /// by angle.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::f64::consts;
+    ///
+    /// use starry_mosaic::Vector;
+    ///
+    /// let point = Vector::new(4.0 * 2.0f64.sqrt() - 1.0, 4.0 * 2.0f64.sqrt() - 1.0);
+    /// let pivot_point = Vector::new(-1.0, -1.0);
+    ///
+    /// assert_eq!(
+    ///     point.rotate_around_pivot(consts::FRAC_PI_4, &pivot_point),
+    ///     Vector::new(-1.0, 7.0)
+    /// );
+    /// ```
     #[inline(always)]
     pub fn rotate_around_pivot(&self, angle: f64, pivot: &Self) -> Self {
         &(self - pivot).rotate(angle) + pivot
