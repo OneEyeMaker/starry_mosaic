@@ -4,6 +4,19 @@ use super::{segment::Segment, vector::Vector};
 
 /// Describes and calculates shape (pattern) of mosaic image.
 ///
+/// Any mosaic shape is defined by set of key points. This set is created in 3 steps:
+///
+/// 1. Setting up of basic key points using method [`MosaicShape::set_up_points`].
+/// 2. Connecting these basic key points with line segments using method
+/// [`MosaicShape::connect_points`].
+/// 3. Constructing rest key points by intersecting line segments from step 2 using method
+/// [`MosaicShape::intersect_segments`].
+///
+/// **_Note_**: structs which implement `MosaicShape` should *not* store any points or
+/// line segments. Instead all necessary geometry should be calculated by request.
+///
+/// Implementers of `MosaicShape` trait are required to implement [`Clone`] and [`Debug`] traits.
+///
 /// # Examples
 ///
 /// Next example implements grid shape with at least 2 columns and 2 rows.
@@ -83,6 +96,18 @@ use super::{segment::Segment, vector::Vector};
 /// }
 /// ```
 pub trait MosaicShape: Debug + MosaicShapeBase {
+    /// Sets up primary key points of mosaic shape.
+    ///
+    /// # Arguments
+    ///
+    /// * `image_size`: width and height of mosaic image to generate.
+    /// * `center`: center point of mosaic shape in generated image.
+    /// * `rotation_angle`: rotation angle of mosaic shape (pattern), in radians.
+    /// * `scale`: scale of mosaic shape.
+    ///
+    /// returns: `Vec<`[`Vector`]`>` - set of basic key points of mosaic shape that fits into
+    /// size of image and positioned, rotated and scaled appropriately.
+    ///
     fn set_up_points(
         &self,
         image_size: (u32, u32),
@@ -90,7 +115,23 @@ pub trait MosaicShape: Debug + MosaicShapeBase {
         rotation_angle: f64,
         scale: f64,
     ) -> Vec<Vector>;
+    /// Connects primary key points with line segments to form mosaic shape.
+    ///
+    /// # Arguments
+    ///
+    /// * `shape_points`: set of primary key points of mosaic image.
+    ///
+    /// returns: `Vec<`[`Segment`]`>` - list of segments which form mosaic shape.
+    ///
     fn connect_points(&self, shape_points: &Vec<Vector>) -> Vec<Segment>;
+    /// Intersects line segments of mosaic shape to construct its rest key points.
+    ///
+    /// # Arguments
+    ///
+    /// * `shape_segments`: list of line segments of mosaic shape.
+    ///
+    /// returns: `Vec<`[`Vector`]`>` - list of rest key points that defines mosaic shape.
+    ///
     fn intersect_segments(&self, shape_segments: &Vec<Segment>) -> Vec<Vector> {
         let mut points = Vec::new();
         for (index, first_segment) in shape_segments.iter().enumerate() {
@@ -104,6 +145,7 @@ pub trait MosaicShape: Debug + MosaicShapeBase {
     }
 }
 
+/// Helper trait that implements [`Clone`] for `Box<dyn` [`MosaicShape`]`>`.
 pub trait MosaicShapeBase {
     fn clone_box(&self) -> Box<dyn MosaicShape>;
 }
