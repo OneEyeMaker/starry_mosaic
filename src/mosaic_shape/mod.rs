@@ -108,6 +108,10 @@ pub trait MosaicShape: Debug + MosaicShapeBase {
     /// returns: `Vec<`[`Vector`]`>` - set of basic key points of mosaic shape that fits into
     /// size of image and positioned, rotated and scaled appropriately.
     ///
+    /// # See also
+    ///
+    /// * [`MosaicShape`].
+    ///
     fn set_up_points(
         &self,
         image_size: (u32, u32),
@@ -115,6 +119,7 @@ pub trait MosaicShape: Debug + MosaicShapeBase {
         rotation_angle: f64,
         scale: f64,
     ) -> Vec<Vector>;
+
     /// Connects primary key points with line segments to form mosaic shape.
     ///
     /// # Arguments
@@ -123,7 +128,12 @@ pub trait MosaicShape: Debug + MosaicShapeBase {
     ///
     /// returns: `Vec<`[`Segment`]`>` - list of segments which form mosaic shape.
     ///
+    /// # See also
+    ///
+    /// * [`MosaicShape`].
+    ///
     fn connect_points(&self, shape_points: &Vec<Vector>) -> Vec<Segment>;
+
     /// Intersects line segments of mosaic shape to construct its rest key points.
     ///
     /// # Arguments
@@ -131,6 +141,10 @@ pub trait MosaicShape: Debug + MosaicShapeBase {
     /// * `shape_segments`: list of line segments of mosaic shape.
     ///
     /// returns: `Vec<`[`Vector`]`>` - list of rest key points that defines mosaic shape.
+    ///
+    /// # See also
+    ///
+    /// * [`MosaicShape`].
     ///
     fn intersect_segments(&self, shape_segments: &Vec<Segment>) -> Vec<Vector> {
         let mut points = Vec::new();

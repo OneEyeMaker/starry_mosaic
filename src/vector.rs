@@ -226,6 +226,7 @@ impl Vector {
             y: self.y + (vector.y - self.y) * factor,
         }
     }
+
     /// Rotates current point around origin (0.0, 0.0).
     ///
     /// # Arguments
@@ -253,6 +254,7 @@ impl Vector {
             y: self.x * sine + self.y * cosine,
         }
     }
+
     /// Rotates current point around pivot point.
     ///
     /// # Arguments
