@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use voronoice::{BoundingBox, Point, VoronoiBuilder};
+use voronoice::{BoundingBox, Point, Voronoi, VoronoiBuilder};
 
 use super::{
     mosaic::Mosaic,
@@ -53,19 +53,34 @@ impl MosaicBuilder {
         self.scale = scale.max(0.001);
         self
     }
-    pub fn build_starry(self) -> Option<StarryMosaic> {
-        let points = self.build_shape();
-        let image_size = (self.image_size.0 as f64, self.image_size.1 as f64);
+    pub fn build_star(self) -> Option<StarryMosaic> {
+        self.build_from_voronoi(StarryMosaic::new)
+    }
+    pub fn build_from_voronoi<MosaicImage, Constructor>(
+        self,
+        constructor: Constructor,
+    ) -> Option<MosaicImage>
+    where
+        MosaicImage: Mosaic,
+        Constructor:
+            FnOnce(Voronoi, (u32, u32), Vector, f64, f64, Box<dyn MosaicShape>) -> MosaicImage,
+    {
+        let points = self
+            .construct_shape()
+            .iter()
+            .map(|point| point.into())
+            .collect();
+        let (image_width, image_height) = (self.image_size.0 as f64, self.image_size.1 as f64);
         let center = Point {
-            x: image_size.0 / 2.0,
-            y: image_size.1 / 2.0,
+            x: image_width / 2.0,
+            y: image_height / 2.0,
         };
         let voronoi = VoronoiBuilder::default()
-            .set_bounding_box(BoundingBox::new(center, image_size.0, image_size.1))
+            .set_bounding_box(BoundingBox::new(center, image_width, image_height))
             .set_sites(points)
             .build();
         match voronoi {
-            Some(voronoi) => Some(StarryMosaic::new(
+            Some(voronoi) => Some(constructor(
                 voronoi,
                 self.image_size,
                 self.center,
@@ -76,7 +91,32 @@ impl MosaicBuilder {
             None => None,
         }
     }
-    fn build_shape(&self) -> Vec<Point> {
+    pub fn build_from_key_points<MosaicImage, Constructor>(
+        self,
+        constructor: Constructor,
+    ) -> Option<MosaicImage>
+    where
+        MosaicImage: Mosaic,
+        Constructor: FnOnce(
+            Vec<Vector>,
+            (u32, u32),
+            Vector,
+            f64,
+            f64,
+            Box<dyn MosaicShape>,
+        ) -> Option<MosaicImage>,
+    {
+        let points = self.construct_shape();
+        constructor(
+            points,
+            self.image_size,
+            self.center,
+            self.rotation_angle,
+            self.scale,
+            self.shape,
+        )
+    }
+    fn construct_shape(&self) -> Vec<Vector> {
         let mut initial_points = self.shape.set_up_points(
             self.image_size,
             self.center.clone(),
@@ -88,7 +128,7 @@ impl MosaicBuilder {
         shape_points.append(&mut initial_points);
         shape_points.sort_by(|left, right| left.partial_cmp(right).unwrap_or(Ordering::Equal));
         shape_points.dedup();
-        shape_points.iter().map(|point| point.into()).collect()
+        shape_points
     }
 }
 
