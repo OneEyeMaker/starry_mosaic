@@ -94,17 +94,11 @@ impl MosaicBuilder {
     pub fn build_from_key_points<MosaicImage, Constructor>(
         self,
         constructor: Constructor,
-    ) -> Option<MosaicImage>
+    ) -> MosaicImage
     where
         MosaicImage: Mosaic,
-        Constructor: FnOnce(
-            Vec<Vector>,
-            (u32, u32),
-            Vector,
-            f64,
-            f64,
-            Box<dyn MosaicShape>,
-        ) -> Option<MosaicImage>,
+        Constructor:
+            FnOnce(Vec<Vector>, (u32, u32), Vector, f64, f64, Box<dyn MosaicShape>) -> MosaicImage,
     {
         let points = self.construct_shape();
         constructor(
