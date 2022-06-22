@@ -2,21 +2,43 @@ use std::f64::consts;
 
 use super::{helpers, MosaicShape, Segment, Vector};
 
+/// Defines mosaic shape based on polygonal star.
 #[derive(Clone, Debug)]
 pub struct PolygonalStar {
     corners_count: u32,
 }
 
 impl PolygonalStar {
+    /// Creates polygonal star with set number of corners.
+    ///
+    /// # Arguments
+    ///
+    /// * `corners_count`: number of convex star corners; should be at least 3.
+    ///
+    /// returns: [`PolygonalStar`] - mosaic shape based on polygonal star with given
+    /// number of convex corners.
+    ///
     pub fn new(corners_count: u32) -> Self {
         Self {
             corners_count: corners_count.max(3),
         }
     }
+
+    /// Number of convex corners of polygonal star on which mosaic shape is based.
     #[inline(always)]
     pub fn corners_count(&self) -> u32 {
         self.corners_count
     }
+
+    /// Sets number of convex corners of polygonal star on which mosaic shape is based.
+    ///
+    /// # Arguments
+    ///
+    /// * `corners_count`: number of convex star corners; should be at least 3.
+    ///
+    /// returns: [`PolygonalStar`] - mosaic shape based on polygonal star with given
+    /// number of convex corners.
+    ///
     pub fn set_corners_count(&mut self, corners_count: u32) {
         self.corners_count = corners_count.max(3);
     }
@@ -57,6 +79,7 @@ impl MosaicShape for PolygonalStar {
         points.append(&mut inner_points);
         points
     }
+
     fn connect_points(&self, shape_points: &Vec<Vector>) -> Vec<Segment> {
         let points_count = shape_points.len() / 2;
         let mut segments = Vec::new();
