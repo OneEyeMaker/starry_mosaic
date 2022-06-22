@@ -3,14 +3,14 @@ use palette::{IntoColor, LinSrgb, Mix, Shade};
 
 use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 
-/// Represents mosaic image and ways to paint it.
+/// Represents mosaic image and paints it with different [methods][`ColoringMethod`].
 ///
 /// # Examples
 ///
 /// This example creates mosaic image that visualises its key points
 /// (key points of [mosaic shape][`MosaicShape`] of image).
 ///
-/// Uncomment last line of `main` function to color this mosaic blue and save it into file.
+/// Uncomment lines at the end of `main` function to color this mosaic blue and save it into file.
 ///
 /// ```
 /// use image::{Rgb, RgbImage};
@@ -136,18 +136,46 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 ///     assert_eq!(dotted_mosaic.rotation_angle(), 45.0f64.to_radians());
 ///     assert_eq!(dotted_mosaic.scale(), 0.75);
 ///
-///     // dotted_mosaic.draw(LinSrgb::new(0.0f64, 0.0, 1.0)).save("target/dotted_mosaic.png");
+///     // let blue_image_with_mosaic = dotted_mosaic.draw(LinSrgb::new(0.0f64, 0.0, 1.0));
+///     // let save_result = blue_image_with_mosaic.save("target/dotted_mosaic.png");
+///     // assert!(save_result.is_ok());
 /// }
 /// ```
 pub trait Mosaic {
+    /// Paints mosaic image with specified coloring method.
+    ///
+    /// This method transforms abstract [mosaic shape][`MosaicShape`] (with its key points)
+    /// to concrete pixels using given coloring method.
+    ///
+    /// # Arguments
+    ///
+    /// * `coloring_method`: [coloring method][`ColoringMethod`] used to draw every pixel
+    /// of mosaic shape in this image.
+    ///
+    /// returns: `RgbImage` - painted image containing mosaic shape (pattern).
+    ///
+    /// # See also
+    ///
+    /// * [`Mosaic`].
+    ///
     fn draw<Color, Method>(&self, coloring_method: Method) -> RgbImage
     where
         Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
         Method: ColoringMethod<Color>;
+
+    /// Width and height of resulting mosaic image.
     fn image_size(&self) -> (u32, u32);
+
+    /// Center point of [mosaic shape][`Mosaic::shape`] in this mosaic image.
     fn center(&self) -> Vector;
+
+    /// Rotation angle (in radians) of [mosaic shape][`Mosaic::shape`] in this mosaic image.
     fn rotation_angle(&self) -> f64;
+
+    /// Scale of [mosaic shape][`Mosaic::shape`] in this mosaic image.
     fn scale(&self) -> f64;
+
+    /// Shape (pattern) of mosaic image.
     fn shape(&self) -> Box<dyn MosaicShape>;
 }
 
