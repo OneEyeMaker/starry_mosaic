@@ -3,6 +3,142 @@ use palette::{IntoColor, LinSrgb, Mix, Shade};
 
 use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 
+/// Represents mosaic image and ways to paint it.
+///
+/// # Examples
+///
+/// This example creates mosaic image that visualises its key points
+/// (key points of [mosaic shape][`MosaicShape`] of image).
+///
+/// Uncomment last line of `main` function to color this mosaic blue and save it into file.
+///
+/// ```
+/// use image::{Rgb, RgbImage};
+/// use palette::{IntoColor, LinSrgb, Mix, Pixel, Shade};
+/// use starry_mosaic::{
+///     coloring_method::ColoringMethod,
+///     mosaic_shape::MosaicShape,
+///     Mosaic,
+///     MosaicBuilder,
+///     Vector
+/// };
+///
+/// #[derive(Clone, Debug)]
+/// struct DottedMosaic {
+///     key_points: Vec<Vector>,
+///     image_size: (u32, u32),
+///     center: Vector,
+///     rotation_angle: f64,
+///     scale: f64,
+///     shape: Box<dyn MosaicShape>,
+///     dot_radius: i32,
+/// }
+/// impl DottedMosaic {
+///     fn new(
+///         key_points: Vec<Vector>,
+///         image_size: (u32, u32),
+///         center: Vector,
+///         rotation_angle: f64,
+///         scale: f64,
+///         shape: Box<dyn MosaicShape>,
+///     ) -> Self {
+///         Self {
+///             key_points,
+///             image_size,
+///             center,
+///             rotation_angle,
+///             scale,
+///             shape,
+///             dot_radius: 5,
+///         }
+///     }
+///     fn dot_radius(&self) -> i32 {
+///         self.dot_radius
+///     }
+///     fn set_dot_radius(&mut self, dot_radius: i32) {
+///         self.dot_radius = dot_radius.max(1);
+///     }
+///     fn draw_dot<Color, Method>(
+///         &self,
+///         key_point: &Vector,
+///         coloring_method: &Method,
+///         image: &mut RgbImage
+///     )
+///     where
+///         Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
+///         Method: ColoringMethod<Color>,
+///     {
+///         let (image_width, image_height) = (self.image_size.0 as f64, self.image_size.1 as f64);
+///         for x_shift in -self.dot_radius..=self.dot_radius {
+///             for y_shift in -self.dot_radius..=self.dot_radius {
+///                 let point = Vector::new(
+///                     key_point.x + x_shift as f64,
+///                     key_point.y + y_shift as f64
+///                 );
+///                 if point.x < 0.0
+///                     || point.x >= image_width
+///                     || point.y < 0.0
+///                     || point.y >= image_width {
+///                     continue;
+///                 }
+///                 if (&point - key_point).length() > self.dot_radius as f64 {
+///                     continue;
+///                 }
+///                 let color = coloring_method.interpolate(&point, key_point).into_color();
+///                 image.put_pixel(
+///                     point.x as u32,
+///                     point.y as u32,
+///                     Rgb(color.into_format().into_raw())
+///                 );
+///             }
+///         }
+///     }
+/// }
+/// impl Mosaic for DottedMosaic {
+///     fn draw<Color, Method>(&self, coloring_method: Method) -> RgbImage
+///     where
+///         Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
+///         Method: ColoringMethod<Color>,
+///     {
+///         let mut mosaic_image = RgbImage::new(self.image_size.0, self.image_size.1);
+///         for key_point in &self.key_points {
+///             self.draw_dot(key_point, &coloring_method, &mut mosaic_image);
+///         }
+///         mosaic_image
+///     }
+///     fn image_size(&self) -> (u32, u32) {
+///         self.image_size
+///     }
+///     fn center(&self) -> Vector {
+///         self.center.clone()
+///     }
+///     fn rotation_angle(&self) -> f64 {
+///         self.rotation_angle
+///     }
+///     fn scale(&self) -> f64 {
+///         self.scale
+///     }
+///     fn shape(&self) -> Box<dyn MosaicShape> {
+///         self.shape.clone()
+///     }
+/// }
+///
+/// fn main() {
+///     let dotted_mosaic = MosaicBuilder::default()
+///         .set_image_size(1024, 1024)
+///         .set_center(Vector::new(512.0, 512.0))
+///         .set_rotation_angle(45.0f64.to_radians())
+///         .set_scale(0.75)
+///         .build_from_key_points(DottedMosaic::new);
+///
+///     assert_eq!(dotted_mosaic.image_size(), (1024, 1024));
+///     assert_eq!(dotted_mosaic.center(), Vector::new(512.0, 512.0));
+///     assert_eq!(dotted_mosaic.rotation_angle(), 45.0f64.to_radians());
+///     assert_eq!(dotted_mosaic.scale(), 0.75);
+///
+///     // dotted_mosaic.draw(LinSrgb::new(0.0f64, 0.0, 1.0)).save("target/dotted_mosaic.png");
+/// }
+/// ```
 pub trait Mosaic {
     fn draw<Color, Method>(&self, coloring_method: Method) -> RgbImage
     where
