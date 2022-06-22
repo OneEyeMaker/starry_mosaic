@@ -182,14 +182,31 @@ pub trait Mosaic {
 #[cfg(feature = "mosaic_with_preset_coloring")]
 use palette::Gradient;
 
+/// Provides preset methods to paint mosaic images.
+///
+/// This trait is implemented automatically for every implementer of `Mosaic` trait.
 #[cfg(feature = "mosaic_with_preset_coloring")]
 pub trait MosaicWithPresetColoring: Mosaic {
+    /// Paints mosaic image using single color.
+    ///
+    /// # See also
+    ///
+    /// * [`Mosaic::draw`].
+    ///
     fn draw_single_colored<Color>(&self, color: Color) -> RgbImage
     where
         Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
     {
         self.draw(color)
     }
+
+    /// Paints mosaic image using linear gradient.
+    ///
+    /// # See also
+    ///
+    /// * [`Mosaic::draw`].
+    /// * [`LinearGradient::new`].
+    ///
     fn draw_linear_gradient<Color, ColorGradient>(
         &self,
         gradient: ColorGradient,
@@ -208,6 +225,14 @@ pub trait MosaicWithPresetColoring: Mosaic {
             smoothness,
         ))
     }
+
+    /// Paints mosaic image using linear smooth gradient.
+    ///
+    /// # See also
+    ///
+    /// * [`Mosaic::draw`].
+    /// * [`LinearGradient::new_smooth`].
+    ///
     fn draw_linear_smooth_gradient<Color, ColorGradient>(
         &self,
         gradient: ColorGradient,
@@ -220,6 +245,14 @@ pub trait MosaicWithPresetColoring: Mosaic {
     {
         self.draw(LinearGradient::new_smooth(gradient, start_point, end_point))
     }
+
+    /// Paints mosaic image using linear step gradient.
+    ///
+    /// # See also
+    ///
+    /// * [`Mosaic::draw`].
+    /// * [`LinearGradient::new_step`].
+    ///
     fn draw_linear_step_gradient<Color, ColorGradient>(
         &self,
         gradient: ColorGradient,
@@ -232,6 +265,14 @@ pub trait MosaicWithPresetColoring: Mosaic {
     {
         self.draw(LinearGradient::new_step(gradient, start_point, end_point))
     }
+
+    /// Paints mosaic image using radial gradient.
+    ///
+    /// # See also
+    ///
+    /// * [`Mosaic::draw`].
+    /// * [`RadialGradient::new`].
+    ///
     fn draw_radial_gradient<Color, ColorGradient>(
         &self,
         gradient: ColorGradient,
@@ -254,6 +295,14 @@ pub trait MosaicWithPresetColoring: Mosaic {
             smoothness,
         ))
     }
+
+    /// Paints mosaic image using radial smooth gradient.
+    ///
+    /// # See also
+    ///
+    /// * [`Mosaic::draw`].
+    /// * [`RadialGradient::new_smooth`].
+    ///
     fn draw_radial_smooth_gradient<Color, ColorGradient>(
         &self,
         gradient: ColorGradient,
@@ -274,6 +323,14 @@ pub trait MosaicWithPresetColoring: Mosaic {
             outer_radius,
         ))
     }
+
+    /// Paints mosaic image using radial step gradient.
+    ///
+    /// # See also
+    ///
+    /// * [`Mosaic::draw`].
+    /// * [`RadialGradient::new_step`].
+    ///
     fn draw_radial_step_gradient<Color, ColorGradient>(
         &self,
         gradient: ColorGradient,
@@ -294,6 +351,14 @@ pub trait MosaicWithPresetColoring: Mosaic {
             outer_radius,
         ))
     }
+
+    /// Paints mosaic image using radial simple gradient.
+    ///
+    /// # See also
+    ///
+    /// * [`Mosaic::draw`].
+    /// * [`RadialGradient::new_simple`].
+    ///
     fn draw_radial_simple_gradient<Color, ColorGradient>(
         &self,
         gradient: ColorGradient,
@@ -309,6 +374,14 @@ pub trait MosaicWithPresetColoring: Mosaic {
             gradient, center, radius, smoothness,
         ))
     }
+
+    /// Paints mosaic image using radial simple smooth gradient.
+    ///
+    /// # See also
+    ///
+    /// * [`Mosaic::draw`].
+    /// * [`RadialGradient::new_simple_smooth`].
+    ///
     fn draw_radial_simple_smooth_gradient<Color, ColorGradient>(
         &self,
         gradient: ColorGradient,
@@ -321,6 +394,14 @@ pub trait MosaicWithPresetColoring: Mosaic {
     {
         self.draw(RadialGradient::new_simple_smooth(gradient, center, radius))
     }
+
+    /// Paints mosaic image using radial simple step gradient.
+    ///
+    /// # See also
+    ///
+    /// * [`Mosaic::draw`].
+    /// * [`RadialGradient::new_simple_step`].
+    ///
     fn draw_radial_simple_step_gradient<Color, ColorGradient>(
         &self,
         gradient: ColorGradient,
@@ -333,6 +414,14 @@ pub trait MosaicWithPresetColoring: Mosaic {
     {
         self.draw(RadialGradient::new_simple_step(gradient, center, radius))
     }
+
+    /// Paints mosaic image using conic gradient.
+    ///
+    /// # See also
+    ///
+    /// * [`Mosaic::draw`].
+    /// * [`ConicGradient::new`].
+    ///
     fn draw_conic_gradient<Color, ColorGradient>(
         &self,
         gradient: ColorGradient,
@@ -346,6 +435,14 @@ pub trait MosaicWithPresetColoring: Mosaic {
     {
         self.draw(ConicGradient::new(gradient, center, angle, smoothness))
     }
+
+    /// Paints mosaic image using conic smooth gradient.
+    ///
+    /// # See also
+    ///
+    /// * [`Mosaic::draw`].
+    /// * [`ConicGradient::new_smooth`].
+    ///
     fn draw_conic_smooth_gradient<Color, ColorGradient>(
         &self,
         gradient: ColorGradient,
@@ -358,6 +455,14 @@ pub trait MosaicWithPresetColoring: Mosaic {
     {
         self.draw(ConicGradient::new_smooth(gradient, center, angle))
     }
+
+    /// Paints mosaic image using conic step gradient.
+    ///
+    /// # See also
+    ///
+    /// * [`Mosaic::draw`].
+    /// * [`ConicGradient::new_step`].
+    ///
     fn draw_conic_step_gradient<Color, ColorGradient>(
         &self,
         gradient: ColorGradient,
