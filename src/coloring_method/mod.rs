@@ -109,6 +109,7 @@ mod tests {
             (0.7, LinSrgb::new(0.0, 0.0, 1.0)),
         ])
     }
+
     pub fn create_hsl_gradient() -> Gradient<Hsl<Srgb, f64>> {
         Gradient::from(vec![
             (0.3, Hsl::new(0.0, 1.0, 0.5)),
@@ -116,6 +117,7 @@ mod tests {
             (1.0, Hsl::new(240.0, 1.0, 0.5)),
         ])
     }
+
     pub fn create_lch_gradient() -> Gradient<Lch<D65, f64>> {
         Gradient::from(vec![
             (0.0, Lch::new(50.0, 100.0, 40.0)),

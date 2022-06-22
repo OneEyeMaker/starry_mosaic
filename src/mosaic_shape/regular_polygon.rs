@@ -1,20 +1,39 @@
 use super::{helpers, MosaicShape, Segment, Vector};
 
+/// Defines mosaic shape based on regular polygon.
 #[derive(Clone, Debug)]
 pub struct RegularPolygon {
     corners_count: u32,
 }
 
 impl RegularPolygon {
+    /// Creates regular polygon with set number of corners.
+    ///
+    /// # Arguments
+    ///
+    /// * `corners_count`: number of polygon corners; should be at least 3.
+    ///
+    /// returns: [`RegularPolygon`] - mosaic shape based on regular polygon with given
+    /// number of corners.
+    ///
     pub fn new(corners_count: u32) -> Self {
         Self {
             corners_count: corners_count.max(3),
         }
     }
+
+    /// Number of corners of regular polygon on which mosaic shape is based.
     #[inline(always)]
     pub fn corners_count(&self) -> u32 {
         self.corners_count
     }
+
+    /// Sets number of corners of regular polygon on which mosaic shape is based.
+    ///
+    /// # Arguments
+    ///
+    /// * `corners_count`: number of polygon corners; should be at least 3.
+    ///
     pub fn set_corners_count(&mut self, corners_count: u32) {
         self.corners_count = corners_count.max(3);
     }
@@ -37,6 +56,7 @@ impl MosaicShape for RegularPolygon {
         let radius = image_size.0.min(image_size.1) as f64 * 0.5 * scale;
         helpers::set_up_polygon_points(self.corners_count, radius, center, rotation_angle)
     }
+
     fn connect_points(&self, shape_points: &Vec<Vector>) -> Vec<Segment> {
         let points_count = shape_points.len();
         let mut segments = Vec::with_capacity(points_count * (points_count - 1) / 2);
