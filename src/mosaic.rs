@@ -78,7 +78,7 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 ///                 if point.x < 0.0
 ///                     || point.x >= image_width
 ///                     || point.y < 0.0
-///                     || point.y >= image_width {
+///                     || point.y >= image_height {
 ///                     continue;
 ///                 }
 ///                 if (&point - key_point).length() > self.dot_radius as f64 {
