@@ -101,7 +101,7 @@ pub trait MosaicShape: Debug + MosaicShapeBase {
     /// # Arguments
     ///
     /// * `image_size`: width and height of mosaic image to generate.
-    /// * `center`: center point of mosaic shape in generated image.
+    /// * `center`: position of center of mosaic shape in generated image.
     /// * `rotation_angle`: rotation angle of mosaic shape (pattern), in radians.
     /// * `scale`: scale of mosaic shape.
     ///

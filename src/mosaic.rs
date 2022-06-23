@@ -166,7 +166,7 @@ pub trait Mosaic {
     /// Width and height of resulting mosaic image.
     fn image_size(&self) -> (u32, u32);
 
-    /// Center point of [mosaic shape][`Mosaic::shape`] in this mosaic image.
+    /// Position of center of [mosaic shape][`Mosaic::shape`] in mosaic image.
     fn center(&self) -> Vector;
 
     /// Rotation angle (in radians) of [mosaic shape][`Mosaic::shape`] in this mosaic image.
