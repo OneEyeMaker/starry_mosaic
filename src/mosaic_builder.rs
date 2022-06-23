@@ -9,6 +9,38 @@ use super::{
     vector::Vector,
 };
 
+/// Builds different mosaic images from set of its properties.
+///
+/// # Examples
+///
+/// Next example creates [starry mosaic image][`StarryMosaic`].
+///
+/// Uncomment last lines to save created image to file.
+///
+/// ```
+/// use palette::LinSrgb;
+/// use starry_mosaic::{Mosaic, MosaicBuilder, Vector};
+///
+/// let starry_mosaic = MosaicBuilder::default()
+///     .set_image_size(1024, 1024)
+///     .set_center(Vector::new(512.0, 512.0))
+///     .set_rotation_angle(22.5f64.to_radians())
+///     .set_scale(0.5)
+///     .build_star();
+///
+/// assert!(starry_mosaic.is_some());
+///
+/// let starry_mosaic = starry_mosaic.unwrap();
+///
+/// assert_eq!(starry_mosaic.image_size(), (1024, 1024));
+/// assert_eq!(starry_mosaic.center(), Vector::new(512.0, 512.0));
+/// assert_eq!(starry_mosaic.rotation_angle(), 22.5f64.to_radians());
+/// assert_eq!(starry_mosaic.scale(), 0.5);
+///
+/// // let orange_image = starry_mosaic.draw(LinSrgb::new(1.0f64, 0.5, 0.0));
+/// // let save_result = orange_image.save("target/orange_starry_mosaic.png");
+/// // assert!(save_result.is_ok());
+/// ```
 #[derive(Clone)]
 pub struct MosaicBuilder {
     shape: Box<dyn MosaicShape>,
@@ -19,14 +51,50 @@ pub struct MosaicBuilder {
 }
 
 impl MosaicBuilder {
+    /// Sets shape of mosaic image to [regular polygon][`RegularPolygon`].
+    ///
+    /// # Arguments
+    ///
+    /// * `corners_count`: number of polygon corners; should be at least 3.
+    ///
+    /// returns: [`MosaicBuilder`] - builder with mosaic shape set to regular polygon.
+    ///
+    /// # See also
+    ///
+    /// * [`MosaicBuilder::set_shape`].
+    /// * [`RegularPolygon::new`].
+    ///
     pub fn set_regular_polygon_shape(mut self, corners_count: u32) -> Self {
         self.shape = Box::new(RegularPolygon::new(corners_count));
         self
     }
+
+    /// Sets shape of mosaic image to [polygonal star][`PolygonalStar`].
+    ///
+    /// # Arguments
+    ///
+    /// * `corners_count`: number of convex star corners; should be at least 3.
+    ///
+    /// returns: [`MosaicBuilder`] - builder with mosaic shape set to polygonal star.
+    ///
+    /// # See also
+    ///
+    /// * [`MosaicBuilder::set_shape`].
+    /// * [`PolygonalStar::new`].
+    ///
     pub fn set_polygonal_star_shape(mut self, corners_count: u32) -> Self {
         self.shape = Box::new(PolygonalStar::new(corners_count));
         self
     }
+
+    /// Sets mosaic shape with which mosaic image will be created.
+    ///
+    /// # Arguments
+    ///
+    /// * `shape`: [mosaic shape][`MosaicShape`] which will be drawn in image.
+    ///
+    /// returns: [`MosaicBuilder`] - builder with configured mosaic shape.
+    ///
     pub fn set_shape<Shape>(mut self, shape: Shape) -> Self
     where
         Shape: 'static + MosaicShape,
@@ -34,10 +102,30 @@ impl MosaicBuilder {
         self.shape = Box::new(shape);
         self
     }
+
+    /// Sets width and height of mosaic image.
+    ///
+    /// # Arguments
+    ///
+    /// * `width`: width of image, in pixels; should be non-zero.
+    /// * `height`: height of image, in pixels; should be non-zero.
+    ///
+    /// returns: [`MosaicBuilder`] - builder with configured image size.
+    ///
     pub fn set_image_size(mut self, width: u32, height: u32) -> Self {
         self.image_size = (width.max(1), height.max(1));
         self
     }
+
+    /// Sets center (pivot) point of shape of mosaic image.
+    ///
+    /// # Arguments
+    ///
+    /// * `center`: position of center of mosaic shape in created image; should be within image
+    /// bounds.
+    ///
+    /// returns: [`MosaicBuilder`] - builder with configured center of mosaic shape.
+    ///
     pub fn set_center(mut self, center: Vector) -> Self {
         self.center = Vector::new(
             center.x.clamp(0.0, self.image_size.0 as f64),
@@ -45,17 +133,68 @@ impl MosaicBuilder {
         );
         self
     }
+
+    /// Sets rotation angle of shape of mosaic image.
+    ///
+    /// # Arguments
+    ///
+    /// * `rotation_angle`: rotation angle of mosaic shape, in radians.
+    ///
+    /// returns: [`MosaicBuilder`] - builder with configured rotation of mosaic shape.
+    ///
     pub fn set_rotation_angle(mut self, rotation_angle: f64) -> Self {
         self.rotation_angle = rotation_angle;
         self
     }
+
+    /// Sets scale of shape of mosaic image.
+    ///
+    /// # Arguments
+    ///
+    /// * `scale`: scale of mosaic shape in created image; should be at least 0.001.
+    ///
+    /// returns: [`MosaicBuilder`] - builder with configured scale of mosaic shape.
+    ///
     pub fn set_scale(mut self, scale: f64) -> Self {
         self.scale = scale.max(0.001);
         self
     }
+
+    /// Builds [starry mosaic][`StarryMosaic`] with current configuration of builder.
+    ///
+    /// `StarryMosaic` is based on Voronoi diagram. Due to the fact that not every mosaic shape
+    /// can provide valid set of key points for Voronoi diagram this method returns
+    /// `Option<StarryMosaic>` instead of `StarryMosaic`.
+    ///
+    /// # See also
+    ///
+    /// * [`MosaicBuilder::build_from_voronoi`].
+    ///
     pub fn build_star(self) -> Option<StarryMosaic> {
         self.build_from_voronoi(StarryMosaic::new)
     }
+
+    /// Builds mosaic image based on Voronoi diagram with current configuration of builder
+    /// using constructor function.
+    ///
+    /// **_Note_**: this method is intended for building custom implementations of [`Mosaic`] trait.
+    /// For existing implementations use other `build` methods.
+    ///
+    /// # Arguments
+    ///
+    /// * `constructor`: constructor function of mosaic image; this function takes next arguments:
+    ///     * instance of [Voronoi diagram][`Voronoi`],
+    ///     * width and height of created image,
+    ///     * center point of shape of mosaic image,
+    ///     * rotation angle of shape of mosaic image, in radians,
+    ///     * scale of shape of mosaic image,
+    ///     * mosaic shape with which mosaic image will be created.
+    ///
+    /// returns: `Option<MosaicImage>` - mosaic image based on Voronoi diagram with current
+    /// configuration. Due to the fact that not every mosaic shape can provide valid set of
+    /// key points for Voronoi diagram this method returns `Option<MosaicImage>` instead of
+    /// `MosaicImage`.
+    ///
     pub fn build_from_voronoi<MosaicImage, Constructor>(
         self,
         constructor: Constructor,
@@ -91,6 +230,28 @@ impl MosaicBuilder {
             None => None,
         }
     }
+
+    /// Builds mosaic image based on set of key points of mosaic shape with current configuration
+    /// of builder using constructor function.
+    ///
+    /// **_Note_**: this method is intended for building custom implementations of [`Mosaic`] trait.
+    /// For existing implementations use other `build` methods.
+    ///
+    /// # Arguments
+    ///
+    /// * `constructor`: constructor function of mosaic image; this function takes next arguments:
+    ///     * set of key points calculated by constructing mosaic shape,
+    ///     * width and height of created image,
+    ///     * center point of shape of mosaic image,
+    ///     * rotation angle of shape of mosaic image, in radians,
+    ///     * scale of shape of mosaic image,
+    ///     * mosaic shape with which mosaic image will be created.
+    ///
+    /// returns: `Option<MosaicImage>` - mosaic image based on Voronoi diagram with current
+    /// configuration. Due to the fact that not every mosaic shape can provide valid set of
+    /// key points for Voronoi diagram this method returns `Option<MosaicImage>` instead of
+    /// `MosaicImage`.
+    ///
     pub fn build_from_key_points<MosaicImage, Constructor>(
         self,
         constructor: Constructor,
@@ -110,6 +271,7 @@ impl MosaicBuilder {
             self.shape,
         )
     }
+
     fn construct_shape(&self) -> Vec<Vector> {
         let mut initial_points = self.shape.set_up_points(
             self.image_size,
