@@ -6,6 +6,17 @@ use super::{
     coloring_method::ColoringMethod, mosaic::Mosaic, mosaic_shape::MosaicShape, vector::Vector,
 };
 
+/// Represents starry mosaic image and paints it with different [methods][`ColoringMethod`].
+///
+/// Every image created by `StarryMosaic` is based on Voronoi diagram, which is built
+/// using key points of mosaic shape.
+///
+/// To create `StarryMosaic` instance use [MosaicBuilder][`super::mosaic_builder::MosaicBuilder`].
+///
+/// # See also
+///
+/// * [MosaicBuilder::build_star][`super::mosaic_builder::MosaicBuilder::build_star`].
+///
 #[derive(Clone, Debug)]
 pub struct StarryMosaic {
     voronoi: Voronoi,
@@ -34,6 +45,7 @@ impl StarryMosaic {
             shape,
         }
     }
+
     fn calculate_maximum_cell_distances(&self) -> Vec<f64> {
         let mut maximum_cell_distances = vec![0.0f64; self.voronoi.cells().len()];
         self.voronoi.iter_cells().for_each(|cell| {
@@ -48,6 +60,7 @@ impl StarryMosaic {
         });
         maximum_cell_distances
     }
+
     fn find_closest_site(&self, site: usize, vector: &Vector) -> usize {
         self.voronoi
             .cell(site)
@@ -84,18 +97,23 @@ impl Mosaic for StarryMosaic {
         }
         mosaic_image
     }
+
     fn image_size(&self) -> (u32, u32) {
         self.image_size
     }
+
     fn center(&self) -> Vector {
         self.center.clone()
     }
+
     fn rotation_angle(&self) -> f64 {
         self.rotation_angle
     }
+
     fn scale(&self) -> f64 {
         self.scale
     }
+
     fn shape(&self) -> Box<dyn MosaicShape> {
         self.shape.clone()
     }
