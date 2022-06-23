@@ -292,10 +292,10 @@ impl Default for MosaicBuilder {
     fn default() -> Self {
         Self {
             shape: Box::new(RegularPolygon::default()),
-            image_size: (400, 400),
-            center: Vector::new(200.0, 200.0),
+            image_size: (640, 640),
+            center: Vector::new(320.0, 320.0),
             rotation_angle: 0.0,
-            scale: 0.75,
+            scale: 1.0,
         }
     }
 }
