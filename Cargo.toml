@@ -1,8 +1,16 @@
 [package]
 name = "starry_mosaic"
 version = "0.1.0"
-edition = "2021"
+authors = ["Alexander Anishin <oneeyemaker@gmail.com>"]
 license = "MIT"
+description = "A library for generating colorful mosaic images with various geometrical patterns."
+homepage = "https://github.com/OneEyeMaker/starry_mosaic"
+repository = "https://github.com/OneEyeMaker/starry_mosaic"
+readme = "README.md"
+keywords = ["starry", "mosaic", "image"]
+categories = ["graphics", "multimedia::images"]
+edition = "2021"
+exclude = ["/images/"]
 
 [dependencies]
 float-cmp = "0.9.0"
