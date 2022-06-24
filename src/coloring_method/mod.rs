@@ -1,3 +1,12 @@
+//! This module provides various coloring methods to paint mosaic and so create painted
+//! mosaic images.
+//!
+//! Primary method of coloring - is just a single color. So many color types provided by `palette`
+//! crate are supported as coloring method of mosaic.
+//!
+//! Additionally this module provides various gradients to paint mosaic images. These gradients
+//! can follow shape of mosaic (fully or partially) or ignore it completely.
+
 use palette::Mix;
 
 use super::vector::Vector;

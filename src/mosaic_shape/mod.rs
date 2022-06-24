@@ -1,3 +1,12 @@
+//! This module provides types to create various shapes of mosaic.
+//!
+//! Every mosaic shape is defined using so called `key points` - positions at which mosaic creates
+//! its drawing and design. As an example, such key points can become sites of
+//! [Voronoi diagram](https://en.wikipedia.org/wiki/Voronoi_diagram).
+//!
+//! Mosaic shapes are not designed as storages for key points (or any accompanying geometry);
+//! instead ones should perform necessary calculations on demand.
+
 use std::fmt::Debug;
 
 use super::{segment::Segment, vector::Vector};
