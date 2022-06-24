@@ -3,10 +3,11 @@
 //! # How to create mosaic image
 //!
 //! To create mosaic simply:
-//!     - set size of resulting image;
-//!     - choose shape which mosaic is based on,
-//!     - set its position, rotation and scale
-//!     - and finally select type of mosaic.
+//!
+//!  - set size of resulting image;
+//!  - choose shape which mosaic is based on,
+//!  - set its position, rotation and scale
+//!  - and finally select type of mosaic.
 //!
 //! Then this mosaic can be painted with any color or gradient.
 //!
