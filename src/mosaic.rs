@@ -3,14 +3,15 @@ use palette::{IntoColor, LinSrgb, Mix, Shade};
 
 use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 
-/// Represents mosaic image and paints it with different [methods][`ColoringMethod`].
+/// Represents mosaic and allows to create mosaic images painted with different
+/// [methods][`ColoringMethod`].
 ///
 /// # Examples
 ///
-/// This example creates mosaic image that visualises its key points
-/// (key points of [mosaic shape][`MosaicShape`] of image).
+/// This example creates mosaic that visualises its key points
+/// (key points of [mosaic shape][`MosaicShape`]).
 ///
-/// Uncomment lines at the end of `main` function to color this mosaic blue and save it into file.
+/// Uncomment lines at the end of `main` function to create blue mosaic image and save it to file.
 ///
 /// ```
 /// use image::{Rgb, RgbImage};
@@ -62,7 +63,7 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 ///         &self,
 ///         key_point: &Vector,
 ///         coloring_method: &Method,
-///         image: &mut RgbImage
+///         mosaic_image: &mut RgbImage
 ///     )
 ///     where
 ///         Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
@@ -85,7 +86,7 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 ///                     continue;
 ///                 }
 ///                 let color = coloring_method.interpolate(&point, key_point).into_color();
-///                 image.put_pixel(
+///                 mosaic_image.put_pixel(
 ///                     point.x as u32,
 ///                     point.y as u32,
 ///                     Rgb(color.into_format().into_raw())
@@ -136,13 +137,13 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 ///     assert_eq!(dotted_mosaic.rotation_angle(), 45.0f64.to_radians());
 ///     assert_eq!(dotted_mosaic.scale(), 0.75);
 ///
-///     // let blue_image_with_mosaic = dotted_mosaic.draw(LinSrgb::new(0.0f64, 0.0, 1.0));
-///     // let save_result = blue_image_with_mosaic.save("target/dotted_mosaic.png");
+///     // let blue_mosaic_image = dotted_mosaic.draw(LinSrgb::new(0.0f64, 0.0, 1.0));
+///     // let save_result = blue_mosaic_image.save("target/dotted_mosaic.png");
 ///     // assert!(save_result.is_ok());
 /// }
 /// ```
 pub trait Mosaic {
-    /// Paints mosaic image with specified coloring method.
+    /// Creates mosaic image painted with specified coloring method.
     ///
     /// This method transforms abstract [mosaic shape][`MosaicShape`] (with its key points)
     /// to concrete pixels using given coloring method.
@@ -150,9 +151,9 @@ pub trait Mosaic {
     /// # Arguments
     ///
     /// * `coloring_method`: [coloring method][`ColoringMethod`] used to draw every pixel
-    /// of mosaic shape in this image.
+    /// of mosaic shape in image.
     ///
-    /// returns: `RgbImage` - painted image containing mosaic shape (pattern).
+    /// returns: `RgbImage` - painted mosaic image containing mosaic shape (pattern).
     ///
     /// # See also
     ///
@@ -163,26 +164,26 @@ pub trait Mosaic {
         Color: IntoColor<LinSrgb<f64>> + Mix<Scalar = f64> + Shade<Scalar = f64> + Clone,
         Method: ColoringMethod<Color>;
 
-    /// Width and height of resulting mosaic image.
+    /// Width and height of mosaic and mosaic image it creates.
     fn image_size(&self) -> (u32, u32);
 
-    /// Position of center of [mosaic shape][`Mosaic::shape`] in mosaic image.
+    /// Position of center of [mosaic shape][`Mosaic::shape`] in mosaic.
     fn center(&self) -> Vector;
 
-    /// Rotation angle (in radians) of [mosaic shape][`Mosaic::shape`] in this mosaic image.
+    /// Rotation angle (in radians) of [mosaic shape][`Mosaic::shape`] in this mosaic.
     fn rotation_angle(&self) -> f64;
 
-    /// Scale of [mosaic shape][`Mosaic::shape`] in this mosaic image.
+    /// Scale of [mosaic shape][`Mosaic::shape`] in this mosaic.
     fn scale(&self) -> f64;
 
-    /// Shape (pattern) of mosaic image.
+    /// Shape (pattern) of mosaic.
     fn shape(&self) -> Box<dyn MosaicShape>;
 }
 
 #[cfg(feature = "mosaic_with_preset_coloring")]
 use palette::Gradient;
 
-/// Provides preset methods to paint mosaic images.
+/// Provides preset methods to create painted mosaic images.
 ///
 /// This trait is implemented automatically for every implementer of `Mosaic` trait.
 #[cfg(feature = "mosaic_with_preset_coloring")]

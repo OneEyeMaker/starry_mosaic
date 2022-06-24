@@ -6,9 +6,9 @@ use super::{
     coloring_method::ColoringMethod, mosaic::Mosaic, mosaic_shape::MosaicShape, vector::Vector,
 };
 
-/// Represents starry mosaic image and paints it with different [methods][`ColoringMethod`].
+/// Represents starry mosaic and creates mosaic images painted with with different [methods][`ColoringMethod`].
 ///
-/// Every image created by `StarryMosaic` is based on Voronoi diagram, which is built
+/// Every mosaic created by `StarryMosaic` is based on Voronoi diagram, which is built
 /// using key points of mosaic shape.
 ///
 /// To create `StarryMosaic` instance use [MosaicBuilder][`super::mosaic_builder::MosaicBuilder`].

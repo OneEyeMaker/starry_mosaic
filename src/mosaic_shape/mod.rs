@@ -2,7 +2,7 @@ use std::fmt::Debug;
 
 use super::{segment::Segment, vector::Vector};
 
-/// Describes and calculates shape (pattern) of mosaic image.
+/// Describes and calculates shape (pattern) of mosaic.
 ///
 /// Any mosaic shape is defined by set of key points. This set is created in 3 steps:
 ///
@@ -100,13 +100,13 @@ pub trait MosaicShape: Debug + MosaicShapeBase {
     ///
     /// # Arguments
     ///
-    /// * `image_size`: width and height of mosaic image to generate.
-    /// * `center`: position of center of mosaic shape in generated image.
+    /// * `image_size`: width and height of mosaic (and mosaic images one creates).
+    /// * `center`: position of center of mosaic shape in mosaic.
     /// * `rotation_angle`: rotation angle of mosaic shape (pattern), in radians.
     /// * `scale`: scale of mosaic shape.
     ///
     /// returns: `Vec<`[`Vector`]`>` - set of basic key points of mosaic shape that fits into
-    /// size of image and positioned, rotated and scaled appropriately.
+    /// size of mosaic and positioned, rotated and scaled appropriately.
     ///
     /// # See also
     ///
@@ -124,7 +124,7 @@ pub trait MosaicShape: Debug + MosaicShapeBase {
     ///
     /// # Arguments
     ///
-    /// * `shape_points`: set of primary key points of mosaic image.
+    /// * `shape_points`: set of primary key points of mosaic.
     ///
     /// returns: `Vec<`[`Segment`]`>` - list of segments which form mosaic shape.
     ///

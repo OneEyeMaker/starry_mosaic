@@ -9,13 +9,13 @@ use super::{
     vector::Vector,
 };
 
-/// Builds different mosaic images from set of its properties.
+/// Builds different mosaics from set of its properties.
 ///
 /// # Examples
 ///
-/// Next example creates [starry mosaic image][`StarryMosaic`].
+/// Next example creates [starry mosaic][`StarryMosaic`].
 ///
-/// Uncomment last lines to save created image to file.
+/// Uncomment last lines to create mosaic image and save it to file.
 ///
 /// ```
 /// use palette::LinSrgb;
@@ -51,7 +51,7 @@ pub struct MosaicBuilder {
 }
 
 impl MosaicBuilder {
-    /// Sets shape of mosaic image to [regular polygon][`RegularPolygon`].
+    /// Sets shape of mosaic to [regular polygon][`RegularPolygon`].
     ///
     /// # Arguments
     ///
@@ -69,7 +69,7 @@ impl MosaicBuilder {
         self
     }
 
-    /// Sets shape of mosaic image to [polygonal star][`PolygonalStar`].
+    /// Sets shape of mosaic to [polygonal star][`PolygonalStar`].
     ///
     /// # Arguments
     ///
@@ -87,11 +87,11 @@ impl MosaicBuilder {
         self
     }
 
-    /// Sets mosaic shape with which mosaic image will be created.
+    /// Sets mosaic shape with which mosaic will be created.
     ///
     /// # Arguments
     ///
-    /// * `shape`: [mosaic shape][`MosaicShape`] which will be drawn in image.
+    /// * `shape`: [mosaic shape][`MosaicShape`] which will be drawn in mosaic image.
     ///
     /// returns: [`MosaicBuilder`] - builder with configured mosaic shape.
     ///
@@ -103,12 +103,12 @@ impl MosaicBuilder {
         self
     }
 
-    /// Sets width and height of mosaic image.
+    /// Sets width and height of mosaic (and mosaic images one creates).
     ///
     /// # Arguments
     ///
-    /// * `width`: width of image, in pixels; should be non-zero.
-    /// * `height`: height of image, in pixels; should be non-zero.
+    /// * `width`: width of mosaic, in pixels; should be non-zero.
+    /// * `height`: height of mosaic, in pixels; should be non-zero.
     ///
     /// returns: [`MosaicBuilder`] - builder with configured image size.
     ///
@@ -117,12 +117,12 @@ impl MosaicBuilder {
         self
     }
 
-    /// Sets center (pivot) point of shape of mosaic image.
+    /// Sets center (pivot) point of shape of mosaic.
     ///
     /// # Arguments
     ///
-    /// * `center`: position of center of mosaic shape in created image; should be within image
-    /// bounds.
+    /// * `center`: position of center of mosaic shape in created mosaic; should be within bounds
+    /// of mosaic.
     ///
     /// returns: [`MosaicBuilder`] - builder with configured center of mosaic shape.
     ///
@@ -134,7 +134,7 @@ impl MosaicBuilder {
         self
     }
 
-    /// Sets rotation angle of shape of mosaic image.
+    /// Sets rotation angle of shape of mosaic.
     ///
     /// # Arguments
     ///
@@ -147,11 +147,11 @@ impl MosaicBuilder {
         self
     }
 
-    /// Sets scale of shape of mosaic image.
+    /// Sets scale of shape of mosaic.
     ///
     /// # Arguments
     ///
-    /// * `scale`: scale of mosaic shape in created image; should be at least 0.001.
+    /// * `scale`: scale of mosaic shape in created images; should be at least 0.001.
     ///
     /// returns: [`MosaicBuilder`] - builder with configured scale of mosaic shape.
     ///
@@ -174,7 +174,7 @@ impl MosaicBuilder {
         self.build_from_voronoi(StarryMosaic::new)
     }
 
-    /// Builds mosaic image based on Voronoi diagram with current configuration of builder
+    /// Builds mosaic based on Voronoi diagram with current configuration of builder
     /// using constructor function.
     ///
     /// **_Note_**: this method is intended for building custom implementations of [`Mosaic`] trait.
@@ -182,27 +182,33 @@ impl MosaicBuilder {
     ///
     /// # Arguments
     ///
-    /// * `constructor`: constructor function of mosaic image; this function takes next arguments:
+    /// * `constructor`: constructor function of mosaic; this function takes next arguments:
     ///     * instance of [Voronoi diagram][`Voronoi`],
-    ///     * width and height of created image,
-    ///     * center point of shape of mosaic image,
-    ///     * rotation angle of shape of mosaic image, in radians,
-    ///     * scale of shape of mosaic image,
-    ///     * mosaic shape with which mosaic image will be created.
+    ///     * width and height of mosaic (and created images),
+    ///     * center point of shape of mosaic,
+    ///     * rotation angle of shape of mosaic, in radians,
+    ///     * scale of shape of mosaic,
+    ///     * mosaic shape with which mosaic images will be created.
     ///
-    /// returns: `Option<MosaicImage>` - mosaic image based on Voronoi diagram with current
-    /// configuration. Due to the fact that not every mosaic shape can provide valid set of
-    /// key points for Voronoi diagram this method returns `Option<MosaicImage>` instead of
-    /// `MosaicImage`.
+    /// returns: `Option<MosaicImplementation>` - configured mosaic based on Voronoi diagram.
+    /// Due to the fact that not every mosaic shape can provide valid set of key points
+    /// for Voronoi diagram this method returns `Option<MosaicImplementation>` instead of
+    /// `MosaicImplementation`.
     ///
-    pub fn build_from_voronoi<MosaicImage, Constructor>(
+    pub fn build_from_voronoi<MosaicImplementation, Constructor>(
         self,
         constructor: Constructor,
-    ) -> Option<MosaicImage>
+    ) -> Option<MosaicImplementation>
     where
-        MosaicImage: Mosaic,
-        Constructor:
-            FnOnce(Voronoi, (u32, u32), Vector, f64, f64, Box<dyn MosaicShape>) -> MosaicImage,
+        MosaicImplementation: Mosaic,
+        Constructor: FnOnce(
+            Voronoi,
+            (u32, u32),
+            Vector,
+            f64,
+            f64,
+            Box<dyn MosaicShape>,
+        ) -> MosaicImplementation,
     {
         let points = self
             .construct_shape()
@@ -231,7 +237,7 @@ impl MosaicBuilder {
         }
     }
 
-    /// Builds mosaic image based on set of key points of mosaic shape with current configuration
+    /// Builds mosaic based on set of key points of mosaic shape with current configuration
     /// of builder using constructor function.
     ///
     /// **_Note_**: this method is intended for building custom implementations of [`Mosaic`] trait.
@@ -239,27 +245,31 @@ impl MosaicBuilder {
     ///
     /// # Arguments
     ///
-    /// * `constructor`: constructor function of mosaic image; this function takes next arguments:
+    /// * `constructor`: constructor function of mosaic; this function takes next arguments:
     ///     * set of key points calculated by constructing mosaic shape,
-    ///     * width and height of created image,
-    ///     * center point of shape of mosaic image,
-    ///     * rotation angle of shape of mosaic image, in radians,
-    ///     * scale of shape of mosaic image,
-    ///     * mosaic shape with which mosaic image will be created.
+    ///     * width and height of mosaic (and created images),
+    ///     * center point of shape of mosaic,
+    ///     * rotation angle of shape of mosaic, in radians,
+    ///     * scale of shape of mosaic,
+    ///     * mosaic shape with which mosaic images will be created.
     ///
-    /// returns: `Option<MosaicImage>` - mosaic image based on Voronoi diagram with current
-    /// configuration. Due to the fact that not every mosaic shape can provide valid set of
-    /// key points for Voronoi diagram this method returns `Option<MosaicImage>` instead of
-    /// `MosaicImage`.
+    /// returns: `Option<MosaicImplementation>` - configured mosaic based on set of key point
+    /// of constructed mosaic shape.
     ///
-    pub fn build_from_key_points<MosaicImage, Constructor>(
+    pub fn build_from_key_points<MosaicImplementation, Constructor>(
         self,
         constructor: Constructor,
-    ) -> MosaicImage
+    ) -> MosaicImplementation
     where
-        MosaicImage: Mosaic,
-        Constructor:
-            FnOnce(Vec<Vector>, (u32, u32), Vector, f64, f64, Box<dyn MosaicShape>) -> MosaicImage,
+        MosaicImplementation: Mosaic,
+        Constructor: FnOnce(
+            Vec<Vector>,
+            (u32, u32),
+            Vector,
+            f64,
+            f64,
+            Box<dyn MosaicShape>,
+        ) -> MosaicImplementation,
     {
         let points = self.construct_shape();
         constructor(
