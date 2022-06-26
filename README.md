@@ -2,6 +2,10 @@
 
 # StarryMosaic
 
+[![Crates.io](https://img.shields.io/crates/v/starry_mosaic)](https://crates.io/crates/starry_mosaic/)
+[![docs.rs](https://img.shields.io/docsrs/starry_mosaic)](https://docs.rs/starry_mosaic/)
+[![Continuous integration](https://github.com/OneEyeMaker/starry_mosaic/actions/workflows/ci.yml/badge.svg)](https://github.com/OneEyeMaker/starry_mosaic/actions/workflows/ci.yml)
+
 A library for generating colorful mosaic images with various geometrical patterns.
 
 ## How to create mosaic image
