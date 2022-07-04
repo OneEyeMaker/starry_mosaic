@@ -175,6 +175,16 @@ impl MosaicBuilder {
         self.build_from_voronoi(StarryMosaic::new)
     }
 
+    /// Builds [polygonal mosaic][`PolygonalMosaic`] with current configuration of builder.
+    ///
+    /// `PolygonalMosaic` is based on Delaunay triangulation. Due to the fact that not every
+    /// mosaic shape can provide valid set of key points for Delaunay triangulation this method
+    /// returns `Option<PolygonalMosaic>` instead of `PolygonalMosaic`.
+    ///
+    /// # See also
+    ///
+    /// * [`MosaicBuilder::build_from_voronoi`].
+    ///
     pub fn build_polygon(self) -> Option<PolygonalMosaic> {
         self.build_from_voronoi(PolygonalMosaic::new)
     }

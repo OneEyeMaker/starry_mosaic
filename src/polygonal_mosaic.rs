@@ -6,6 +6,18 @@ use super::{
     coloring_method::ColoringMethod, mosaic::Mosaic, mosaic_shape::MosaicShape, vector::Vector,
 };
 
+/// Represents polygonal mosaic and creates mosaic images painted with with different
+/// [methods][`ColoringMethod`].
+///
+/// Every mosaic created by `PolygonalMosaic` is based on Delaunay triangulation, which is built
+/// using key points of mosaic shape.
+///
+/// To create `PolygonalMosaic` instance use [MosaicBuilder][`super::mosaic_builder::MosaicBuilder`].
+///
+/// # See also
+///
+/// * [MosaicBuilder::build_polygon][`super::mosaic_builder::MosaicBuilder::build_polygon`].
+///
 #[derive(Clone, Debug)]
 pub struct PolygonalMosaic {
     voronoi: Voronoi,
