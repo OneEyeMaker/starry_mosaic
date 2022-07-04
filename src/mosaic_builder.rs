@@ -5,6 +5,7 @@ use voronoice::{BoundingBox, Point, Voronoi, VoronoiBuilder};
 use super::{
     mosaic::Mosaic,
     mosaic_shape::{MosaicShape, PolygonalStar, RegularPolygon},
+    polygonal_mosaic::PolygonalMosaic,
     starry_mosaic::StarryMosaic,
     vector::Vector,
 };
@@ -172,6 +173,10 @@ impl MosaicBuilder {
     ///
     pub fn build_star(self) -> Option<StarryMosaic> {
         self.build_from_voronoi(StarryMosaic::new)
+    }
+
+    pub fn build_polygon(self) -> Option<PolygonalMosaic> {
+        self.build_from_voronoi(PolygonalMosaic::new)
     }
 
     /// Builds mosaic based on Voronoi diagram with current configuration of builder

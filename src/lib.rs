@@ -51,5 +51,8 @@ pub use self::mosaic::MosaicWithPresetColoring;
 mod mosaic_builder;
 pub use self::mosaic_builder::MosaicBuilder;
 
+mod polygonal_mosaic;
+pub use self::polygonal_mosaic::PolygonalMosaic;
+
 mod starry_mosaic;
 pub use self::starry_mosaic::StarryMosaic;

@@ -93,7 +93,7 @@ impl Mosaic for StarryMosaic {
                 .interpolate(&position, &current_site_position)
                 .lighten(lightness)
                 .into_color();
-            *pixel = Rgb(color.into_format().into_raw())
+            *pixel = Rgb(color.into_format().into_raw());
         }
         mosaic_image
     }
