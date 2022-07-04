@@ -2,6 +2,7 @@ use std::cmp::Ordering;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
+use robust::Coord;
 use voronoice::Point;
 
 use super::utility;
@@ -313,6 +314,14 @@ impl From<(f64, f64)> for Vector {
         }
     }
 }
+impl From<&Coord<f64>> for Vector {
+    fn from(coord: &Coord<f64>) -> Self {
+        Self {
+            x: coord.x,
+            y: coord.y,
+        }
+    }
+}
 impl From<&Point> for Vector {
     fn from(point: &Point) -> Self {
         Self {
@@ -321,15 +330,7 @@ impl From<&Point> for Vector {
         }
     }
 }
-impl From<Point> for Vector {
-    fn from(point: Point) -> Self {
-        Self {
-            x: point.x,
-            y: point.y,
-        }
-    }
-}
-impl From<&Vector> for Point {
+impl From<&Vector> for Coord<f64> {
     fn from(vector: &Vector) -> Self {
         Self {
             x: vector.x,
@@ -337,8 +338,8 @@ impl From<&Vector> for Point {
         }
     }
 }
-impl From<Vector> for Point {
-    fn from(vector: Vector) -> Self {
+impl From<&Vector> for Point {
+    fn from(vector: &Vector) -> Self {
         Self {
             x: vector.x,
             y: vector.y,

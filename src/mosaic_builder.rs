@@ -5,6 +5,7 @@ use voronoice::{BoundingBox, Point, Voronoi, VoronoiBuilder};
 use super::{
     mosaic::Mosaic,
     mosaic_shape::{MosaicShape, PolygonalStar, RegularPolygon},
+    polygonal_mosaic::PolygonalMosaic,
     starry_mosaic::StarryMosaic,
     vector::Vector,
 };
@@ -172,6 +173,20 @@ impl MosaicBuilder {
     ///
     pub fn build_star(self) -> Option<StarryMosaic> {
         self.build_from_voronoi(StarryMosaic::new)
+    }
+
+    /// Builds [polygonal mosaic][`PolygonalMosaic`] with current configuration of builder.
+    ///
+    /// `PolygonalMosaic` is based on Delaunay triangulation. Due to the fact that not every
+    /// mosaic shape can provide valid set of key points for Delaunay triangulation this method
+    /// returns `Option<PolygonalMosaic>` instead of `PolygonalMosaic`.
+    ///
+    /// # See also
+    ///
+    /// * [`MosaicBuilder::build_from_voronoi`].
+    ///
+    pub fn build_polygon(self) -> Option<PolygonalMosaic> {
+        self.build_from_voronoi(PolygonalMosaic::new)
     }
 
     /// Builds mosaic based on Voronoi diagram with current configuration of builder
