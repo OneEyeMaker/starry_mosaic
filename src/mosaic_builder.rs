@@ -325,11 +325,11 @@ impl Default for MosaicBuilder {
     }
 }
 
-impl<MosaicImage> From<&MosaicImage> for MosaicBuilder
+impl<MosaicImplementation> From<&MosaicImplementation> for MosaicBuilder
 where
-    MosaicImage: Mosaic,
+    MosaicImplementation: Mosaic,
 {
-    fn from(mosaic: &MosaicImage) -> Self {
+    fn from(mosaic: &MosaicImplementation) -> Self {
         Self {
             shape: mosaic.shape(),
             image_size: mosaic.image_size(),

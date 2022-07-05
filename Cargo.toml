@@ -10,7 +10,7 @@ readme = "README.md"
 keywords = ["starry", "mosaic", "image"]
 categories = ["graphics", "multimedia::images"]
 edition = "2021"
-exclude = ["/images/"]
+exclude = ["/images/", "/tests/"]
 
 [dependencies]
 float-cmp = "0.9.0"
@@ -18,6 +18,10 @@ image = "0.24.2"
 palette = "0.6.0"
 robust = "0.2.3"
 voronoice = "0.2.0"
+
+[dev-dependencies]
+rstest = "0.15.0"
+rstest_reuse = "0.4.0"
 
 [features]
 mosaic_with_preset_coloring = []
