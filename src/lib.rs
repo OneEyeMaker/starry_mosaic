@@ -17,7 +17,7 @@
 //! use palette::LinSrgb;
 //! use starry_mosaic::{Mosaic, MosaicBuilder, Vector};
 //!
-//! let mosaic = MosaicBuilder::default()
+//! let starry_mosaic = MosaicBuilder::default()
 //!     .set_image_size(1920, 1080)
 //!     .set_regular_polygon_shape(12)
 //!     .set_center(Vector::new(1280.0, 540.0))
@@ -25,9 +25,18 @@
 //!     .build_star()
 //!     .unwrap();
 //!
-//! let mosaic_image = mosaic.draw(LinSrgb::new(0.0f64, 0.25, 1.0));
+//! let starry_mosaic_image = starry_mosaic.draw(LinSrgb::new(0.0f64, 0.25, 1.0));
 //!
-//! let save_result = mosaic_image.save("target/mosaic.image.png");
+//! let save_result = starry_mosaic_image.save("target/starry_mosaic_image.png");
+//! assert!(save_result.is_ok());
+//!
+//! let polygonal_mosaic = MosaicBuilder::from(&starry_mosaic)
+//!     .build_polygon()
+//!     .unwrap();
+//!
+//! let polygonal_mosaic_image = polygonal_mosaic.draw(LinSrgb::new(0.0f64, 0.25, 1.0));
+//!
+//! let save_result = polygonal_mosaic_image.save("target/polygonal_mosaic_image.png");
 //! assert!(save_result.is_ok());
 //! ```
 
