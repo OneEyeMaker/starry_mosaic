@@ -24,7 +24,7 @@ Then this mosaic can be painted with any color or gradient.
 Next code creates logo of this project (the one you can see above).
 
 ```rust
-use palette::{Gradient, LinSrgb};
+use palette::LinSrgb;
 use starry_mosaic::{coloring_method::RadialGradient, Mosaic, MosaicBuilder, Vector};
 
 let mosaic = MosaicBuilder::default()
@@ -55,3 +55,8 @@ let mosaic_image = mosaic.draw(RadialGradient::new(
 let save_result = mosaic_image.save("target/logo.png");
 assert!(save_result.is_ok());
 ```
+
+## More images
+
+To see more images visit [`images` directory](https://github.com/OneEyeMaker/starry_mosaic/tree/master/images/README.md)
+in repository of this project.
