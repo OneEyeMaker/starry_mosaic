@@ -1,9 +1,3 @@
-<style>
-img {
-    width: 40%;
-}
-</style>
-
 # Polygonal Mosaic images
 
 All images in this directory (and subdirectories) are created using `starry_mosaic::PolygonalMosaic` and
