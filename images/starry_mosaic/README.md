@@ -6,6 +6,13 @@ based on [Voronoi diagram](https://en.wikipedia.org/wiki/Voronoi_diagram).
 Every mosaic image can be generated using different mosaic shapes (`starry_mosaic::mosaic_shape::MosaicShape`)
 and painted with various coloring methods (`starry_mosaic::coloring_method::ColoringMethod`).
 
+# Contents
+
+ * [Single colored images](#single-colored).
+ * [Linear gradient images](#linear-gradient).
+ * [Radial gradient images](#radial-gradient).
+ * [Conic gradient images](#conic-gradient).
+
 ## Single colored
 
 Mosaics are painted with single color to create images below.

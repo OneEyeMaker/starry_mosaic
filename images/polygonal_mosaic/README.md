@@ -7,6 +7,13 @@ Every mosaic image can be generated using different mosaic shapes (`starry_mosai
 and painted with various coloring methods (`starry_mosaic::coloring_method::ColoringMethod`).
 This page illustrates just few of these.
 
+# Contents
+
+* [Single colored images](#single-colored).
+* [Linear gradient images](#linear-gradient).
+* [Radial gradient images](#radial-gradient).
+* [Conic gradient images](#conic-gradient).
+
 ## Single colored
 
 Mosaics are painted with single color to create images below.
