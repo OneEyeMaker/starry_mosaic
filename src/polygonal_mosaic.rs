@@ -129,8 +129,8 @@ impl Mosaic for PolygonalMosaic {
         self.image_size
     }
 
-    fn center(&self) -> Vector {
-        self.center.clone()
+    fn center(&self) -> &Vector {
+        &self.center
     }
 
     fn rotation_angle(&self) -> f64 {
@@ -141,7 +141,7 @@ impl Mosaic for PolygonalMosaic {
         self.scale
     }
 
-    fn shape(&self) -> Box<dyn MosaicShape> {
-        self.shape.clone()
+    fn shape(&self) -> &Box<dyn MosaicShape> {
+        &self.shape
     }
 }

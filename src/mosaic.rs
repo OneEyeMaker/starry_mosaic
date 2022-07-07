@@ -110,8 +110,8 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 ///     fn image_size(&self) -> (u32, u32) {
 ///         self.image_size
 ///     }
-///     fn center(&self) -> Vector {
-///         self.center.clone()
+///     fn center(&self) -> &Vector {
+///         &self.center
 ///     }
 ///     fn rotation_angle(&self) -> f64 {
 ///         self.rotation_angle
@@ -119,8 +119,8 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 ///     fn scale(&self) -> f64 {
 ///         self.scale
 ///     }
-///     fn shape(&self) -> Box<dyn MosaicShape> {
-///         self.shape.clone()
+///     fn shape(&self) -> &Box<dyn MosaicShape> {
+///         &self.shape
 ///     }
 /// }
 ///
@@ -133,7 +133,7 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 ///         .build_from_key_points(DottedMosaic::new);
 ///
 ///     assert_eq!(dotted_mosaic.image_size(), (1024, 1024));
-///     assert_eq!(dotted_mosaic.center(), Vector::new(512.0, 512.0));
+///     assert_eq!(dotted_mosaic.center(), &Vector::new(512.0, 512.0));
 ///     assert_eq!(dotted_mosaic.rotation_angle(), 45.0f64.to_radians());
 ///     assert_eq!(dotted_mosaic.scale(), 0.75);
 ///
@@ -168,7 +168,7 @@ pub trait Mosaic {
     fn image_size(&self) -> (u32, u32);
 
     /// Position of center of [mosaic shape][`Mosaic::shape`] in mosaic.
-    fn center(&self) -> Vector;
+    fn center(&self) -> &Vector;
 
     /// Rotation angle (in radians) of [mosaic shape][`Mosaic::shape`] in this mosaic.
     fn rotation_angle(&self) -> f64;
@@ -177,7 +177,7 @@ pub trait Mosaic {
     fn scale(&self) -> f64;
 
     /// Shape (pattern) of mosaic.
-    fn shape(&self) -> Box<dyn MosaicShape>;
+    fn shape(&self) -> &Box<dyn MosaicShape>;
 }
 
 #[cfg(feature = "mosaic_with_preset_coloring")]

@@ -34,7 +34,7 @@ use super::{
 /// let starry_mosaic = starry_mosaic.unwrap();
 ///
 /// assert_eq!(starry_mosaic.image_size(), (1024, 1024));
-/// assert_eq!(starry_mosaic.center(), Vector::new(512.0, 512.0));
+/// assert_eq!(starry_mosaic.center(), &Vector::new(512.0, 512.0));
 /// assert_eq!(starry_mosaic.rotation_angle(), 22.5f64.to_radians());
 /// assert_eq!(starry_mosaic.scale(), 0.5);
 ///
@@ -331,9 +331,9 @@ where
 {
     fn from(mosaic: &MosaicImplementation) -> Self {
         Self {
-            shape: mosaic.shape(),
+            shape: mosaic.shape().clone(),
             image_size: mosaic.image_size(),
-            center: mosaic.center(),
+            center: mosaic.center().clone(),
             rotation_angle: mosaic.rotation_angle(),
             scale: mosaic.scale(),
         }

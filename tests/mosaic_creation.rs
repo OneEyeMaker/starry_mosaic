@@ -108,7 +108,7 @@ mod starry_mosaic_tests {
 
         let mosaic = mosaic.unwrap();
         assert_eq!(mosaic.image_size(), image_size);
-        assert_eq!(mosaic.center(), center);
+        assert_eq!(mosaic.center(), &center);
         assert_eq!(mosaic.rotation_angle(), rotation_angle);
         assert_eq!(mosaic.scale(), scale);
 
@@ -178,7 +178,7 @@ mod polygonal_mosaic_tests {
 
         let mosaic = mosaic.unwrap();
         assert_eq!(mosaic.image_size(), image_size);
-        assert_eq!(mosaic.center(), center);
+        assert_eq!(mosaic.center(), &center);
         assert_eq!(mosaic.rotation_angle(), rotation_angle);
         assert_eq!(mosaic.scale(), scale);
 
