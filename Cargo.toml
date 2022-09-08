@@ -14,8 +14,8 @@ exclude = ["/images/", "/tests/"]
 
 [dependencies]
 float-cmp = "0.9.0"
-image = "0.24.2"
-palette = "0.6.0"
+image = "0.24.3"
+palette = "0.6.1"
 robust = "0.2.3"
 voronoice = "0.2.0"
 
