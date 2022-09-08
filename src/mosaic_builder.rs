@@ -308,6 +308,9 @@ impl MosaicBuilder {
         let mut shape_points = self.shape.intersect_segments(&shape_segments);
         shape_points.append(&mut initial_points);
         shape_points.sort_by(|left, right| left.partial_cmp(right).unwrap_or(Ordering::Equal));
+        shape_points
+            .iter_mut()
+            .for_each(|point| *point = point.round_to_epsilon());
         shape_points.dedup();
         shape_points
     }

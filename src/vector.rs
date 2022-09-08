@@ -285,6 +285,13 @@ impl Vector {
     pub fn rotate_around_pivot(&self, angle: f64, pivot: &Self) -> Self {
         &(self - pivot).rotate(angle) + pivot
     }
+
+    pub(crate) fn round_to_epsilon(&self) -> Self {
+        Self {
+            x: utility::round_to_epsilon(self.x),
+            y: utility::round_to_epsilon(self.y),
+        }
+    }
 }
 
 impl Debug for Vector {
