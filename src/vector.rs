@@ -285,6 +285,13 @@ impl Vector {
     pub fn rotate_around_pivot(&self, angle: f64, pivot: &Self) -> Self {
         &(self - pivot).rotate(angle) + pivot
     }
+
+    pub(crate) fn round_to_epsilon(&self) -> Self {
+        Self {
+            x: utility::round_to_epsilon(self.x),
+            y: utility::round_to_epsilon(self.y),
+        }
+    }
 }
 
 impl Debug for Vector {
@@ -518,6 +525,13 @@ mod tests {
             vector.rotate_around_pivot(consts::FRAC_PI_6, &pivot),
             Vector::new(1.0 + 2.0 * 3.0f64.sqrt(), 4.0)
         );
+    }
+    #[test]
+    fn round_to_epsilon() {
+        let vector = Vector::new(5.0 - f64::EPSILON * 2.0, -2.0 + f64::EPSILON * 4.0);
+        let rounded_vector = vector.round_to_epsilon();
+        assert_eq!(rounded_vector.x, 5.0);
+        assert_eq!(rounded_vector.y, -2.0);
     }
     #[test]
     fn add() {
