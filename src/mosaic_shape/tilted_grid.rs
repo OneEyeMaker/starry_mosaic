@@ -1,5 +1,6 @@
 use super::{MosaicShape, Segment, Vector};
 
+/// Defines mosaic shape based on tilted grid.
 #[derive(Clone, Debug)]
 pub struct TiltedGrid {
     cells_count: (u32, u32),
@@ -7,6 +8,15 @@ pub struct TiltedGrid {
 }
 
 impl TiltedGrid {
+    /// Creates tilted grid with set number of rows and columns.
+    ///
+    /// # Arguments
+    ///
+    /// * `rows_count`: number of grid rows; should be at least 1.
+    /// * `columns_count`: number of grid columns; should be at least 1.
+    ///
+    /// returns: [`TiltedGrid`] - mosaic shape based on grid with given number of rows and columns.
+    ///
     pub fn new(rows_count: u32, columns_count: u32) -> Self {
         Self {
             cells_count: (rows_count.max(1), columns_count.max(1)),
@@ -14,34 +24,59 @@ impl TiltedGrid {
         }
     }
 
+    /// Number of rows of tilted grid on which mosaic shape is based.
     #[inline(always)]
     pub fn rows_count(&self) -> u32 {
         self.cells_count.0
     }
 
+    /// Number of columns of tilted grid on which mosaic shape is based.
     #[inline(always)]
     pub fn columns_count(&self) -> u32 {
         self.cells_count.1
     }
 
+    /// Sets number of rows of tilted grid on which mosaic shape is based.
+    ///
+    /// # Arguments
+    ///
+    /// * `rows_count`: number of grid rows; should be at least 1.
+    ///
     pub fn set_rows_count(&mut self, rows_count: u32) {
         self.cells_count.0 = rows_count.max(1);
     }
 
+    /// Sets number of columns of tilted grid on which mosaic shape is based.
+    ///
+    /// # Arguments
+    ///
+    /// * `columns_count`: number of grid columns; should be at least 1.
+    ///
     pub fn set_columns_count(&mut self, columns_count: u32) {
         self.cells_count.1 = columns_count.max(1);
     }
 
+    /// Horizontal tilt factor of grid on which mosaic shape is based.
     #[inline(always)]
     pub fn horizontal_tilt_factor(&self) -> f64 {
         self.tilt_factor.x
     }
 
+    /// Vertical tilt factor of grid on which mosaic shape is based.
     #[inline(always)]
     pub fn vertical_tilt_factor(&self) -> f64 {
         self.tilt_factor.y
     }
 
+    /// Tilts grid along X and Y axes by specified factors.
+    ///
+    /// # Arguments
+    ///
+    /// * `horizontal_factor`: tilt factor along X axis; value of 1.0 shifts the grid by its width.
+    /// * `vertical_factor`: tilt factor along Y axis; value of 1.0 shifts the grid by its height.
+    ///
+    /// returns: [`TiltedGrid`] - current grid tilted along X and Y axes.
+    ///
     pub fn tilt(mut self, horizontal_factor: f64, vertical_factor: f64) -> Self {
         self.tilt_factor = Vector::new(horizontal_factor, vertical_factor);
         self
