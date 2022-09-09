@@ -122,3 +122,76 @@ impl MosaicShape for TiltedGrid {
         segments
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::f64::consts;
+
+    use super::*;
+
+    #[test]
+    fn set_cells_count() {
+        let mut grid = TiltedGrid::default();
+        grid.set_cells_count(7, 15);
+        assert_eq!(grid.horizontal_cells_count(), 7);
+        assert_eq!(grid.vertical_cells_count(), 15);
+    }
+    #[test]
+    fn set_incorrect_cells_count() {
+        let mut grid = TiltedGrid::default();
+        grid.set_cells_count(0, 0);
+        assert_eq!(grid.horizontal_cells_count(), 1);
+        assert_eq!(grid.vertical_cells_count(), 1);
+    }
+    #[test]
+    fn tilt() {
+        let grid = TiltedGrid::default().tilt(0.25, -0.5);
+        assert_eq!(grid.horizontal_tilt_factor(), 0.25);
+        assert_eq!(grid.vertical_tilt_factor(), -0.5);
+    }
+    #[test]
+    fn set_up_points() {
+        let grid = TiltedGrid::new(4, 4).tilt(0.25, -0.5);
+        let points = grid.set_up_points(
+            (400, 400),
+            Vector::new(200.0, 200.0),
+            consts::FRAC_PI_2,
+            0.5,
+        );
+        assert_eq!(points.len(), 16);
+        assert!(points.contains(&Vector::new(250.0, 75.0)));
+        assert!(points.contains(&Vector::new(150.0, 325.0)));
+        assert!(points.contains(&Vector::new(100.0, 225.0)));
+        assert!(points.contains(&Vector::new(150.0, 100.0)));
+    }
+    #[test]
+    fn connect_points() {
+        let grid = TiltedGrid::new(4, 4).tilt(0.25, -0.5);
+        let points = grid.set_up_points(
+            (400, 400),
+            Vector::new(200.0, 200.0),
+            consts::FRAC_PI_2,
+            0.5,
+        );
+        let segments = grid.connect_points(&points);
+        assert_eq!(segments.len(), 6);
+        let segment = Segment::from(((300.0, 175.0), (100.0, 225.0)));
+        assert!(segments.contains(&segment));
+        let segment = Segment::from(((100.0, 112.5), (200.0, 312.5)));
+        assert!(segments.contains(&segment));
+    }
+    #[test]
+    fn intersect_segments() {
+        let grid = TiltedGrid::new(4, 4).tilt(0.25, -0.5);
+        let points = grid.set_up_points(
+            (400, 400),
+            Vector::new(200.0, 200.0),
+            consts::FRAC_PI_2,
+            0.5,
+        );
+        let segments = grid.connect_points(&points);
+        let intersections = grid.intersect_segments(&segments);
+        assert_eq!(intersections.len(), 9);
+        assert!(intersections.contains(&Vector::new(200.0, 200.0)));
+    }
+}
