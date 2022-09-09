@@ -27,6 +27,18 @@ use starry_mosaic::{coloring_method::*, mosaic_shape::*, Mosaic, MosaicBuilder, 
 #[case(PolygonalStar::new(16), "polygonal_star_16")]
 #[case(PolygonalStar::new(23), "polygonal_star_23")]
 #[case(PolygonalStar::new(24), "polygonal_star_24")]
+#[case(TiltedGrid::new(3, 3).tilt(0.2, 0.4), "tilted_grid_3_3")]
+#[case(TiltedGrid::new(4, 4).tilt(0.2, 0.4), "tilted_grid_4_4")]
+#[case(TiltedGrid::new(5, 5).tilt(0.2, 0.4), "tilted_grid_5_5")]
+#[case(TiltedGrid::new(8, 8).tilt(0.2, 0.4), "tilted_grid_8_8")]
+#[case(TiltedGrid::new(12, 12).tilt(0.2, 0.4), "tilted_grid_12_12")]
+#[case(TiltedGrid::new(15, 15).tilt(0.2, 0.4), "tilted_grid_15_15")]
+#[case(TiltedGrid::new(16, 16).tilt(0.2, 0.4), "tilted_grid_16_16")]
+#[case(TiltedGrid::new(24, 24).tilt(0.2, 0.4), "tilted_grid_24_24")]
+#[case(TiltedGrid::new(6, 9).tilt(0.2, 0.4), "tilted_grid_6_9")]
+#[case(TiltedGrid::new(11, 7).tilt(0.2, 0.4), "tilted_grid_11_7")]
+#[case(TiltedGrid::new(13, 23).tilt(0.2, 0.4), "tilted_grid_13_23")]
+#[case(TiltedGrid::new(21, 14).tilt(0.2, 0.4), "tilted_grid_21_14")]
 fn mosaic_creation_test<Shape>(#[case] shape: Shape, #[case] name: &str)
 where
     Shape: 'static + MosaicShape,
