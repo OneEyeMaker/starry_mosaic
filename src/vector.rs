@@ -263,7 +263,7 @@ impl Vector {
     /// * `angle`: rotation angle.
     /// * `pivot`: pivot point around which rotation is performed.
     ///
-    /// returns: [`Vector`] point resulting from rotation of current point around pivot point
+    /// returns: [`Vector`] - point resulting from rotation of current point around pivot point
     /// by angle.
     ///
     /// # Examples
@@ -284,6 +284,33 @@ impl Vector {
     #[inline(always)]
     pub fn rotate_around_pivot(&self, angle: f64, pivot: &Self) -> Self {
         &(self - pivot).rotate(angle) + pivot
+    }
+
+    /// Shears current point by specified factors
+    ///
+    /// # Arguments
+    ///
+    /// * `horizontal_factor`: factor of shearing in direction of X axis.
+    /// * `vertical_factor`: factor of shearing in direction of Y axis.
+    ///
+    /// returns: [`Vector`] - point resulted from shearing (skewing) of current point by specified
+    /// horizontal and vertical factors.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::Vector;
+    ///
+    /// let point = Vector::new(4.0, -2.0);
+    /// let sheared_point = point.shear(-0.5, 0.25);
+    ///
+    /// assert_eq!(sheared_point, Vector::new(5.0, -1.0));
+    /// ```
+    pub fn shear(&self, horizontal_factor: f64, vertical_factor: f64) -> Self {
+        Self {
+            x: self.x + horizontal_factor * self.y,
+            y: self.y + vertical_factor * self.x,
+        }
     }
 
     pub(crate) fn round_to_epsilon(&self) -> Self {
@@ -525,6 +552,12 @@ mod tests {
             vector.rotate_around_pivot(consts::FRAC_PI_6, &pivot),
             Vector::new(1.0 + 2.0 * 3.0f64.sqrt(), 4.0)
         );
+    }
+    #[test]
+    fn shear() {
+        let point = Vector::new(-7.0, 3.0);
+        let sheared_point = point.shear(1.0, -0.5);
+        assert_eq!(sheared_point, Vector::new(-4.0, 6.5));
     }
     #[test]
     fn round_to_epsilon() {
