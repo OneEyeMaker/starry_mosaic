@@ -527,6 +527,13 @@ mod tests {
         );
     }
     #[test]
+    fn round_to_epsilon() {
+        let vector = Vector::new(5.0 - f64::EPSILON * 2.0, -2.0 + f64::EPSILON * 4.0);
+        let rounded_vector = vector.round_to_epsilon();
+        assert_eq!(rounded_vector.x, 5.0);
+        assert_eq!(rounded_vector.y, -2.0);
+    }
+    #[test]
     fn add() {
         let first = Vector::new(4.0, 5.0);
         let second = Vector::new(2.0, 3.0);
