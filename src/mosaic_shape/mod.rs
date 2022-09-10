@@ -192,6 +192,8 @@ impl Clone for Box<dyn MosaicShape> {
 mod helpers;
 mod polygonal_star;
 mod regular_polygon;
+mod tilted_grid;
 
 pub use polygonal_star::PolygonalStar;
 pub use regular_polygon::RegularPolygon;
+pub use tilted_grid::TiltedGrid;

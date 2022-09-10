@@ -3,11 +3,8 @@ use std::cmp::Ordering;
 use voronoice::{BoundingBox, Point, Voronoi, VoronoiBuilder};
 
 use super::{
-    mosaic::Mosaic,
-    mosaic_shape::{MosaicShape, PolygonalStar, RegularPolygon},
-    polygonal_mosaic::PolygonalMosaic,
-    starry_mosaic::StarryMosaic,
-    vector::Vector,
+    mosaic::Mosaic, mosaic_shape::*, polygonal_mosaic::PolygonalMosaic,
+    starry_mosaic::StarryMosaic, vector::Vector,
 };
 
 /// Builds different mosaics from set of its properties.
@@ -85,6 +82,57 @@ impl MosaicBuilder {
     ///
     pub fn set_polygonal_star_shape(mut self, corners_count: u32) -> Self {
         self.shape = Box::new(PolygonalStar::new(corners_count));
+        self
+    }
+
+    /// Sets shape of mosaic to grid (implemented using [tilted grid][`PolygonalStar`]).
+    ///
+    /// # Arguments
+    ///
+    /// * `rows_count`: number of grid rows; should be at least 1.
+    /// * `columns_count`: number of grid columns; should be at least 1.
+    ///
+    /// returns: [`MosaicBuilder`] - builder with mosaic shape set to grid.
+    ///
+    /// # See Also
+    ///
+    /// * [`MosaicBuilder::set_tilted_grid_shape`].
+    /// * [`MosaicBuilder::set_shape`].
+    /// * [`TiltedGrid::new`].
+    ///
+    pub fn set_grid_shape(mut self, rows_count: u32, columns_count: u32) -> Self {
+        self.shape = Box::new(TiltedGrid::new(rows_count, columns_count));
+        self
+    }
+
+    /// Sets shape of mosaic to [tilted grid][`PolygonalStar`].
+    ///
+    /// # Arguments
+    ///
+    /// * `rows_count`: number of grid rows; should be at least 1.
+    /// * `columns_count`: number of grid columns; should be at least 1.
+    /// * `horizontal_factor`: tilt factor along X axis; value of 1.0 shifts the grid by its width.
+    /// * `vertical_factor`: tilt factor along Y axis; value of 1.0 shifts the grid by its height.
+    ///
+    /// returns: [`MosaicBuilder`] - builder with mosaic shape set to tilted grid.
+    ///
+    /// # See Also
+    ///
+    /// * [`MosaicBuilder::set_grid_shape`].
+    /// * [`MosaicBuilder::set_shape`].
+    /// * [`TiltedGrid::new`].
+    ///
+    pub fn set_tilted_grid_shape(
+        mut self,
+        rows_count: u32,
+        columns_count: u32,
+        horizontal_tilt_factor: f64,
+        vertical_tilt_factor: f64,
+    ) -> Self {
+        self.shape = Box::new(
+            TiltedGrid::new(rows_count, columns_count)
+                .tilt(horizontal_tilt_factor, vertical_tilt_factor),
+        );
         self
     }
 
