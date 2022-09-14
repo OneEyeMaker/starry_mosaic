@@ -1,5 +1,6 @@
 use image::{Rgb, RgbImage};
 use palette::{IntoColor, LinSrgb, Mix, Pixel, Shade};
+use robust::Coord;
 use voronoice::Voronoi;
 
 use super::{
@@ -59,10 +60,10 @@ impl PolygonalMosaic {
         let sites = self.voronoi.sites();
         let triangulation = self.voronoi.triangulation();
         let vertex_position: Vector = (&self.voronoi.vertices()[vertex_index]).into();
-        let corner_positions = [
-            &sites[triangulation.triangles[vertex_index * 3]],
-            &sites[triangulation.triangles[vertex_index * 3 + 1]],
-            &sites[triangulation.triangles[vertex_index * 3 + 2]],
+        let corner_positions: [Coord<f64>; 3] = [
+            (&sites[triangulation.triangles[vertex_index * 3]]).into(),
+            (&sites[triangulation.triangles[vertex_index * 3 + 1]]).into(),
+            (&sites[triangulation.triangles[vertex_index * 3 + 2]]).into(),
         ];
         let radius = vertex_position.distance_to(&corner_positions[0].into());
         let x_min = f64::min(corner_positions[0].x, corner_positions[1].x)
@@ -81,21 +82,9 @@ impl PolygonalMosaic {
             for y in y_min..=y_max {
                 let position = Vector::new(x as f64, y as f64);
                 let orientations = [
-                    robust::orient2d(
-                        corner_positions[0].into(),
-                        corner_positions[1].into(),
-                        (&position).into(),
-                    ),
-                    robust::orient2d(
-                        corner_positions[1].into(),
-                        corner_positions[2].into(),
-                        (&position).into(),
-                    ),
-                    robust::orient2d(
-                        corner_positions[2].into(),
-                        corner_positions[0].into(),
-                        (&position).into(),
-                    ),
+                    robust::orient2d(corner_positions[0], corner_positions[1], (&position).into()),
+                    robust::orient2d(corner_positions[1], corner_positions[2], (&position).into()),
+                    robust::orient2d(corner_positions[2], corner_positions[0], (&position).into()),
                 ];
                 if orientations[0] <= 0.0 && orientations[1] <= 0.0 && orientations[2] <= 0.0 {
                     let distance = position.distance_to(&vertex_position);

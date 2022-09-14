@@ -348,8 +348,8 @@ impl From<(f64, f64)> for Vector {
         }
     }
 }
-impl From<&Coord<f64>> for Vector {
-    fn from(coord: &Coord<f64>) -> Self {
+impl From<Coord<f64>> for Vector {
+    fn from(coord: Coord<f64>) -> Self {
         Self {
             x: coord.x,
             y: coord.y,
