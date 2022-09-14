@@ -647,11 +647,40 @@ mod tests {
         assert_eq!(first_multiplied.y, second_multiplied.y);
     }
     #[test]
+    fn mul_tuple() {
+        let vector = Vector::new(4.0, 1.0);
+        let multiplied = &vector * (0.5, 2.0);
+        assert_eq!(multiplied.x, 2.0);
+        assert_eq!(multiplied.y, 2.0);
+    }
+    #[test]
+    fn mul_tuple_transitive() {
+        let vector = Vector::new(6.0, 3.0);
+        let first_multiplied = &vector * (0.25, -0.5);
+        let second_multiplied = (0.25, -0.5) * &vector;
+        assert_eq!(first_multiplied.x, second_multiplied.x);
+        assert_eq!(first_multiplied.y, second_multiplied.y);
+    }
+    #[test]
     fn div() {
         let vector = Vector::new(4.0, 2.0);
         let divided = &vector / 2.0;
         assert_eq!(divided.x, 2.0);
         assert_eq!(divided.y, 1.0);
+    }
+    #[test]
+    fn div_tuple() {
+        let vector = Vector::new(-8.0, 6.0);
+        let divided = &vector / (4.0, -3.0);
+        assert_eq!(divided.x, -2.0);
+        assert_eq!(divided.y, -2.0);
+    }
+    #[test]
+    fn neg() {
+        let vector = Vector::new(1.0, -1.0);
+        let inverse_vector = -&vector;
+        assert_eq!(inverse_vector.x, -1.0);
+        assert_eq!(inverse_vector.y, 1.0);
     }
     #[test]
     fn add_assign() {
@@ -675,10 +704,24 @@ mod tests {
         assert_eq!(vector.y, 10.0);
     }
     #[test]
+    fn mul_assign_tuple() {
+        let mut vector = Vector::new(1.25, 4.5);
+        vector *= (4.0, -2.0);
+        assert_eq!(vector.x, 5.0);
+        assert_eq!(vector.y, -9.0);
+    }
+    #[test]
     fn div_assign() {
         let mut vector = Vector::new(3.25, 2.5);
         vector /= 0.5;
         assert_eq!(vector.x, 6.5);
         assert_eq!(vector.y, 5.0);
+    }
+    #[test]
+    fn div_assign_tuple() {
+        let mut vector = Vector::new(1.25, 1.5);
+        vector /= (0.5, 0.25);
+        assert_eq!(vector.x, 2.5);
+        assert_eq!(vector.y, 6.0);
     }
 }
