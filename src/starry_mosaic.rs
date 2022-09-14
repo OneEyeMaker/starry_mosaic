@@ -52,7 +52,7 @@ impl StarryMosaic {
             let site = cell.site();
             let site_position: Vector = cell.site_position().into();
             cell.iter_vertices().for_each(|vertex| {
-                let distance = (&site_position - &vertex.into()).length();
+                let distance = site_position.distance_to(&vertex.into());
                 if distance > maximum_cell_distances[site] {
                     maximum_cell_distances[site] = distance;
                 }
@@ -87,7 +87,7 @@ impl Mosaic for StarryMosaic {
                 current_site = site;
                 current_site_position = (&self.voronoi.sites()[current_site]).into();
             }
-            let distance = (&position - &current_site_position).length();
+            let distance = position.distance_to(&current_site_position);
             let lightness = (1.0 - distance / maximum_cell_distances[current_site]).powi(2);
             let color = coloring_method
                 .interpolate(&position, &current_site_position)

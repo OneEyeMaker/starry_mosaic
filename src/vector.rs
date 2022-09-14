@@ -146,11 +146,7 @@ impl Vector {
     /// assert_eq!(vector.get_normalized(), Vector::new(0.8, 0.6));
     /// ```
     pub fn get_normalized(&self) -> Self {
-        let length = self.length();
-        Self {
-            x: self.x / length,
-            y: self.y / length,
-        }
+        self / self.length()
     }
 
     /// Computes dot product of two vectors.
