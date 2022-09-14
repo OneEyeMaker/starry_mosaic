@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use robust::Coord;
 use voronoice::Point;
@@ -436,12 +436,49 @@ impl Mul<&Vector> for f64 {
         }
     }
 }
+impl Mul<(f64, f64)> for &Vector {
+    type Output = Vector;
+    fn mul(self, factors: (f64, f64)) -> Self::Output {
+        Vector {
+            x: self.x * factors.0,
+            y: self.y * factors.1,
+        }
+    }
+}
+impl Mul<&Vector> for (f64, f64) {
+    type Output = Vector;
+    fn mul(self, vector: &Vector) -> Self::Output {
+        Vector {
+            x: self.0 * vector.x,
+            y: self.1 * vector.y,
+        }
+    }
+}
 impl Div<f64> for &Vector {
     type Output = Vector;
     fn div(self, factor: f64) -> Self::Output {
         Vector {
             x: self.x / factor,
             y: self.y / factor,
+        }
+    }
+}
+impl Div<(f64, f64)> for &Vector {
+    type Output = Vector;
+    fn div(self, factors: (f64, f64)) -> Self::Output {
+        Vector {
+            x: self.x / factors.0,
+            y: self.y / factors.1,
+        }
+    }
+}
+
+impl Neg for &Vector {
+    type Output = Vector;
+    fn neg(self) -> Self::Output {
+        Vector {
+            x: -self.x,
+            y: -self.y,
         }
     }
 }
@@ -464,10 +501,22 @@ impl MulAssign<f64> for Vector {
         self.y *= factor;
     }
 }
+impl MulAssign<(f64, f64)> for Vector {
+    fn mul_assign(&mut self, factors: (f64, f64)) {
+        self.x *= factors.0;
+        self.y *= factors.1;
+    }
+}
 impl DivAssign<f64> for Vector {
     fn div_assign(&mut self, factor: f64) {
         self.x /= factor;
         self.y /= factor;
+    }
+}
+impl DivAssign<(f64, f64)> for Vector {
+    fn div_assign(&mut self, factors: (f64, f64)) {
+        self.x /= factors.0;
+        self.y /= factors.1;
     }
 }
 
