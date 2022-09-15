@@ -224,6 +224,30 @@ impl Vector {
         }
     }
 
+    /// Translates current point by vector.
+    ///
+    /// # Arguments
+    ///
+    /// * `vector`: translation vector.
+    ///
+    /// returns: [`Vector`] - point resulting from translation (movement) of current point
+    /// by vector.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::Vector;
+    ///
+    /// let point = Vector::new(-5.0, 7.0);
+    /// let translated_point = point.translate(&Vector::new(2.0, -3.0));
+    ///
+    /// assert_eq!(translated_point, Vector::new(-3.0, 4.0));
+    /// ```
+    #[inline(always)]
+    pub fn translate(&self, vector: &Self) -> Self {
+        self + vector
+    }
+
     /// Rotates current point around origin (0.0, 0.0).
     ///
     /// # Arguments
@@ -282,14 +306,39 @@ impl Vector {
         &(self - pivot).rotate(angle) + pivot
     }
 
-    /// Shears current point by specified factors
+    /// Scales current vector by specified factors.
+    ///
+    /// # Arguments
+    ///
+    /// * `horizontal_factor`: factor of scaling in direction of X axis.
+    /// * `vertical_factor`: factor of scaling in direction of Y axis.
+    ///
+    /// returns: [`Vector`] - vector resulting from scaling of current point by specified
+    /// horizontal and vertical factors.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::Vector;
+    ///
+    /// let vector = Vector::new(8.0, -2.0);
+    /// let scaled_vector = vector.scale(0.5, 2.0);
+    ///
+    /// assert_eq!(scaled_vector, Vector::new(4.0, -4.0));
+    /// ```
+    #[inline(always)]
+    pub fn scale(&self, horizontal_factor: f64, vertical_factor: f64) -> Self {
+        self * (horizontal_factor, vertical_factor)
+    }
+
+    /// Shears current point by specified factors.
     ///
     /// # Arguments
     ///
     /// * `horizontal_factor`: factor of shearing in direction of X axis.
     /// * `vertical_factor`: factor of shearing in direction of Y axis.
     ///
-    /// returns: [`Vector`] - point resulted from shearing (skewing) of current point by specified
+    /// returns: [`Vector`] - point resulting from shearing (skewing) of current point by specified
     /// horizontal and vertical factors.
     ///
     /// # Examples
@@ -569,6 +618,12 @@ mod tests {
         assert_eq!(interpolation.y, 4.0);
     }
     #[test]
+    fn translate() {
+        let point = Vector::new(7.0, -2.0);
+        let translated_point = point.translate(&Vector::new(3.0, 3.0));
+        assert_eq!(translated_point, Vector::new(10.0, 1.0));
+    }
+    #[test]
     fn rotate() {
         let vector = Vector::new(4.0, 0.0);
         assert_eq!(vector.rotate(consts::FRAC_PI_2), Vector::new(0.0, 4.0));
@@ -597,6 +652,12 @@ mod tests {
             vector.rotate_around_pivot(consts::FRAC_PI_6, &pivot),
             Vector::new(1.0 + 2.0 * 3.0f64.sqrt(), 4.0)
         );
+    }
+    #[test]
+    fn scale() {
+        let vector = Vector::new(2.5, 5.0);
+        let scaled_vector = vector.scale(2.0, 0.5);
+        assert_eq!(scaled_vector, Vector::new(5.0, 2.5));
     }
     #[test]
     fn shear() {
