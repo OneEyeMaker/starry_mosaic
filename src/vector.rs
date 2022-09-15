@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use robust::Coord;
 use voronoice::Point;
@@ -146,11 +146,7 @@ impl Vector {
     /// assert_eq!(vector.get_normalized(), Vector::new(0.8, 0.6));
     /// ```
     pub fn get_normalized(&self) -> Self {
-        let length = self.length();
-        Self {
-            x: self.x / length,
-            y: self.y / length,
-        }
+        self / self.length()
     }
 
     /// Computes dot product of two vectors.
@@ -228,6 +224,30 @@ impl Vector {
         }
     }
 
+    /// Translates current point by vector.
+    ///
+    /// # Arguments
+    ///
+    /// * `vector`: translation vector.
+    ///
+    /// returns: [`Vector`] - point resulting from translation (movement) of current point
+    /// by vector.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::Vector;
+    ///
+    /// let point = Vector::new(-5.0, 7.0);
+    /// let translated_point = point.translate(&Vector::new(2.0, -3.0));
+    ///
+    /// assert_eq!(translated_point, Vector::new(-3.0, 4.0));
+    /// ```
+    #[inline(always)]
+    pub fn translate(&self, vector: &Self) -> Self {
+        self + vector
+    }
+
     /// Rotates current point around origin (0.0, 0.0).
     ///
     /// # Arguments
@@ -286,14 +306,39 @@ impl Vector {
         &(self - pivot).rotate(angle) + pivot
     }
 
-    /// Shears current point by specified factors
+    /// Scales current vector by specified factors.
+    ///
+    /// # Arguments
+    ///
+    /// * `horizontal_factor`: factor of scaling in direction of X axis.
+    /// * `vertical_factor`: factor of scaling in direction of Y axis.
+    ///
+    /// returns: [`Vector`] - vector resulting from scaling of current point by specified
+    /// horizontal and vertical factors.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::Vector;
+    ///
+    /// let vector = Vector::new(8.0, -2.0);
+    /// let scaled_vector = vector.scale(0.5, 2.0);
+    ///
+    /// assert_eq!(scaled_vector, Vector::new(4.0, -4.0));
+    /// ```
+    #[inline(always)]
+    pub fn scale(&self, horizontal_factor: f64, vertical_factor: f64) -> Self {
+        self * (horizontal_factor, vertical_factor)
+    }
+
+    /// Shears current point by specified factors.
     ///
     /// # Arguments
     ///
     /// * `horizontal_factor`: factor of shearing in direction of X axis.
     /// * `vertical_factor`: factor of shearing in direction of Y axis.
     ///
-    /// returns: [`Vector`] - point resulted from shearing (skewing) of current point by specified
+    /// returns: [`Vector`] - point resulting from shearing (skewing) of current point by specified
     /// horizontal and vertical factors.
     ///
     /// # Examples
@@ -436,12 +481,49 @@ impl Mul<&Vector> for f64 {
         }
     }
 }
+impl Mul<(f64, f64)> for &Vector {
+    type Output = Vector;
+    fn mul(self, factors: (f64, f64)) -> Self::Output {
+        Vector {
+            x: self.x * factors.0,
+            y: self.y * factors.1,
+        }
+    }
+}
+impl Mul<&Vector> for (f64, f64) {
+    type Output = Vector;
+    fn mul(self, vector: &Vector) -> Self::Output {
+        Vector {
+            x: self.0 * vector.x,
+            y: self.1 * vector.y,
+        }
+    }
+}
 impl Div<f64> for &Vector {
     type Output = Vector;
     fn div(self, factor: f64) -> Self::Output {
         Vector {
             x: self.x / factor,
             y: self.y / factor,
+        }
+    }
+}
+impl Div<(f64, f64)> for &Vector {
+    type Output = Vector;
+    fn div(self, factors: (f64, f64)) -> Self::Output {
+        Vector {
+            x: self.x / factors.0,
+            y: self.y / factors.1,
+        }
+    }
+}
+
+impl Neg for &Vector {
+    type Output = Vector;
+    fn neg(self) -> Self::Output {
+        Vector {
+            x: -self.x,
+            y: -self.y,
         }
     }
 }
@@ -464,10 +546,22 @@ impl MulAssign<f64> for Vector {
         self.y *= factor;
     }
 }
+impl MulAssign<(f64, f64)> for Vector {
+    fn mul_assign(&mut self, factors: (f64, f64)) {
+        self.x *= factors.0;
+        self.y *= factors.1;
+    }
+}
 impl DivAssign<f64> for Vector {
     fn div_assign(&mut self, factor: f64) {
         self.x /= factor;
         self.y /= factor;
+    }
+}
+impl DivAssign<(f64, f64)> for Vector {
+    fn div_assign(&mut self, factors: (f64, f64)) {
+        self.x /= factors.0;
+        self.y /= factors.1;
     }
 }
 
@@ -524,6 +618,12 @@ mod tests {
         assert_eq!(interpolation.y, 4.0);
     }
     #[test]
+    fn translate() {
+        let point = Vector::new(7.0, -2.0);
+        let translated_point = point.translate(&Vector::new(3.0, 3.0));
+        assert_eq!(translated_point, Vector::new(10.0, 1.0));
+    }
+    #[test]
     fn rotate() {
         let vector = Vector::new(4.0, 0.0);
         assert_eq!(vector.rotate(consts::FRAC_PI_2), Vector::new(0.0, 4.0));
@@ -552,6 +652,12 @@ mod tests {
             vector.rotate_around_pivot(consts::FRAC_PI_6, &pivot),
             Vector::new(1.0 + 2.0 * 3.0f64.sqrt(), 4.0)
         );
+    }
+    #[test]
+    fn scale() {
+        let vector = Vector::new(2.5, 5.0);
+        let scaled_vector = vector.scale(2.0, 0.5);
+        assert_eq!(scaled_vector, Vector::new(5.0, 2.5));
     }
     #[test]
     fn shear() {
@@ -598,11 +704,40 @@ mod tests {
         assert_eq!(first_multiplied.y, second_multiplied.y);
     }
     #[test]
+    fn mul_tuple() {
+        let vector = Vector::new(4.0, 1.0);
+        let multiplied = &vector * (0.5, 2.0);
+        assert_eq!(multiplied.x, 2.0);
+        assert_eq!(multiplied.y, 2.0);
+    }
+    #[test]
+    fn mul_tuple_transitive() {
+        let vector = Vector::new(6.0, 3.0);
+        let first_multiplied = &vector * (0.25, -0.5);
+        let second_multiplied = (0.25, -0.5) * &vector;
+        assert_eq!(first_multiplied.x, second_multiplied.x);
+        assert_eq!(first_multiplied.y, second_multiplied.y);
+    }
+    #[test]
     fn div() {
         let vector = Vector::new(4.0, 2.0);
         let divided = &vector / 2.0;
         assert_eq!(divided.x, 2.0);
         assert_eq!(divided.y, 1.0);
+    }
+    #[test]
+    fn div_tuple() {
+        let vector = Vector::new(-8.0, 6.0);
+        let divided = &vector / (4.0, -3.0);
+        assert_eq!(divided.x, -2.0);
+        assert_eq!(divided.y, -2.0);
+    }
+    #[test]
+    fn neg() {
+        let vector = Vector::new(1.0, -1.0);
+        let inverse_vector = -&vector;
+        assert_eq!(inverse_vector.x, -1.0);
+        assert_eq!(inverse_vector.y, 1.0);
     }
     #[test]
     fn add_assign() {
@@ -626,10 +761,24 @@ mod tests {
         assert_eq!(vector.y, 10.0);
     }
     #[test]
+    fn mul_assign_tuple() {
+        let mut vector = Vector::new(1.25, 4.5);
+        vector *= (4.0, -2.0);
+        assert_eq!(vector.x, 5.0);
+        assert_eq!(vector.y, -9.0);
+    }
+    #[test]
     fn div_assign() {
         let mut vector = Vector::new(3.25, 2.5);
         vector /= 0.5;
         assert_eq!(vector.x, 6.5);
         assert_eq!(vector.y, 5.0);
+    }
+    #[test]
+    fn div_assign_tuple() {
+        let mut vector = Vector::new(1.25, 1.5);
+        vector /= (0.5, 0.25);
+        assert_eq!(vector.x, 2.5);
+        assert_eq!(vector.y, 6.0);
     }
 }
