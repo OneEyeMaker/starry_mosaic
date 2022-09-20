@@ -310,8 +310,8 @@ impl Vector {
     ///
     /// # Arguments
     ///
-    /// * `horizontal_factor`: factor of scaling in direction of X axis.
-    /// * `vertical_factor`: factor of scaling in direction of Y axis.
+    /// * `horizontal_scale`: factor of scaling in direction of X axis.
+    /// * `vertical_scale`: factor of scaling in direction of Y axis.
     ///
     /// returns: [`Vector`] - vector resulting from scaling of current point by specified
     /// horizontal and vertical factors.
@@ -327,16 +327,16 @@ impl Vector {
     /// assert_eq!(scaled_vector, Vector::new(4.0, -4.0));
     /// ```
     #[inline(always)]
-    pub fn scale(&self, horizontal_factor: f64, vertical_factor: f64) -> Self {
-        self * (horizontal_factor, vertical_factor)
+    pub fn scale(&self, horizontal_scale: f64, vertical_scale: f64) -> Self {
+        self * (horizontal_scale, vertical_scale)
     }
 
     /// Shears current point by specified factors.
     ///
     /// # Arguments
     ///
-    /// * `horizontal_factor`: factor of shearing in direction of X axis.
-    /// * `vertical_factor`: factor of shearing in direction of Y axis.
+    /// * `horizontal_shear`: factor of shearing in direction of X axis.
+    /// * `vertical_shear`: factor of shearing in direction of Y axis.
     ///
     /// returns: [`Vector`] - point resulting from shearing (skewing) of current point by specified
     /// horizontal and vertical factors.
@@ -351,10 +351,10 @@ impl Vector {
     ///
     /// assert_eq!(sheared_point, Vector::new(5.0, -1.0));
     /// ```
-    pub fn shear(&self, horizontal_factor: f64, vertical_factor: f64) -> Self {
+    pub fn shear(&self, horizontal_shear: f64, vertical_shear: f64) -> Self {
         Self {
-            x: self.x + horizontal_factor * self.y,
-            y: self.y + vertical_factor * self.x,
+            x: self.x + horizontal_shear * self.y,
+            y: self.y + vertical_shear * self.x,
         }
     }
 
@@ -465,10 +465,10 @@ impl Sub<&Vector> for &Vector {
 }
 impl Mul<f64> for &Vector {
     type Output = Vector;
-    fn mul(self, factor: f64) -> Self::Output {
+    fn mul(self, scale: f64) -> Self::Output {
         Vector {
-            x: self.x * factor,
-            y: self.y * factor,
+            x: self.x * scale,
+            y: self.y * scale,
         }
     }
 }
@@ -483,10 +483,10 @@ impl Mul<&Vector> for f64 {
 }
 impl Mul<(f64, f64)> for &Vector {
     type Output = Vector;
-    fn mul(self, factors: (f64, f64)) -> Self::Output {
+    fn mul(self, scale: (f64, f64)) -> Self::Output {
         Vector {
-            x: self.x * factors.0,
-            y: self.y * factors.1,
+            x: self.x * scale.0,
+            y: self.y * scale.1,
         }
     }
 }
@@ -501,19 +501,19 @@ impl Mul<&Vector> for (f64, f64) {
 }
 impl Div<f64> for &Vector {
     type Output = Vector;
-    fn div(self, factor: f64) -> Self::Output {
+    fn div(self, scale: f64) -> Self::Output {
         Vector {
-            x: self.x / factor,
-            y: self.y / factor,
+            x: self.x / scale,
+            y: self.y / scale,
         }
     }
 }
 impl Div<(f64, f64)> for &Vector {
     type Output = Vector;
-    fn div(self, factors: (f64, f64)) -> Self::Output {
+    fn div(self, scale: (f64, f64)) -> Self::Output {
         Vector {
-            x: self.x / factors.0,
-            y: self.y / factors.1,
+            x: self.x / scale.0,
+            y: self.y / scale.1,
         }
     }
 }
@@ -541,27 +541,27 @@ impl SubAssign<&Vector> for Vector {
     }
 }
 impl MulAssign<f64> for Vector {
-    fn mul_assign(&mut self, factor: f64) {
-        self.x *= factor;
-        self.y *= factor;
+    fn mul_assign(&mut self, scale: f64) {
+        self.x *= scale;
+        self.y *= scale;
     }
 }
 impl MulAssign<(f64, f64)> for Vector {
-    fn mul_assign(&mut self, factors: (f64, f64)) {
-        self.x *= factors.0;
-        self.y *= factors.1;
+    fn mul_assign(&mut self, scale: (f64, f64)) {
+        self.x *= scale.0;
+        self.y *= scale.1;
     }
 }
 impl DivAssign<f64> for Vector {
-    fn div_assign(&mut self, factor: f64) {
-        self.x /= factor;
-        self.y /= factor;
+    fn div_assign(&mut self, scale: f64) {
+        self.x /= scale;
+        self.y /= scale;
     }
 }
 impl DivAssign<(f64, f64)> for Vector {
-    fn div_assign(&mut self, factors: (f64, f64)) {
-        self.x /= factors.0;
-        self.y /= factors.1;
+    fn div_assign(&mut self, scale: (f64, f64)) {
+        self.x /= scale.0;
+        self.y /= scale.1;
     }
 }
 
