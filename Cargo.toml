@@ -10,7 +10,7 @@ readme = "README.md"
 keywords = ["starry", "mosaic", "image"]
 categories = ["graphics", "multimedia::images"]
 edition = "2021"
-exclude = ["/images/", "/tests/"]
+exclude = ["/benches/", "/images/", "/tests/"]
 
 [dependencies]
 float-cmp = "0.9.0"
@@ -20,8 +20,13 @@ robust = "0.2.3"
 voronoice = "0.2.0"
 
 [dev-dependencies]
+criterion = "0.4.0"
 rstest = "0.15.0"
 rstest_reuse = "0.4.0"
 
 [features]
 mosaic_with_preset_coloring = []
+
+[[bench]]
+name = "mosaic_benchmark"
+harness = false
