@@ -57,7 +57,7 @@ where
     ///
     /// let key_point = Vector::new(200.0, 100.0);
     /// assert_eq!(
-    ///     conic_semi_step_gradient.interpolate(&Vector::new(100.0, 0.0), &key_point),
+    ///     conic_semi_step_gradient.interpolate(Vector::new(100.0, 0.0), key_point),
     ///     LinSrgb::new(1.0f64, 0.5, 0.0),
     /// );
     /// ```
@@ -73,7 +73,7 @@ where
         Self {
             gradient: gradient.into(),
             center,
-            angle: angle % (2.0 * consts::PI),
+            angle: angle % consts::TAU,
             smoothness: smoothness.clamp(0.0, 1.0),
         }
     }
@@ -117,7 +117,7 @@ where
     ///
     /// let key_point = Vector::new(200.0, 100.0);
     /// assert_eq!(
-    ///     conic_smooth_gradient.interpolate(&Vector::new(100.0, 0.0), &key_point),
+    ///     conic_smooth_gradient.interpolate(Vector::new(100.0, 0.0), key_point),
     ///     LinSrgb::new(1.0f64, 0.0, 0.0),
     /// );
     /// ```
@@ -168,7 +168,7 @@ where
     ///
     /// let key_point = Vector::new(200.0, 100.0);
     /// assert_eq!(
-    ///     conic_step_gradient.interpolate(&Vector::new(100.0, 0.0), &key_point),
+    ///     conic_step_gradient.interpolate(Vector::new(100.0, 0.0), key_point),
     ///     LinSrgb::new(1.0f64, 1.0, 0.0),
     /// );
     /// ```
@@ -182,7 +182,7 @@ where
 
     /// Center point around which conic gradient is drawn.
     pub fn center(&self) -> Vector {
-        self.center.clone()
+        self.center
     }
 
     /// Sets center point around which conic gradient is drawn.
@@ -197,7 +197,7 @@ where
 
     /// Sets angle at which to begin conic gradient, in radians.
     pub fn set_angle(&mut self, angle: f64) {
-        self.angle = angle % (2.0 * consts::PI);
+        self.angle = angle % consts::TAU;
     }
 
     /// Smoothness of conic gradient ranging from 0.0 to 1.0.
@@ -252,12 +252,12 @@ impl<Color> ColoringMethod<Color> for ConicGradient<Color>
 where
     Color: Mix<Scalar = f64> + Clone,
 {
-    fn interpolate(&self, point: &Vector, key_point: &Vector) -> Color {
+    fn interpolate(&self, point: Vector, key_point: Vector) -> Color {
         let smoothed_point = key_point.interpolate(point, self.smoothness);
-        let point_vector = &smoothed_point - &self.center;
+        let point_vector = smoothed_point - self.center;
         let angle = point_vector.y.atan2(point_vector.x) - self.angle;
-        let clamped_angle = (angle + 2.0 * consts::PI) % (2.0 * consts::PI);
-        self.gradient.get(clamped_angle / (2.0 * consts::PI))
+        let clamped_angle = (angle + consts::TAU) % consts::TAU;
+        self.gradient.get(clamped_angle / consts::TAU)
     }
 }
 
@@ -275,28 +275,28 @@ mod tests {
         );
         let key_point = Vector::new(100.0, 150.0);
         assert_eq!(
-            conic_gradient.interpolate(&Vector::new(150.0, 150.0), &key_point),
+            conic_gradient.interpolate(Vector::new(150.0, 150.0), key_point),
             gradient.get(0.0)
         );
         assert_eq!(
-            conic_gradient.interpolate(&Vector::new(100.0, 150.0), &key_point),
+            conic_gradient.interpolate(Vector::new(100.0, 150.0), key_point),
             gradient.get(0.125)
         );
         assert_eq!(
-            conic_gradient.interpolate(&Vector::new(50.0, 150.0), &key_point),
+            conic_gradient.interpolate(Vector::new(50.0, 150.0), key_point),
             gradient.get(0.25)
         );
         let key_point = Vector::new(100.0, 50.0);
         assert_eq!(
-            conic_gradient.interpolate(&Vector::new(50.0, 50.0), &key_point),
+            conic_gradient.interpolate(Vector::new(50.0, 50.0), key_point),
             gradient.get(0.5)
         );
         assert_eq!(
-            conic_gradient.interpolate(&Vector::new(100.0, 50.0), &key_point),
+            conic_gradient.interpolate(Vector::new(100.0, 50.0), key_point),
             gradient.get(0.625)
         );
         assert_eq!(
-            conic_gradient.interpolate(&Vector::new(150.0, 50.0), &key_point),
+            conic_gradient.interpolate(Vector::new(150.0, 50.0), key_point),
             gradient.get(0.75)
         );
     }
@@ -310,28 +310,28 @@ mod tests {
         );
         let key_point = Vector::new(150.0, 150.0);
         assert_eq!(
-            conic_gradient.interpolate(&Vector::new(150.0, 150.0), &key_point),
+            conic_gradient.interpolate(Vector::new(150.0, 150.0), key_point),
             gradient.get(0.25)
         );
         assert_eq!(
-            conic_gradient.interpolate(&Vector::new(100.0, 150.0), &key_point),
+            conic_gradient.interpolate(Vector::new(100.0, 150.0), key_point),
             gradient.get(0.25)
         );
         assert_eq!(
-            conic_gradient.interpolate(&Vector::new(50.0, 150.0), &key_point),
+            conic_gradient.interpolate(Vector::new(50.0, 150.0), key_point),
             gradient.get(0.25)
         );
         let key_point = Vector::new(50.0, 50.0);
         assert_eq!(
-            conic_gradient.interpolate(&Vector::new(50.0, 50.0), &key_point),
+            conic_gradient.interpolate(Vector::new(50.0, 50.0), key_point),
             gradient.get(0.75)
         );
         assert_eq!(
-            conic_gradient.interpolate(&Vector::new(100.0, 50.0), &key_point),
+            conic_gradient.interpolate(Vector::new(100.0, 50.0), key_point),
             gradient.get(0.75)
         );
         assert_eq!(
-            conic_gradient.interpolate(&Vector::new(150.0, 50.0), &key_point),
+            conic_gradient.interpolate(Vector::new(150.0, 50.0), key_point),
             gradient.get(0.75)
         );
     }
@@ -346,20 +346,20 @@ mod tests {
         );
         let key_point = Vector::new(150.0, 100.0);
         assert_eq!(
-            conic_gradient.interpolate(&Vector::new(100.0, 150.0), &key_point),
+            conic_gradient.interpolate(Vector::new(100.0, 150.0), key_point),
             gradient.get(0.0)
         );
         assert_eq!(
-            conic_gradient.interpolate(&Vector::new(100.0, 50.0), &key_point),
+            conic_gradient.interpolate(Vector::new(100.0, 50.0), key_point),
             gradient.get(0.75)
         );
         let key_point = Vector::new(50.0, 100.0);
         assert_eq!(
-            conic_gradient.interpolate(&Vector::new(100.0, 150.0), &key_point),
+            conic_gradient.interpolate(Vector::new(100.0, 150.0), key_point),
             gradient.get(0.25)
         );
         assert_eq!(
-            conic_gradient.interpolate(&Vector::new(100.0, 50.0), &key_point),
+            conic_gradient.interpolate(Vector::new(100.0, 50.0), key_point),
             gradient.get(0.5)
         );
     }
@@ -369,7 +369,7 @@ mod tests {
         let conic_gradient =
             ConicGradient::new_smooth(gradient.clone(), Vector::new(100.0, 100.0), 0.0);
         assert_eq!(
-            conic_gradient.interpolate(&conic_gradient.center(), &conic_gradient.center()),
+            conic_gradient.interpolate(conic_gradient.center(), conic_gradient.center()),
             gradient.get(0.0)
         );
     }
