@@ -68,21 +68,15 @@ use super::{segment::Segment, vector::Vector};
 ///         }
 ///         points
 ///             .iter()
-///             .map(|point| &point.rotate(rotation_angle) + &center)
+///             .map(|point| point.rotate(rotation_angle) + center)
 ///             .collect()
 ///     }
 ///     fn connect_points(&self, shape_points: &Vec<Vector>) -> Vec<Segment> {
 ///         let mut segments = vec![];
 ///         let points_count = shape_points.len();
 ///         for index in (0..points_count).step_by(4) {
-///             segments.push(Segment::new(
-///                 shape_points[index].clone(),
-///                 shape_points[index + 1].clone(),
-///             ));
-///             segments.push(Segment::new(
-///                 shape_points[index + 2].clone(),
-///                 shape_points[index + 3].clone(),
-///             ));
+///             segments.push(Segment::new(shape_points[index], shape_points[index + 1]));
+///             segments.push(Segment::new(shape_points[index + 2], shape_points[index + 3]));
 ///         }
 ///         segments
 ///     }
