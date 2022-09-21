@@ -102,8 +102,8 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 ///         Method: ColoringMethod<Color>,
 ///     {
 ///         let mut mosaic_image = RgbImage::new(self.image_size.0, self.image_size.1);
-///         for key_point in self.key_points {
-///             self.draw_dot(key_point, &coloring_method, &mut mosaic_image);
+///         for key_point in &self.key_points {
+///             self.draw_dot(*key_point, &coloring_method, &mut mosaic_image);
 ///         }
 ///         mosaic_image
 ///     }
