@@ -65,7 +65,7 @@ impl PolygonalMosaic {
             (&sites[triangulation.triangles[vertex_index * 3 + 1]]).into(),
             (&sites[triangulation.triangles[vertex_index * 3 + 2]]).into(),
         ];
-        let radius = vertex_position.distance_to(&corner_positions[0].into());
+        let radius = vertex_position.distance_to(corner_positions[0].into());
         let x_min = f64::min(corner_positions[0].x, corner_positions[1].x)
             .min(corner_positions[2].x)
             .round() as u32;
@@ -82,15 +82,15 @@ impl PolygonalMosaic {
             for y in y_min..=y_max {
                 let position = Vector::new(x as f64, y as f64);
                 let orientations = [
-                    robust::orient2d(corner_positions[0], corner_positions[1], (&position).into()),
-                    robust::orient2d(corner_positions[1], corner_positions[2], (&position).into()),
-                    robust::orient2d(corner_positions[2], corner_positions[0], (&position).into()),
+                    robust::orient2d(corner_positions[0], corner_positions[1], position.into()),
+                    robust::orient2d(corner_positions[1], corner_positions[2], position.into()),
+                    robust::orient2d(corner_positions[2], corner_positions[0], position.into()),
                 ];
                 if orientations[0] <= 0.0 && orientations[1] <= 0.0 && orientations[2] <= 0.0 {
-                    let distance = position.distance_to(&vertex_position);
+                    let distance = position.distance_to(vertex_position);
                     let lightness = (1.0 - distance / radius).powi(2);
                     let color = coloring_method
-                        .interpolate(&position, &vertex_position)
+                        .interpolate(position, vertex_position)
                         .lighten(lightness)
                         .into_color();
                     mosaic_image.put_pixel(x, y, Rgb(color.into_format().into_raw()));
@@ -118,8 +118,8 @@ impl Mosaic for PolygonalMosaic {
         self.image_size
     }
 
-    fn center(&self) -> &Vector {
-        &self.center
+    fn center(&self) -> Vector {
+        self.center
     }
 
     fn rotation_angle(&self) -> f64 {
