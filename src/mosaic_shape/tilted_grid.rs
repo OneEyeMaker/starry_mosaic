@@ -142,10 +142,10 @@ impl MosaicShape for TiltedGrid {
         points
             .iter()
             .map(|point| {
-                &point
+                point
                     .shear(self.tilt_factor.x, self.tilt_factor.y)
                     .rotate(rotation_angle)
-                    + &center
+                    + center
             })
             .collect()
     }
@@ -154,10 +154,7 @@ impl MosaicShape for TiltedGrid {
         let mut segments = vec![];
         let points_count = shape_points.len();
         for index in (4..points_count).step_by(2) {
-            segments.push(Segment::new(
-                shape_points[index].clone(),
-                shape_points[index + 1].clone(),
-            ));
+            segments.push(Segment::new(shape_points[index], shape_points[index + 1]));
         }
         segments
     }

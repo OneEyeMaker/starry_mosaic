@@ -62,7 +62,7 @@ where
     ///
     /// let key_point = Vector::new(200.0, 200.0);
     /// assert_eq!(
-    ///     radial_semi_step_gradient.interpolate(&Vector::new(200.0, 300.0), &key_point),
+    ///     radial_semi_step_gradient.interpolate(Vector::new(200.0, 300.0), key_point),
     ///     Lch::new(82.0f64, 108.0, 112.0),
     /// );
     /// ```
@@ -77,7 +77,7 @@ where
     where
         ColorGradient: Into<Gradient<Color>>,
     {
-        let direction = &outer_center - &inner_center;
+        let direction = outer_center - inner_center;
         let direction_squared_length = direction.squared_length();
         let mut radial_gradient = Self {
             gradient: gradient.into(),
@@ -135,7 +135,7 @@ where
     ///
     /// let key_point = Vector::new(200.0, 200.0);
     /// assert_eq!(
-    ///     radial_smooth_gradient.interpolate(&Vector::new(200.0, 300.0), &key_point),
+    ///     radial_smooth_gradient.interpolate(Vector::new(200.0, 300.0), key_point),
     ///     Lch::new(78.0f64, 102.0, 98.0),
     /// );
     /// ```
@@ -203,7 +203,7 @@ where
     ///
     /// let key_point = Vector::new(200.0, 200.0);
     /// assert_eq!(
-    ///     radial_step_gradient.interpolate(&Vector::new(200.0, 300.0), &key_point),
+    ///     radial_step_gradient.interpolate(Vector::new(200.0, 300.0), key_point),
     ///     Lch::new(66.0f64, 104.0, 76.0),
     /// );
     /// ```
@@ -269,7 +269,7 @@ where
     ///
     /// let key_point = Vector::new(200.0, 200.0);
     /// assert_eq!(
-    ///     radial_simple_semi_step_gradient.interpolate(&Vector::new(200.0, 300.0), &key_point),
+    ///     radial_simple_semi_step_gradient.interpolate(Vector::new(200.0, 300.0), key_point),
     ///     Lch::new(70.0f64, 105.0, 85.0),
     /// );
     /// ```
@@ -283,7 +283,7 @@ where
     where
         ColorGradient: Into<Gradient<Color>>,
     {
-        Self::new(gradient, center.clone(), 0.0, center, radius, smoothness)
+        Self::new(gradient, center, 0.0, center, radius, smoothness)
     }
 
     /// Creates radial simple smooth gradient using size and position of circle that bounds it.
@@ -327,7 +327,7 @@ where
     ///
     /// let key_point = Vector::new(200.0, 200.0);
     /// assert_eq!(
-    ///     radial_simple_smooth_gradient.interpolate(&Vector::new(200.0, 300.0), &key_point),
+    ///     radial_simple_smooth_gradient.interpolate(Vector::new(200.0, 300.0), key_point),
     ///     Lch::new(90.0f64, 110.0, 130.0),
     /// );
     /// ```
@@ -384,7 +384,7 @@ where
     ///
     /// let key_point = Vector::new(200.0, 200.0);
     /// assert_eq!(
-    ///     radial_simple_step_gradient.interpolate(&Vector::new(200.0, 300.0), &key_point),
+    ///     radial_simple_step_gradient.interpolate(Vector::new(200.0, 300.0), key_point),
     ///     Lch::new(50.0f64, 100.0, 40.0),
     /// );
     /// ```
@@ -402,7 +402,7 @@ where
 
     /// Center of inner circle of radial gradient.
     pub fn inner_center(&self) -> Vector {
-        self.inner_center.clone()
+        self.inner_center
     }
 
     /// Sets center of inner circle of radial gradient.
@@ -414,7 +414,7 @@ where
     ///
     /// * `inner_center`: center of inner circle.
     pub fn set_inner_center(&mut self, inner_center: Vector) {
-        let outer_center = &self.inner_center + &self.direction;
+        let outer_center = self.inner_center + self.direction;
         self.inner_center = inner_center;
         self.set_outer_center(outer_center);
     }
@@ -440,7 +440,7 @@ where
 
     /// Center of outer circle that bounds radial gradient.
     pub fn outer_center(&self) -> Vector {
-        &self.inner_center + &self.direction
+        self.inner_center + self.direction
     }
 
     /// Sets center of outer circle that bounds radial gradient.
@@ -452,7 +452,7 @@ where
     ///
     /// * `outer_center`: center of outer circle.
     pub fn set_outer_center(&mut self, outer_center: Vector) {
-        self.direction = &outer_center - &self.inner_center;
+        self.direction = outer_center - self.inner_center;
         self.direction_squared_length = self.direction.squared_length();
         self.fit_inner_circle_into_outer();
     }
@@ -538,11 +538,11 @@ impl<Color> ColoringMethod<Color> for RadialGradient<Color>
 where
     Color: Mix<Scalar = f64> + Clone,
 {
-    fn interpolate(&self, point: &Vector, key_point: &Vector) -> Color {
+    fn interpolate(&self, point: Vector, key_point: Vector) -> Color {
         let smoothed_point = key_point.interpolate(point, self.smoothness);
-        let point_vector = &smoothed_point - &self.inner_center;
+        let point_vector = smoothed_point - self.inner_center;
         let alpha = self.direction_squared_length - self.radius_difference.powi(2);
-        let beta = point_vector.dot(&self.direction) + self.inner_radius * self.radius_difference;
+        let beta = point_vector.dot(self.direction) + self.inner_radius * self.radius_difference;
         let gamma = point_vector.squared_length() - self.inner_radius.powi(2);
         let discriminant = beta * beta - alpha * gamma;
         let interpolation_factor = (beta - discriminant.sqrt()) / alpha;
@@ -653,7 +653,7 @@ mod tests {
             let index = index as f64;
             let point = Vector::new(250.0, 200.0 + index * 50.0);
             assert_eq!(
-                radial_gradient.interpolate(&point, &key_point),
+                radial_gradient.interpolate(point, key_point),
                 gradient.get(index / 5.0)
             );
         }
@@ -662,7 +662,7 @@ mod tests {
             let index = index as f64;
             let point = Vector::new(250.0, 100.0 - index * 10.0);
             assert_eq!(
-                radial_gradient.interpolate(&point, &key_point),
+                radial_gradient.interpolate(point, key_point),
                 gradient.get(index / 5.0)
             );
         }
@@ -682,7 +682,7 @@ mod tests {
             let index = index as f64;
             let point = Vector::new(250.0, 200.0 + index * 50.0);
             assert_eq!(
-                radial_gradient.interpolate(&point, &key_point),
+                radial_gradient.interpolate(point, key_point),
                 gradient.get(0.5)
             );
         }
@@ -691,7 +691,7 @@ mod tests {
             let index = index as f64;
             let point = Vector::new(250.0, 100.0 - index * 10.0);
             assert_eq!(
-                radial_gradient.interpolate(&point, &key_point),
+                radial_gradient.interpolate(point, key_point),
                 gradient.get(0.5)
             );
         }
@@ -712,7 +712,7 @@ mod tests {
             let index = index as f64;
             let point = Vector::new(250.0, 200.0 + index * 50.0);
             assert_eq!(
-                radial_gradient.interpolate(&point, &key_point),
+                radial_gradient.interpolate(point, key_point),
                 gradient.get(0.25 + index / 10.0)
             );
         }
@@ -721,7 +721,7 @@ mod tests {
             let index = index as f64;
             let point = Vector::new(250.0, 100.0 - index * 10.0);
             assert_eq!(
-                radial_gradient.interpolate(&point, &key_point),
+                radial_gradient.interpolate(point, key_point),
                 gradient.get(0.25 + index / 10.0)
             );
         }
@@ -737,8 +737,7 @@ mod tests {
             200.0,
         );
         assert_eq!(
-            radial_gradient
-                .interpolate(&radial_gradient.inner_center, &radial_gradient.inner_center),
+            radial_gradient.interpolate(radial_gradient.inner_center, radial_gradient.inner_center),
             gradient.get(0.0)
         );
     }
@@ -754,22 +753,22 @@ mod tests {
         );
         let point = Vector::new(0.0, 250.0);
         assert_eq!(
-            radial_gradient.interpolate(&point, &radial_gradient.inner_center),
+            radial_gradient.interpolate(point, radial_gradient.inner_center),
             gradient.get(1.0)
         );
         let point = Vector::new(500.0, 250.0);
         assert_eq!(
-            radial_gradient.interpolate(&point, &radial_gradient.inner_center),
+            radial_gradient.interpolate(point, radial_gradient.inner_center),
             gradient.get(1.0)
         );
         let point = Vector::new(250.0, 0.0);
         assert_eq!(
-            radial_gradient.interpolate(&point, &radial_gradient.inner_center),
+            radial_gradient.interpolate(point, radial_gradient.inner_center),
             gradient.get(1.0)
         );
         let point = Vector::new(250.0, 500.0);
         assert_eq!(
-            radial_gradient.interpolate(&point, &radial_gradient.inner_center),
+            radial_gradient.interpolate(point, radial_gradient.inner_center),
             gradient.get(1.0)
         );
     }

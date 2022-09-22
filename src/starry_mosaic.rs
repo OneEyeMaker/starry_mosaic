@@ -52,7 +52,7 @@ impl StarryMosaic {
             let site = cell.site();
             let site_position: Vector = cell.site_position().into();
             cell.iter_vertices().for_each(|vertex| {
-                let distance = site_position.distance_to(&vertex.into());
+                let distance = site_position.distance_to(vertex.into());
                 if distance > maximum_cell_distances[site] {
                     maximum_cell_distances[site] = distance;
                 }
@@ -61,7 +61,7 @@ impl StarryMosaic {
         maximum_cell_distances
     }
 
-    fn find_closest_site(&self, site: usize, vector: &Vector) -> usize {
+    fn find_closest_site(&self, site: usize, vector: Vector) -> usize {
         self.voronoi
             .cell(site)
             .iter_path(vector.into())
@@ -82,15 +82,15 @@ impl Mosaic for StarryMosaic {
         let mut current_site_position = Vector::default();
         for (x, y, pixel) in mosaic_image.enumerate_pixels_mut() {
             let position = Vector::new(x as f64, y as f64);
-            let site = self.find_closest_site(current_site, &position);
+            let site = self.find_closest_site(current_site, position);
             if site == 0 || current_site != site {
                 current_site = site;
                 current_site_position = (&self.voronoi.sites()[current_site]).into();
             }
-            let distance = position.distance_to(&current_site_position);
+            let distance = position.distance_to(current_site_position);
             let lightness = (1.0 - distance / maximum_cell_distances[current_site]).powi(2);
             let color = coloring_method
-                .interpolate(&position, &current_site_position)
+                .interpolate(position, current_site_position)
                 .lighten(lightness)
                 .into_color();
             *pixel = Rgb(color.into_format().into_raw());
@@ -102,8 +102,8 @@ impl Mosaic for StarryMosaic {
         self.image_size
     }
 
-    fn center(&self) -> &Vector {
-        &self.center
+    fn center(&self) -> Vector {
+        self.center
     }
 
     fn rotation_angle(&self) -> f64 {

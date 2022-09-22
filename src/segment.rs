@@ -14,8 +14,8 @@ use super::{utility, vector::Vector};
 /// let start_point = Vector::new(6.4, -2.3);
 /// let end_point = Vector::new(1.7, 7.8);
 ///
-/// let segment = Segment::new(start_point.clone(), end_point.clone());
-/// let inverse_segment = Segment::new(end_point.clone(), start_point.clone());
+/// let segment = Segment::new(start_point, end_point);
+/// let inverse_segment = Segment::new(end_point, start_point);
 ///
 /// assert_eq!(segment, inverse_segment);
 /// ```
@@ -49,7 +49,7 @@ impl Segment {
     /// assert_eq!(segment.squared_length(), 169.0);
     /// ```
     pub fn squared_length(&self) -> f64 {
-        self.start.squared_distance_to(&self.end)
+        self.start.squared_distance_to(self.end)
     }
 
     /// Calculates length of line segment.
@@ -64,7 +64,7 @@ impl Segment {
     /// assert_eq!(segment.length(), 13.0);
     /// ```
     pub fn length(&self) -> f64 {
-        self.start.distance_to(&self.end)
+        self.start.distance_to(self.end)
     }
 
     /// Computes point of intersection of this line segment with another one, if such point exists.
@@ -83,15 +83,15 @@ impl Segment {
     /// assert_eq!(point, Vector::new(0.0, 0.0));
     /// ```
     pub fn intersect(&self, segment: &Self) -> Option<Vector> {
-        let self_vector = &self.end - &self.start;
-        let segment_vector = &segment.end - &segment.start;
-        let denominator = self_vector.cross(&segment_vector);
+        let self_vector = self.end - self.start;
+        let segment_vector = segment.end - segment.start;
+        let denominator = self_vector.cross(segment_vector);
         if !utility::approx_eq(denominator, 0.0) {
-            let start_vector = &self.start - &segment.start;
-            let numerator = segment_vector.cross(&start_vector);
+            let start_vector = self.start - segment.start;
+            let numerator = segment_vector.cross(start_vector);
             let factor = numerator / denominator;
             if factor > 0.0 && factor < 1.0 {
-                return Some(self.start.interpolate(&self.end, factor));
+                return Some(self.start.interpolate(self.end, factor));
             }
         }
         None

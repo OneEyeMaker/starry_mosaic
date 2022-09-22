@@ -35,7 +35,7 @@ use super::vector::Vector;
 /// where
 ///     Color: Mix<Scalar = f64> + Clone,
 /// {
-///     fn interpolate(&self, point: &Vector, key_point: &Vector) -> Color {
+///     fn interpolate(&self, point: Vector, key_point: Vector) -> Color {
 ///         if (point.x < key_point.x) == (point.y < key_point.y) {
 ///             self.primary.clone()
 ///         } else {
@@ -51,19 +51,19 @@ use super::vector::Vector;
 ///     };
 ///     let key_point = Vector::new(100.0, 100.0);
 ///     assert_eq!(
-///         pattern.interpolate(&Vector::new(50.0, 50.0), &key_point),
+///         pattern.interpolate(Vector::new(50.0, 50.0), key_point),
 ///         pattern.primary,
 ///     );
 ///     assert_eq!(
-///         pattern.interpolate(&Vector::new(50.0, 150.0), &key_point),
+///         pattern.interpolate(Vector::new(50.0, 150.0), key_point),
 ///         pattern.secondary,
 ///     );
 ///     assert_eq!(
-///         pattern.interpolate(&Vector::new(150.0, 50.0), &key_point),
+///         pattern.interpolate(Vector::new(150.0, 50.0), key_point),
 ///         pattern.secondary,
 ///     );
 ///     assert_eq!(
-///         pattern.interpolate(&Vector::new(150.0, 150.0), &key_point),
+///         pattern.interpolate(Vector::new(150.0, 150.0), key_point),
 ///         pattern.primary,
 ///     );
 /// }
@@ -86,7 +86,7 @@ where
     ///
     /// * [`ColoringMethod`].
     ///
-    fn interpolate(&self, point: &Vector, key_point: &Vector) -> Color;
+    fn interpolate(&self, point: Vector, key_point: Vector) -> Color;
 }
 
 impl<Color> ColoringMethod<Color> for Color
@@ -94,7 +94,7 @@ where
     Color: Mix<Scalar = f64> + Clone,
 {
     #[inline(always)]
-    fn interpolate(&self, _point: &Vector, _key_point: &Vector) -> Color {
+    fn interpolate(&self, _point: Vector, _key_point: Vector) -> Color {
         self.clone()
     }
 }

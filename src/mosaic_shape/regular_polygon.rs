@@ -63,8 +63,8 @@ impl MosaicShape for RegularPolygon {
         for start_index in 0..points_count - 1 {
             for end_index in start_index + 1..points_count {
                 segments.push(Segment::new(
-                    shape_points[start_index].clone(),
-                    shape_points[end_index].clone(),
+                    shape_points[start_index],
+                    shape_points[end_index],
                 ));
             }
         }

@@ -31,7 +31,7 @@ use super::{
 /// let starry_mosaic = starry_mosaic.unwrap();
 ///
 /// assert_eq!(starry_mosaic.image_size(), (1024, 1024));
-/// assert_eq!(starry_mosaic.center(), &Vector::new(512.0, 512.0));
+/// assert_eq!(starry_mosaic.center(), Vector::new(512.0, 512.0));
 /// assert_eq!(starry_mosaic.rotation_angle(), 22.5f64.to_radians());
 /// assert_eq!(starry_mosaic.scale(), 0.5);
 ///
@@ -276,7 +276,7 @@ impl MosaicBuilder {
         let points = self
             .construct_shape()
             .iter()
-            .map(|point| point.into())
+            .map(|point| (*point).into())
             .collect();
         let (image_width, image_height) = (self.image_size.0 as f64, self.image_size.1 as f64);
         let center = Point {
@@ -348,7 +348,7 @@ impl MosaicBuilder {
     fn construct_shape(&self) -> Vec<Vector> {
         let mut initial_points = self.shape.set_up_points(
             self.image_size,
-            self.center.clone(),
+            self.center,
             self.rotation_angle,
             self.scale,
         );
@@ -384,7 +384,7 @@ where
         Self {
             shape: mosaic.shape().clone(),
             image_size: mosaic.image_size(),
-            center: mosaic.center().clone(),
+            center: mosaic.center(),
             rotation_angle: mosaic.rotation_angle(),
             scale: mosaic.scale(),
         }

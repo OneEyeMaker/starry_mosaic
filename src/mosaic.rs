@@ -61,7 +61,7 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 ///     }
 ///     fn draw_dot<Color, Method>(
 ///         &self,
-///         key_point: &Vector,
+///         key_point: Vector,
 ///         coloring_method: &Method,
 ///         mosaic_image: &mut RgbImage
 ///     )
@@ -82,10 +82,10 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 ///                     || point.y >= image_height {
 ///                     continue;
 ///                 }
-///                 if (&point - key_point).length() > self.dot_radius as f64 {
+///                 if point.distance_to(key_point) > self.dot_radius as f64 {
 ///                     continue;
 ///                 }
-///                 let color = coloring_method.interpolate(&point, key_point).into_color();
+///                 let color = coloring_method.interpolate(point, key_point).into_color();
 ///                 mosaic_image.put_pixel(
 ///                     point.x as u32,
 ///                     point.y as u32,
@@ -103,15 +103,15 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 ///     {
 ///         let mut mosaic_image = RgbImage::new(self.image_size.0, self.image_size.1);
 ///         for key_point in &self.key_points {
-///             self.draw_dot(key_point, &coloring_method, &mut mosaic_image);
+///             self.draw_dot(*key_point, &coloring_method, &mut mosaic_image);
 ///         }
 ///         mosaic_image
 ///     }
 ///     fn image_size(&self) -> (u32, u32) {
 ///         self.image_size
 ///     }
-///     fn center(&self) -> &Vector {
-///         &self.center
+///     fn center(&self) -> Vector {
+///         self.center
 ///     }
 ///     fn rotation_angle(&self) -> f64 {
 ///         self.rotation_angle
@@ -133,7 +133,7 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 ///         .build_from_key_points(DottedMosaic::new);
 ///
 ///     assert_eq!(dotted_mosaic.image_size(), (1024, 1024));
-///     assert_eq!(dotted_mosaic.center(), &Vector::new(512.0, 512.0));
+///     assert_eq!(dotted_mosaic.center(), Vector::new(512.0, 512.0));
 ///     assert_eq!(dotted_mosaic.rotation_angle(), 45.0f64.to_radians());
 ///     assert_eq!(dotted_mosaic.scale(), 0.75);
 ///
@@ -168,7 +168,7 @@ pub trait Mosaic {
     fn image_size(&self) -> (u32, u32);
 
     /// Position of center of [mosaic shape][`Mosaic::shape`] in mosaic.
-    fn center(&self) -> &Vector;
+    fn center(&self) -> Vector;
 
     /// Rotation angle (in radians) of [mosaic shape][`Mosaic::shape`] in this mosaic.
     fn rotation_angle(&self) -> f64;

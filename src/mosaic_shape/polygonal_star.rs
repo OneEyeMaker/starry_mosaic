@@ -64,12 +64,8 @@ impl MosaicShape for PolygonalStar {
         let inner_radius = radius
             * (consts::PI * (corners_count * 0.5 - 2.0) / corners_count).sin()
             / (consts::FRAC_PI_2 * (corners_count - 2.0) / corners_count).sin();
-        let mut points = helpers::set_up_polygon_points(
-            self.corners_count,
-            radius,
-            center.clone(),
-            rotation_angle,
-        );
+        let mut points =
+            helpers::set_up_polygon_points(self.corners_count, radius, center, rotation_angle);
         let mut inner_points = helpers::set_up_polygon_points(
             self.corners_count,
             inner_radius,
@@ -86,16 +82,16 @@ impl MosaicShape for PolygonalStar {
         for start_index in 0..points_count {
             let end_index = (start_index + 2) % points_count;
             segments.push(Segment::new(
-                shape_points[start_index].clone(),
-                shape_points[end_index].clone(),
+                shape_points[start_index],
+                shape_points[end_index],
             ));
         }
         for start_index in 0..points_count {
             for end_index in start_index + 2..start_index + points_count - 2 {
                 let end_index = points_count + end_index % points_count;
                 segments.push(Segment::new(
-                    shape_points[start_index].clone(),
-                    shape_points[end_index].clone(),
+                    shape_points[start_index],
+                    shape_points[end_index],
                 ));
             }
         }

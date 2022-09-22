@@ -51,7 +51,7 @@ where
     ///
     /// let key_point = Vector::new(50.0, 50.0);
     /// assert_eq!(
-    ///     linear_semi_step_gradient.interpolate(&Vector::new(0.0, 20.0), &key_point),
+    ///     linear_semi_step_gradient.interpolate(Vector::new(0.0, 20.0), key_point),
     ///     Hsl::new(72.0f64, 1.0, 0.5)
     /// );
     /// ```
@@ -64,7 +64,7 @@ where
     where
         ColorGradient: Into<Gradient<Color>>,
     {
-        let direction = &end_point - &start_point;
+        let direction = end_point - start_point;
         let direction_squared_length = direction.squared_length();
         let mut linear_gradient = Self {
             gradient: gradient.into(),
@@ -112,7 +112,7 @@ where
     ///
     /// let key_point = Vector::new(50.0, 50.0);
     /// assert_eq!(
-    ///     linear_smooth_gradient.interpolate(&Vector::new(0.0, 20.0), &key_point),
+    ///     linear_smooth_gradient.interpolate(Vector::new(0.0, 20.0), key_point),
     ///     Hsl::new(0.0f64, 1.0, 0.5)
     /// );
     /// ```
@@ -163,7 +163,7 @@ where
     ///
     /// let key_point = Vector::new(50.0, 50.0);
     /// assert_eq!(
-    ///     linear_step_gradient.interpolate(&Vector::new(0.0, 20.0), &key_point),
+    ///     linear_step_gradient.interpolate(Vector::new(0.0, 20.0), key_point),
     ///     Hsl::new(120.0f64, 1.0, 0.5)
     /// );
     /// ```
@@ -181,19 +181,19 @@ where
 
     /// Starting point of line along which linear gradient is drawn.
     pub fn start_point(&self) -> Vector {
-        self.start_point.clone()
+        self.start_point
     }
 
     /// Sets starting point of line along which linear gradient is drawn.
     pub fn set_start_point(&mut self, start_point: Vector) {
-        let end_point = &self.start_point + &self.direction;
+        let end_point = self.start_point + self.direction;
         self.start_point = start_point;
         self.set_direction(end_point);
     }
 
     /// End point of line along which linear gradient is drawn.
     pub fn end_point(&self) -> Vector {
-        &self.start_point + &self.direction
+        self.start_point + self.direction
     }
 
     /// Sets end point of line along which linear gradient is drawn.
@@ -251,7 +251,7 @@ where
     #[inline(always)]
     fn set_direction(&mut self, end_point: Vector) {
         self.direction = if self.start_point != end_point {
-            &end_point - &self.start_point
+            end_point - self.start_point
         } else {
             Vector::new(utility::EPSILON * 2.0, 0.0)
         };
@@ -263,10 +263,10 @@ impl<Color> ColoringMethod<Color> for LinearGradient<Color>
 where
     Color: Mix<Scalar = f64> + Clone,
 {
-    fn interpolate(&self, point: &Vector, key_point: &Vector) -> Color {
+    fn interpolate(&self, point: Vector, key_point: Vector) -> Color {
         let smoothed_point = key_point.interpolate(point, self.smoothness);
-        let interpolation_factor = (&smoothed_point - &self.start_point).dot(&self.direction)
-            / self.direction_squared_length;
+        let interpolation_factor =
+            (smoothed_point - self.start_point).dot(self.direction) / self.direction_squared_length;
         self.gradient.get(interpolation_factor)
     }
 }
@@ -279,7 +279,7 @@ mod tests {
     fn create_with_null_direction_vector() {
         let gradient = tests::create_rgb_gradient();
         let point = Vector::new(100.0, 100.0);
-        let linear_gradient = LinearGradient::new_smooth(gradient, point.clone(), point);
+        let linear_gradient = LinearGradient::new_smooth(gradient, point, point);
         assert!(linear_gradient.direction_squared_length > 0.0);
     }
     #[test]
@@ -311,7 +311,7 @@ mod tests {
             let index = index as f64;
             let point = Vector::new(index * 10.0, index * 10.0);
             assert_eq!(
-                linear_gradient.interpolate(&point, &key_point),
+                linear_gradient.interpolate(point, key_point),
                 gradient.get(index / 10.0)
             );
         }
@@ -320,7 +320,7 @@ mod tests {
             let index = index as f64;
             let point = Vector::new(index * 10.0, index * 10.0);
             assert_eq!(
-                linear_gradient.interpolate(&point, &key_point),
+                linear_gradient.interpolate(point, key_point),
                 gradient.get(index / 10.0)
             );
         }
@@ -338,7 +338,7 @@ mod tests {
             let index = index as f64;
             let point = Vector::new(index * 10.0, index * 10.0);
             assert_eq!(
-                linear_gradient.interpolate(&point, &key_point),
+                linear_gradient.interpolate(point, key_point),
                 gradient.get(0.25)
             );
         }
@@ -347,7 +347,7 @@ mod tests {
             let index = index as f64;
             let point = Vector::new(index * 10.0, index * 10.0);
             assert_eq!(
-                linear_gradient.interpolate(&point, &key_point),
+                linear_gradient.interpolate(point, key_point),
                 gradient.get(0.75)
             );
         }
@@ -366,7 +366,7 @@ mod tests {
             let index = index as f64;
             let point = Vector::new(index * 10.0, index * 10.0);
             assert_eq!(
-                linear_gradient.interpolate(&point, &key_point),
+                linear_gradient.interpolate(point, key_point),
                 gradient.get(0.125 + index / 20.0)
             );
         }
@@ -375,7 +375,7 @@ mod tests {
             let index = index as f64;
             let point = Vector::new(index * 10.0, index * 10.0);
             assert_eq!(
-                linear_gradient.interpolate(&point, &key_point),
+                linear_gradient.interpolate(point, key_point),
                 gradient.get(0.625 + (index - 5.0) / 20.0)
             );
         }
@@ -385,11 +385,10 @@ mod tests {
         let gradient = tests::create_rgb_gradient();
         let start_point = Vector::new(50.0, 50.0);
         let end_point = Vector::new(51.0, 50.0);
-        let linear_gradient =
-            LinearGradient::new_smooth(gradient.clone(), start_point.clone(), end_point.clone());
+        let linear_gradient = LinearGradient::new_smooth(gradient.clone(), start_point, end_point);
         assert_ne!(
-            linear_gradient.interpolate(&start_point, &start_point),
-            linear_gradient.interpolate(&end_point, &end_point)
+            linear_gradient.interpolate(start_point, start_point),
+            linear_gradient.interpolate(end_point, end_point)
         );
     }
 }
