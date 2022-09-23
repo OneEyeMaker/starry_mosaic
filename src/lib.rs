@@ -48,6 +48,8 @@ pub use self::vector::Vector;
 mod segment;
 pub use self::segment::Segment;
 
+pub mod transform;
+
 pub mod coloring_method;
 
 pub mod mosaic_shape;

@@ -447,7 +447,7 @@ impl PartialOrd for Vector {
 
 impl Add for Vector {
     type Output = Vector;
-    fn add(self, vector: Vector) -> Self::Output {
+    fn add(self, vector: Self) -> Self::Output {
         Vector {
             x: self.x + vector.x,
             y: self.y + vector.y,
@@ -456,7 +456,7 @@ impl Add for Vector {
 }
 impl Sub for Vector {
     type Output = Vector;
-    fn sub(self, vector: Vector) -> Self::Output {
+    fn sub(self, vector: Self) -> Self::Output {
         Vector {
             x: self.x - vector.x,
             y: self.y - vector.y,
@@ -529,13 +529,13 @@ impl Neg for Vector {
 }
 
 impl AddAssign for Vector {
-    fn add_assign(&mut self, vector: Vector) {
+    fn add_assign(&mut self, vector: Self) {
         self.x += vector.x;
         self.y += vector.y;
     }
 }
 impl SubAssign for Vector {
-    fn sub_assign(&mut self, vector: Vector) {
+    fn sub_assign(&mut self, vector: Self) {
         self.x -= vector.x;
         self.y -= vector.y;
     }
