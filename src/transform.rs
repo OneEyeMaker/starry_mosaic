@@ -1,6 +1,110 @@
-use std::ops::{Div, DivAssign, Mul, MulAssign, Neg};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
-use super::utility;
+use super::{utility, vector::Vector};
+
+#[derive(Clone, Debug, Default)]
+pub struct Transformation {
+    pub translation: Vector,
+    pub scale: Scale,
+    pub shear: Vector,
+    pub rotation_angle: f64,
+}
+
+impl Transformation {
+    pub fn from_translation<VectorLike>(translation: VectorLike) -> Self
+    where
+        VectorLike: Into<Vector>,
+    {
+        let mut transformation = Transformation::default();
+        transformation.translation = translation.into();
+        transformation
+    }
+
+    pub fn from_rotation(rotation_angle: f64) -> Self {
+        let mut transformation = Transformation::default();
+        transformation.rotation_angle = rotation_angle;
+        transformation
+    }
+
+    pub fn from_scale<ScaleLike>(scale: ScaleLike) -> Self
+    where
+        ScaleLike: Into<Scale>,
+    {
+        let mut transformation = Transformation::default();
+        transformation.scale = scale.into();
+        transformation
+    }
+
+    pub fn from_shear<VectorLike>(shear: VectorLike) -> Self
+    where
+        VectorLike: Into<Vector>,
+    {
+        let mut transformation = Transformation::default();
+        transformation.shear = shear.into();
+        transformation
+    }
+}
+
+impl PartialEq for Transformation {
+    fn eq(&self, transformation: &Self) -> bool {
+        self.translation == transformation.translation
+            && utility::approx_eq(self.rotation_angle, transformation.rotation_angle)
+            && self.scale == transformation.scale
+            && self.shear == transformation.shear
+    }
+}
+
+impl Add for Transformation {
+    type Output = Transformation;
+    fn add(self, transformation: Self) -> Self::Output {
+        Transformation {
+            translation: self.translation + transformation.translation,
+            rotation_angle: self.rotation_angle + transformation.rotation_angle,
+            scale: self.scale * transformation.scale,
+            shear: self.shear + transformation.shear,
+        }
+    }
+}
+impl Sub for Transformation {
+    type Output = Transformation;
+    fn sub(self, transformation: Self) -> Self::Output {
+        Transformation {
+            translation: self.translation - transformation.translation,
+            rotation_angle: self.rotation_angle - transformation.rotation_angle,
+            scale: self.scale / transformation.scale,
+            shear: self.shear - transformation.shear,
+        }
+    }
+}
+
+impl Neg for Transformation {
+    type Output = Transformation;
+    fn neg(self) -> Self::Output {
+        Transformation {
+            translation: -self.translation,
+            rotation_angle: -self.rotation_angle,
+            scale: -self.scale,
+            shear: -self.shear,
+        }
+    }
+}
+
+impl AddAssign for Transformation {
+    fn add_assign(&mut self, transformation: Self) {
+        self.translation += transformation.translation;
+        self.rotation_angle += transformation.rotation_angle;
+        self.scale *= transformation.scale;
+        self.shear += transformation.shear;
+    }
+}
+impl SubAssign for Transformation {
+    fn sub_assign(&mut self, transformation: Self) {
+        self.translation -= transformation.translation;
+        self.rotation_angle -= transformation.rotation_angle;
+        self.scale /= transformation.scale;
+        self.shear -= transformation.shear;
+    }
+}
 
 #[derive(Clone, Copy, Debug)]
 pub struct Scale {
