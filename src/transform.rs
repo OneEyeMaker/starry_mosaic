@@ -95,3 +95,53 @@ impl SubAssign for Scale {
         self.y /= scale.y;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn clamp_scale() {
+        let scale = Scale::new(0.0, -2000.0);
+        let clamped_scale = scale.clamp(0.001, 1000.0);
+        assert_eq!(clamped_scale.x, 0.001);
+        assert_eq!(clamped_scale.y, -1000.0);
+    }
+    #[test]
+    fn add_scale() {
+        let first = Scale::new(0.6, 3.0);
+        let second = Scale::new(7.0, 0.5);
+        let sum = first + second;
+        assert_eq!(sum.x, 4.2);
+        assert_eq!(sum.y, 1.5);
+    }
+    #[test]
+    fn sub_scale() {
+        let first = Scale::new(0.8, 4.0);
+        let second = Scale::new(4.0, 2.5);
+        let sum = first - second;
+        assert_eq!(sum.x, 0.2);
+        assert_eq!(sum.y, 1.6);
+    }
+    #[test]
+    fn neg_scale() {
+        let scale = Scale::new_uniform(-2.0);
+        let negated_scale = -scale;
+        assert_eq!(negated_scale.x, 2.0);
+        assert_eq!(negated_scale.y, 2.0);
+    }
+    #[test]
+    fn add_assign_scale() {
+        let mut scale = Scale::new(2.0, 0.5);
+        scale += Scale::new(3.0, 4.0);
+        assert_eq!(scale.x, 6.0);
+        assert_eq!(scale.y, 2.0);
+    }
+    #[test]
+    fn sub_assign_scale() {
+        let mut scale = Scale::new(-3.0, 1.0);
+        scale -= Scale::new(-1.0, 2.0);
+        assert_eq!(scale.x, 3.0);
+        assert_eq!(scale.y, 0.5);
+    }
+}
