@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Neg, Sub, SubAssign};
+use std::ops::{Div, DivAssign, Mul, MulAssign, Neg};
 
 use super::utility;
 
@@ -54,18 +54,18 @@ impl PartialEq for Scale {
     }
 }
 
-impl Add for Scale {
+impl Mul for Scale {
     type Output = Scale;
-    fn add(self, scale: Self) -> Self::Output {
+    fn mul(self, scale: Self) -> Self::Output {
         Scale {
             x: self.x * scale.x,
             y: self.y * scale.y,
         }
     }
 }
-impl Sub for Scale {
+impl Div for Scale {
     type Output = Scale;
-    fn sub(self, scale: Self) -> Self::Output {
+    fn div(self, scale: Self) -> Self::Output {
         Scale {
             x: self.x / scale.x,
             y: self.y / scale.y,
@@ -83,14 +83,14 @@ impl Neg for Scale {
     }
 }
 
-impl AddAssign for Scale {
-    fn add_assign(&mut self, scale: Self) {
+impl MulAssign for Scale {
+    fn mul_assign(&mut self, scale: Self) {
         self.x *= scale.x;
         self.y *= scale.y;
     }
 }
-impl SubAssign for Scale {
-    fn sub_assign(&mut self, scale: Self) {
+impl DivAssign for Scale {
+    fn div_assign(&mut self, scale: Self) {
         self.x /= scale.x;
         self.y /= scale.y;
     }
@@ -108,18 +108,18 @@ mod tests {
         assert_eq!(clamped_scale.y, -1000.0);
     }
     #[test]
-    fn add_scale() {
+    fn mul_scale() {
         let first = Scale::new(0.6, 3.0);
         let second = Scale::new(7.0, 0.5);
-        let sum = first + second;
+        let sum = first * second;
         assert_eq!(sum.x, 4.2);
         assert_eq!(sum.y, 1.5);
     }
     #[test]
-    fn sub_scale() {
+    fn div_scale() {
         let first = Scale::new(0.8, 4.0);
         let second = Scale::new(4.0, 2.5);
-        let sum = first - second;
+        let sum = first / second;
         assert_eq!(sum.x, 0.2);
         assert_eq!(sum.y, 1.6);
     }
@@ -131,16 +131,16 @@ mod tests {
         assert_eq!(negated_scale.y, 2.0);
     }
     #[test]
-    fn add_assign_scale() {
+    fn mul_assign_scale() {
         let mut scale = Scale::new(2.0, 0.5);
-        scale += Scale::new(3.0, 4.0);
+        scale *= Scale::new(3.0, 4.0);
         assert_eq!(scale.x, 6.0);
         assert_eq!(scale.y, 2.0);
     }
     #[test]
-    fn sub_assign_scale() {
+    fn div_assign_scale() {
         let mut scale = Scale::new(-3.0, 1.0);
-        scale -= Scale::new(-1.0, 2.0);
+        scale /= Scale::new(-1.0, 2.0);
         assert_eq!(scale.x, 3.0);
         assert_eq!(scale.y, 0.5);
     }
