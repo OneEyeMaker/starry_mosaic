@@ -2,6 +2,23 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssi
 
 use super::{utility, vector::Vector};
 
+pub trait TryToTransform: Sized {
+    fn try_to_transform(&self, transformation: &Transformation) -> Option<Self>;
+}
+
+pub trait Transform: TryToTransform {
+    fn transform(&self, transformation: &Transformation) -> Self;
+}
+
+impl<Transformable> TryToTransform for Transformable
+where
+    Transformable: Transform,
+{
+    fn try_to_transform(&self, transformation: &Transformation) -> Option<Self> {
+        Some(self.transform(transformation))
+    }
+}
+
 #[derive(Clone, Debug, Default)]
 pub struct Transformation {
     pub translation: Vector,
@@ -42,6 +59,23 @@ impl Transformation {
         let mut transformation = Transformation::default();
         transformation.shear = shear.into();
         transformation
+    }
+
+    pub fn try_to_apply<Transformable>(
+        &self,
+        transformable: &Transformable,
+    ) -> Option<Transformable>
+    where
+        Transformable: TryToTransform,
+    {
+        transformable.try_to_transform(self)
+    }
+
+    pub fn apply<Transformable>(&self, transformable: &Transformable) -> Transformable
+    where
+        Transformable: Transform,
+    {
+        transformable.transform(self)
     }
 }
 
