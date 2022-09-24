@@ -5,7 +5,7 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssi
 use robust::Coord;
 use voronoice::Point;
 
-use super::utility;
+use super::{transform::Scale, utility};
 
 /// Represents 2D vector.
 ///
@@ -328,7 +328,7 @@ impl Vector {
     /// ```
     #[inline(always)]
     pub fn scale(&self, horizontal_scale: f64, vertical_scale: f64) -> Self {
-        *self * (horizontal_scale, vertical_scale)
+        *self * Scale::new(horizontal_scale, vertical_scale)
     }
 
     /// Shears current point by specified factors.
@@ -472,6 +472,22 @@ impl Mul<f64> for Vector {
         }
     }
 }
+impl Mul<(f64, f64)> for Vector {
+    type Output = Vector;
+    #[inline(always)]
+    fn mul(self, scale: (f64, f64)) -> Self::Output {
+        self * Scale::from(scale)
+    }
+}
+impl Mul<Scale> for Vector {
+    type Output = Vector;
+    fn mul(self, scale: Scale) -> Self::Output {
+        Vector {
+            x: self.x * scale.x,
+            y: self.y * scale.y,
+        }
+    }
+}
 impl Mul<Vector> for f64 {
     type Output = Vector;
     fn mul(self, vector: Vector) -> Self::Output {
@@ -481,21 +497,19 @@ impl Mul<Vector> for f64 {
         }
     }
 }
-impl Mul<(f64, f64)> for Vector {
+impl Mul<Vector> for (f64, f64) {
     type Output = Vector;
-    fn mul(self, scale: (f64, f64)) -> Self::Output {
-        Vector {
-            x: self.x * scale.0,
-            y: self.y * scale.1,
-        }
+    #[inline(always)]
+    fn mul(self, vector: Vector) -> Self::Output {
+        Scale::from(self) * vector
     }
 }
-impl Mul<Vector> for (f64, f64) {
+impl Mul<Vector> for Scale {
     type Output = Vector;
     fn mul(self, vector: Vector) -> Self::Output {
         Vector {
-            x: self.0 * vector.x,
-            y: self.1 * vector.y,
+            x: self.x * vector.x,
+            y: self.y * vector.y,
         }
     }
 }
@@ -510,10 +524,17 @@ impl Div<f64> for Vector {
 }
 impl Div<(f64, f64)> for Vector {
     type Output = Vector;
+    #[inline(always)]
     fn div(self, scale: (f64, f64)) -> Self::Output {
+        self / Scale::from(scale)
+    }
+}
+impl Div<Scale> for Vector {
+    type Output = Vector;
+    fn div(self, scale: Scale) -> Self::Output {
         Vector {
-            x: self.x / scale.0,
-            y: self.y / scale.1,
+            x: self.x / scale.x,
+            y: self.y / scale.y,
         }
     }
 }
@@ -540,28 +561,24 @@ impl SubAssign for Vector {
         self.y -= vector.y;
     }
 }
-impl MulAssign<f64> for Vector {
-    fn mul_assign(&mut self, scale: f64) {
-        self.x *= scale;
-        self.y *= scale;
+impl<ScaleLike> MulAssign<ScaleLike> for Vector
+where
+    ScaleLike: Into<Scale>,
+{
+    fn mul_assign(&mut self, scale: ScaleLike) {
+        let scale = scale.into();
+        self.x *= scale.x;
+        self.y *= scale.y;
     }
 }
-impl MulAssign<(f64, f64)> for Vector {
-    fn mul_assign(&mut self, scale: (f64, f64)) {
-        self.x *= scale.0;
-        self.y *= scale.1;
-    }
-}
-impl DivAssign<f64> for Vector {
-    fn div_assign(&mut self, scale: f64) {
-        self.x /= scale;
-        self.y /= scale;
-    }
-}
-impl DivAssign<(f64, f64)> for Vector {
-    fn div_assign(&mut self, scale: (f64, f64)) {
-        self.x /= scale.0;
-        self.y /= scale.1;
+impl<ScaleLike> DivAssign<ScaleLike> for Vector
+where
+    ScaleLike: Into<Scale>,
+{
+    fn div_assign(&mut self, scale: ScaleLike) {
+        let scale = scale.into();
+        self.x /= scale.x;
+        self.y /= scale.y;
     }
 }
 
