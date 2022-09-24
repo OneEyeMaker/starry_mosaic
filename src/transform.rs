@@ -236,8 +236,126 @@ impl DivAssign for Scale {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts;
+
     use super::*;
 
+    #[test]
+    fn add_transformation() {
+        let first = Transformation {
+            translation: Vector::new(100.0, 100.0),
+            rotation_angle: consts::FRAC_PI_6,
+            scale: Scale::new(0.5, 0.75),
+            shear: Vector::new(0.5, -0.5),
+        };
+        let second = Transformation {
+            translation: Vector::new(150.0, -50.0),
+            rotation_angle: consts::FRAC_PI_3,
+            scale: Scale::new(1.5, 2.0),
+            shear: Vector::new(-0.25, 1.0),
+        };
+        let sum = first + second;
+        assert_eq!(
+            sum,
+            Transformation {
+                translation: Vector::new(250.0, 50.0),
+                rotation_angle: consts::FRAC_PI_2,
+                scale: Scale::new(0.75, 1.5),
+                shear: Vector::new(0.25, 0.5)
+            }
+        );
+    }
+    #[test]
+    fn sub_transformation() {
+        let first = Transformation {
+            translation: Vector::new(200.0, -125.0),
+            rotation_angle: consts::FRAC_PI_2,
+            scale: Scale::new(1.5, 2.5),
+            shear: Vector::new(1.0, 0.5),
+        };
+        let second = Transformation {
+            translation: Vector::new(-150.0, 225.0),
+            rotation_angle: consts::FRAC_PI_4,
+            scale: Scale::new(2.0, 1.0),
+            shear: Vector::new(0.5, 1.0),
+        };
+        let difference = first - second;
+        assert_eq!(
+            difference,
+            Transformation {
+                translation: Vector::new(350.0, -350.0),
+                rotation_angle: consts::FRAC_PI_4,
+                scale: Scale::new(0.75, 2.5),
+                shear: Vector::new(0.5, -0.5)
+            }
+        );
+    }
+    #[test]
+    fn neg_transformation() {
+        let transformation = Transformation {
+            translation: Vector::new(75.0, -85.0),
+            rotation_angle: -consts::FRAC_PI_2,
+            scale: Scale::default(),
+            shear: Vector::new(0.3, -0.6),
+        };
+        assert_eq!(
+            -transformation,
+            Transformation {
+                translation: Vector::new(-75.0, 85.0),
+                rotation_angle: consts::FRAC_PI_2,
+                scale: Scale::new(-1.0, -1.0),
+                shear: Vector::new(-0.3, 0.6)
+            }
+        );
+    }
+    #[test]
+    fn add_assign_transformation() {
+        let mut transformation = Transformation {
+            translation: Vector::new(0.0, 200.0),
+            rotation_angle: consts::FRAC_PI_3,
+            scale: Scale::new(1.5, 2.0),
+            shear: Vector::new(-0.5, -0.5),
+        };
+        transformation += Transformation {
+            translation: Vector::new(150.0, 0.0),
+            rotation_angle: consts::FRAC_PI_6,
+            scale: Scale::new(1.5, 2.0),
+            shear: Vector::new(-0.75, 1.0),
+        };
+        assert_eq!(
+            transformation,
+            Transformation {
+                translation: Vector::new(150.0, 200.0),
+                rotation_angle: consts::FRAC_PI_2,
+                scale: Scale::new(2.25, 4.0),
+                shear: Vector::new(-1.25, 0.5)
+            }
+        );
+    }
+    #[test]
+    fn sub_assign_transformation() {
+        let mut transformation = Transformation {
+            translation: Vector::new(-50.0, 75.0),
+            rotation_angle: consts::FRAC_PI_2,
+            scale: Scale::new(2.5, 2.0),
+            shear: Vector::new(0.3, 0.5),
+        };
+        transformation -= Transformation {
+            translation: Vector::new(150.0, -225.0),
+            rotation_angle: consts::FRAC_PI_4,
+            scale: Scale::new(2.0, 2.0),
+            shear: Vector::new(0.6, -0.5),
+        };
+        assert_eq!(
+            transformation,
+            Transformation {
+                translation: Vector::new(-200.0, 300.0),
+                rotation_angle: consts::FRAC_PI_4,
+                scale: Scale::new(1.25, 1.0),
+                shear: Vector::new(-0.3, 1.0)
+            }
+        );
+    }
     #[test]
     fn clamp_scale() {
         let scale = Scale::new(0.0, -2000.0);
