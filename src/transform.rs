@@ -14,20 +14,47 @@ impl<Transformable> TryToTransform for Transformable
 where
     Transformable: Transform,
 {
+    #[inline(always)]
     fn try_to_transform(&self, transformation: &Transformation) -> Option<Self> {
         Some(self.transform(transformation))
     }
 }
 
+/// Represents 2D transformation.
 #[derive(Clone, Debug, Default)]
 pub struct Transformation {
+    /// Translation (movement) along horizontal and vertical axes.
     pub translation: Vector,
+
+    /// Scale factors along horizontal and vertical axes.
     pub scale: Scale,
+
+    /// Shear (skew) factors along horizontal and vertical axes.
     pub shear: Vector,
+
+    /// Rotation angle in radians.
     pub rotation_angle: f64,
 }
 
 impl Transformation {
+    /// Constructs transformation based on translation.
+    ///
+    /// # Arguments
+    ///
+    /// * `translation`: 2D vector representing translation.
+    ///
+    /// returns: [`Transformation`] - transformation with set translation (position).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::{transform::Transformation, Vector};
+    ///
+    /// let translation = Vector::new(100.0, 50.0);
+    /// let transformation = Transformation::from_translation(translation);
+    ///
+    /// assert_eq!(transformation.translation, translation);
+    /// ```
     pub fn from_translation<VectorLike>(translation: VectorLike) -> Self
     where
         VectorLike: Into<Vector>,
@@ -37,12 +64,49 @@ impl Transformation {
         transformation
     }
 
+    /// Constructs transformation based on rotation.
+    ///
+    /// # Arguments
+    ///
+    /// * `rotation_angle`: rotation angle in radians.
+    ///
+    /// returns: [`Transformation`] - transformation with set rotation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::f64::consts;
+    ///
+    /// use starry_mosaic::transform::Transformation;
+    ///
+    /// let transformation = Transformation::from_rotation(consts::FRAC_PI_6);
+    ///
+    /// assert_eq!(transformation.rotation_angle, consts::FRAC_PI_6);
+    /// ```
     pub fn from_rotation(rotation_angle: f64) -> Self {
         let mut transformation = Transformation::default();
         transformation.rotation_angle = rotation_angle;
         transformation
     }
 
+    /// Constructs transformation based on scale.
+    ///
+    /// # Arguments
+    ///
+    /// * `scale`: scale factors along horizontal and vertical axes.
+    ///
+    /// returns: [`Transformation`] - transformation with set scale.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::transform::{Scale, Transformation};
+    ///
+    /// let scale = Scale::new(2.0, 3.0);
+    /// let transformation = Transformation::from_scale(scale);
+    ///
+    /// assert_eq!(transformation.scale, scale);
+    /// ```
     pub fn from_scale<ScaleLike>(scale: ScaleLike) -> Self
     where
         ScaleLike: Into<Scale>,
@@ -52,6 +116,24 @@ impl Transformation {
         transformation
     }
 
+    /// Constructs transformation based on shear.
+    ///
+    /// # Arguments
+    ///
+    /// * `shear`: shear factors along horizontal and vertical axes.
+    ///
+    /// returns: [`Transformation`] - transformation with set shear (skew).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::{transform::Transformation, Vector};
+    ///
+    /// let shear = Vector::new(1.0, -0.5);
+    /// let transformation = Transformation::from_shear(shear);
+    ///
+    /// assert_eq!(transformation.shear, shear);
+    /// ```
     pub fn from_shear<VectorLike>(shear: VectorLike) -> Self
     where
         VectorLike: Into<Vector>,
@@ -140,23 +222,49 @@ impl SubAssign for Transformation {
     }
 }
 
+/// Represents scale in 2D coordinate space.
 #[derive(Clone, Copy, Debug)]
 pub struct Scale {
+    /// Scale along horizontal (X) axis.
     pub x: f64,
+
+    /// Scale along vertical (Y) axis.
     pub y: f64,
 }
 
 impl Scale {
+    /// Defines scale along horizontal and vertical axes.
     #[inline(always)]
     pub fn new(x: f64, y: f64) -> Self {
         Self { x, y }
     }
 
+    /// Defines uniform scale along both (horizontal and vertical) axes.
     #[inline(always)]
     pub fn new_uniform(scale: f64) -> Self {
         Self { x: scale, y: scale }
     }
 
+    /// Restricts absolute value of scale to certain interval.
+    ///
+    /// # Arguments
+    ///
+    /// * `minimum_scale`: minimum scale along horizontal and vertical axes; should be positive.
+    /// * `maximum_scale`: maximum scale along horizontal and vertical axes; should be greater than
+    /// `minimum_scale`.
+    ///
+    /// returns: [`Scale`] - scale with absolute value restricted to given limits.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::transform::Scale;
+    ///
+    /// let scale = Scale::new(0.0, -100.0);
+    /// let clamped_scale = scale.clamp(0.1, 10.0);
+    ///
+    /// assert_eq!(clamped_scale, Scale::new(0.1, -10.0));
+    /// ```
     pub fn clamp(&self, minimum_scale: f64, maximum_scale: f64) -> Self {
         assert!(minimum_scale >= 0.0);
         Self {
