@@ -2,11 +2,59 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssi
 
 use super::{utility, vector::Vector};
 
+/// Describes geometry with **limited** ability to transform in 2D: translate, rotate, scale and
+/// shear.
 pub trait TryToTransform: Sized {
+    /// Attempts to perform 2D transformation with geometry.
+    ///
+    /// # Arguments
+    ///
+    /// * `transformation`: 2D transformation which is applied to geometry.
+    ///
+    /// returns: `Option<Self>` - transformed geometry if transformation is applicable; `None`
+    /// otherwise.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::{transform::{Transformation, TryToTransform}, Vector};
+    ///
+    /// let vector = Vector::new(-50.0, 50.0);
+    /// let transformation = Transformation::from_translation(Vector::new(100.0, -100.0));
+    /// let transformed_vector = vector.try_to_transform(&transformation);
+    ///
+    /// assert!(transformed_vector.is_some());
+    ///
+    /// let transformed_vector = transformed_vector.unwrap();
+    /// assert_eq!(transformed_vector, Vector::new(50.0, -50.0));
+    /// ```
     fn try_to_transform(&self, transformation: &Transformation) -> Option<Self>;
 }
 
+/// Describes geometry with ability to transform in 2D: translate, rotate, scale and shear.
+///
+/// **_Note_**: [`TryToTransform`] trait is automatically implemented for every implementer of
+/// this trait.
 pub trait Transform: TryToTransform {
+    /// Performs 2D transformation with geometry.
+    ///
+    /// # Arguments
+    ///
+    /// * `transformation`: 2D transformation which is applied to geometry.
+    ///
+    /// returns: `Self` - transformed geometry.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use starry_mosaic::{transform::{Scale, Transform, Transformation}, Vector};
+    ///
+    /// let vector = Vector::new(50.0, -50.0);
+    /// let transformation = Transformation::from_scale(Scale::new(2.0, 2.5));
+    /// let transformed_vector = vector.transform(&transformation);
+    ///
+    /// assert_eq!(transformed_vector, Vector::new(100.0, -125.0));
+    /// ```
     fn transform(&self, transformation: &Transformation) -> Self;
 }
 
@@ -143,6 +191,19 @@ impl Transformation {
         transformation
     }
 
+    /// Attempts to perform 2D transformation with geometry.
+    ///
+    /// # Arguments
+    ///
+    /// * `transformable`: geometry to transform.
+    ///
+    /// returns: `Option<Self>` - transformed geometry if transformation is applicable; `None`
+    /// otherwise.
+    ///
+    /// # See also
+    ///
+    /// * [`TryToTransform::try_to_transform`].
+    ///
     pub fn try_to_apply<Transformable>(
         &self,
         transformable: &Transformable,
@@ -153,6 +214,18 @@ impl Transformation {
         transformable.try_to_transform(self)
     }
 
+    /// Performs 2D transformation with geometry.
+    ///
+    /// # Arguments
+    ///
+    /// * `transformable`: geometry to transform.
+    ///
+    /// returns: `Self` - transformed geometry.
+    ///
+    /// # See also
+    ///
+    /// * [`Transform::transform`].
+    ///
     pub fn apply<Transformable>(&self, transformable: &Transformable) -> Transformable
     where
         Transformable: Transform,
