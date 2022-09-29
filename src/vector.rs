@@ -5,7 +5,10 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssi
 use robust::Coord;
 use voronoice::Point;
 
-use super::{transform::Scale, utility};
+use super::{
+    transform::{Scale, Transform, Transformation},
+    utility,
+};
 
 /// Represents 2D vector.
 ///
@@ -582,6 +585,14 @@ where
     }
 }
 
+impl Transform for Vector {
+    fn transform(&self, transformation: &Transformation) -> Self {
+        (self.shear(transformation.shear.x, transformation.shear.y) * transformation.scale)
+            .rotate(transformation.rotation_angle)
+            + transformation.translation
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::f64::consts;
@@ -797,5 +808,59 @@ mod tests {
         vector /= (0.5, 0.25);
         assert_eq!(vector.x, 2.5);
         assert_eq!(vector.y, 6.0);
+    }
+    #[test]
+    fn transform_translate_rotate() {
+        let transformation = Transformation {
+            translation: Vector::new(100.0, -100.0),
+            rotation_angle: consts::FRAC_PI_4,
+            scale: Scale::default(),
+            shear: Vector::default(),
+        };
+        let vector = Vector::new(100.0, 0.0);
+        let transformed_vector = vector.transform(&transformation);
+        assert_eq!(
+            transformed_vector,
+            Vector::new(50.0 * 2.0f64.sqrt() + 100.0, 50.0 * 2.0f64.sqrt() - 100.0)
+        );
+    }
+    #[test]
+    fn transform_rotate_scale() {
+        let transformation = Transformation {
+            translation: Vector::default(),
+            rotation_angle: consts::FRAC_PI_4,
+            scale: Scale::new(2.0, 3.0),
+            shear: Vector::default(),
+        };
+        let vector = Vector::new(100.0, 50.0);
+        let transformed_vector = vector.transform(&transformation);
+        assert_eq!(
+            transformed_vector,
+            Vector::new(25.0 * 2.0f64.sqrt(), 175.0 * 2.0f64.sqrt())
+        );
+    }
+    #[test]
+    fn transform_scale_shear() {
+        let transformation = Transformation {
+            translation: Vector::default(),
+            rotation_angle: 0.0,
+            scale: Scale::new(3.0, -2.0),
+            shear: Vector::new(0.5, 1.0),
+        };
+        let vector = Vector::new(50.0, 200.0);
+        let transformed_vector = vector.transform(&transformation);
+        assert_eq!(transformed_vector, Vector::new(450.0, -500.0));
+    }
+    #[test]
+    fn transform_complex() {
+        let transformation = Transformation {
+            translation: Vector::new(-150.0, 50.0),
+            rotation_angle: consts::FRAC_PI_2,
+            scale: Scale::new(-1.5, 2.0),
+            shear: Vector::new(0.25, 0.75),
+        };
+        let vector = Vector::new(100.0, 100.0);
+        let transformed_vector = vector.transform(&transformation);
+        assert_eq!(transformed_vector, Vector::new(-500.0, -137.5));
     }
 }
