@@ -1,6 +1,10 @@
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 
-use super::{utility, vector::Vector};
+use super::{
+    transform::{Transform, Transformation},
+    utility,
+    vector::Vector,
+};
 
 /// Represents 2D line segment.
 ///
@@ -136,9 +140,19 @@ impl PartialEq for Segment {
     }
 }
 
+impl Transform for Segment {
+    fn transform(&self, transformation: &Transformation) -> Self {
+        Self {
+            start: self.start.transform(transformation),
+            end: self.end.transform(transformation),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::transform::Scale;
 
     #[test]
     fn squared_length() {
@@ -166,5 +180,20 @@ mod tests {
         let second = Segment::from(((-1.0, 4.0), (-3.0, 4.0)));
         let intersection = first.intersect(&second);
         assert!(intersection.is_none());
+    }
+    #[test]
+    fn transform() {
+        let transformation = Transformation {
+            translation: Vector::new(-50.0, 100.0),
+            rotation_angle: std::f64::consts::FRAC_PI_2,
+            scale: Scale::new(-2.0, 1.5),
+            shear: Vector::new(1.0, 0.5),
+        };
+        let segment = Segment::from(((0.0, 100.0), (200.0, -50.0)));
+        let transformed_segment = segment.transform(&transformation);
+        assert_eq!(
+            transformed_segment,
+            Segment::from(((-200.0, -100.0), (-125.0, -200.0)))
+        );
     }
 }
