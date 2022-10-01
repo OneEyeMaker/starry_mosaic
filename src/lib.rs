@@ -21,7 +21,7 @@
 //!     .set_image_size(1920, 1080)
 //!     .set_regular_polygon_shape(12)
 //!     .set_center(Vector::new(1280.0, 540.0))
-//!     .set_scale(0.6)
+//!     .set_uniform_scale(0.6)
 //!     .build_star()
 //!     .unwrap();
 //!
