@@ -3,7 +3,9 @@ use std::f64::consts;
 use palette::{IntoColor, LinSrgb, Mix, Shade};
 use rstest::rstest;
 use rstest_reuse::{self, *};
-use starry_mosaic::{coloring_method::*, mosaic_shape::*, Mosaic, MosaicBuilder, Vector};
+use starry_mosaic::{
+    coloring_method::*, mosaic_shape::*, transform::Scale, Mosaic, MosaicBuilder, Vector,
+};
 
 #[template]
 #[rstest]
@@ -27,18 +29,18 @@ use starry_mosaic::{coloring_method::*, mosaic_shape::*, Mosaic, MosaicBuilder, 
 #[case(PolygonalStar::new(16), "polygonal_star_16")]
 #[case(PolygonalStar::new(23), "polygonal_star_23")]
 #[case(PolygonalStar::new(24), "polygonal_star_24")]
-#[case(TiltedGrid::new(3, 3).tilt(0.2, 0.4), "tilted_grid_3_3")]
-#[case(TiltedGrid::new(4, 4).tilt(0.2, 0.4), "tilted_grid_4_4")]
-#[case(TiltedGrid::new(5, 5).tilt(0.2, 0.4), "tilted_grid_5_5")]
-#[case(TiltedGrid::new(8, 8).tilt(0.2, 0.4), "tilted_grid_8_8")]
-#[case(TiltedGrid::new(12, 12).tilt(0.2, 0.4), "tilted_grid_12_12")]
-#[case(TiltedGrid::new(15, 15).tilt(0.2, 0.4), "tilted_grid_15_15")]
-#[case(TiltedGrid::new(16, 16).tilt(0.2, 0.4), "tilted_grid_16_16")]
-#[case(TiltedGrid::new(24, 24).tilt(0.2, 0.4), "tilted_grid_24_24")]
-#[case(TiltedGrid::new(6, 9).tilt(0.2, 0.4), "tilted_grid_6_9")]
-#[case(TiltedGrid::new(11, 7).tilt(0.2, 0.4), "tilted_grid_11_7")]
-#[case(TiltedGrid::new(13, 23).tilt(0.2, 0.4), "tilted_grid_13_23")]
-#[case(TiltedGrid::new(21, 14).tilt(0.2, 0.4), "tilted_grid_21_14")]
+#[case(Grid::new(3, 3), "grid_3_3")]
+#[case(Grid::new(4, 4), "grid_4_4")]
+#[case(Grid::new(5, 5), "grid_5_5")]
+#[case(Grid::new(8, 8), "grid_8_8")]
+#[case(Grid::new(12, 12), "grid_12_12")]
+#[case(Grid::new(15, 15), "grid_15_15")]
+#[case(Grid::new(16, 16), "grid_16_16")]
+#[case(Grid::new(24, 24), "grid_24_24")]
+#[case(Grid::new(6, 9), "grid_6_9")]
+#[case(Grid::new(11, 7), "grid_11_7")]
+#[case(Grid::new(13, 23), "grid_13_23")]
+#[case(Grid::new(21, 14), "grid_21_14")]
 fn mosaic_creation_test<Shape>(#[case] shape: Shape, #[case] name: &str)
 where
     Shape: 'static + MosaicShape,
@@ -114,15 +116,15 @@ mod starry_mosaic_tests {
             .set_image_size(image_size.0, image_size.1)
             .set_center(center.clone())
             .set_rotation_angle(rotation_angle)
-            .set_scale(scale)
+            .set_uniform_scale(scale)
             .build_star();
         assert!(mosaic.is_some());
 
         let mosaic = mosaic.unwrap();
         assert_eq!(mosaic.image_size(), image_size);
-        assert_eq!(mosaic.center(), center);
-        assert_eq!(mosaic.rotation_angle(), rotation_angle);
-        assert_eq!(mosaic.scale(), scale);
+        assert_eq!(mosaic.transformation().translation, center);
+        assert_eq!(mosaic.transformation().rotation_angle, rotation_angle);
+        assert_eq!(mosaic.transformation().scale, Scale::new_uniform(scale));
 
         let mosaic_image = mosaic.draw(coloring_method);
         let save_result = mosaic_image.save(format!("images/starry_mosaic/{}/{}.png", group, name));
@@ -184,15 +186,15 @@ mod polygonal_mosaic_tests {
             .set_image_size(image_size.0, image_size.1)
             .set_center(center.clone())
             .set_rotation_angle(rotation_angle)
-            .set_scale(scale)
+            .set_uniform_scale(scale)
             .build_polygon();
         assert!(mosaic.is_some());
 
         let mosaic = mosaic.unwrap();
         assert_eq!(mosaic.image_size(), image_size);
-        assert_eq!(mosaic.center(), center);
-        assert_eq!(mosaic.rotation_angle(), rotation_angle);
-        assert_eq!(mosaic.scale(), scale);
+        assert_eq!(mosaic.transformation().translation, center);
+        assert_eq!(mosaic.transformation().rotation_angle, rotation_angle);
+        assert_eq!(mosaic.transformation().scale, Scale::new_uniform(scale));
 
         let mosaic_image = mosaic.draw(coloring_method);
         let save_result =
