@@ -4,7 +4,12 @@ use robust::Coord;
 use voronoice::Voronoi;
 
 use super::{
-    coloring_method::ColoringMethod, mosaic::Mosaic, mosaic_shape::MosaicShape, vector::Vector,
+    coloring_method::ColoringMethod,
+    mosaic::Mosaic,
+    mosaic_builder::MosaicBuilder,
+    mosaic_shape::MosaicShape,
+    transform::{Transformation, TryToTransform},
+    vector::Vector,
 };
 
 /// Represents polygonal mosaic and creates mosaic images painted with with different
@@ -23,9 +28,7 @@ use super::{
 pub struct PolygonalMosaic {
     voronoi: Voronoi,
     image_size: (u32, u32),
-    center: Vector,
-    rotation_angle: f64,
-    scale: f64,
+    transformation: Transformation,
     shape: Box<dyn MosaicShape>,
 }
 
@@ -33,17 +36,13 @@ impl PolygonalMosaic {
     pub(crate) fn new(
         voronoi: Voronoi,
         image_size: (u32, u32),
-        center: Vector,
-        rotation_angle: f64,
-        scale: f64,
+        transformation: Transformation,
         shape: Box<dyn MosaicShape>,
     ) -> Self {
         Self {
             voronoi,
             image_size,
-            center,
-            rotation_angle,
-            scale,
+            transformation,
             shape,
         }
     }
@@ -118,19 +117,18 @@ impl Mosaic for PolygonalMosaic {
         self.image_size
     }
 
-    fn center(&self) -> Vector {
-        self.center
-    }
-
-    fn rotation_angle(&self) -> f64 {
-        self.rotation_angle
-    }
-
-    fn scale(&self) -> f64 {
-        self.scale
+    fn transformation(&self) -> &Transformation {
+        &self.transformation
     }
 
     fn shape(&self) -> &Box<dyn MosaicShape> {
         &self.shape
+    }
+}
+impl TryToTransform for PolygonalMosaic {
+    fn try_to_transform(&self, transformation: &Transformation) -> Option<Self> {
+        MosaicBuilder::from(self)
+            .set_transformation(transformation)
+            .build_polygon()
     }
 }
