@@ -21,6 +21,9 @@ use super::{segment::Segment, vector::Vector};
 /// 3. Constructing rest key points by intersecting line segments from step 2 using method
 /// [`MosaicShape::intersect_segments`].
 ///
+/// All key points of mosaic shape should be contained within size of mosaic and centered
+/// origin (0.0, 0.0).
+///
 /// **_Note_**: structs which implement `MosaicShape` should *not* store any points or
 /// line segments. Instead all necessary geometry should be calculated by request.
 ///
@@ -47,15 +50,8 @@ use super::{segment::Segment, vector::Vector};
 ///     }
 /// }
 /// impl MosaicShape for GridShape {
-///     fn set_up_points(
-///         &self,
-///         image_size: (u32, u32),
-///         center: Vector,
-///         rotation_angle: f64,
-///         scale: f64,
-///     ) -> Vec<Vector> {
-///         let (image_width, image_height) = image_size;
-///         let size = image_width.min(image_height) as f64 * scale;
+///     fn set_up_points(&self, image_width: u32, image_height: u32) -> Vec<Vector> {
+///         let size = image_width.min(image_height) as f64;
 ///         let half_size = size * 0.5;
 ///         let step_size = size / self.partitions_count as f64;
 ///         let mut points = vec![];
@@ -67,9 +63,6 @@ use super::{segment::Segment, vector::Vector};
 ///             points.push(Vector::new(half_size, -half_size + step_size * index));
 ///         }
 ///         points
-///             .iter()
-///             .map(|point| point.rotate(rotation_angle) + center)
-///             .collect()
 ///     }
 ///     fn connect_points(&self, shape_points: &Vec<Vector>) -> Vec<Segment> {
 ///         let mut segments = vec![];
@@ -84,44 +77,37 @@ use super::{segment::Segment, vector::Vector};
 ///
 /// fn main() {
 ///     let grid = GridShape::new(4);
-///     let points = grid.set_up_points((200, 200), Vector::new(100.0, 100.0), 0.0, 1.0);
+///     let points = grid.set_up_points(200, 200);
 ///
 ///     assert_eq!(points.len(), (grid.partitions_count - 1) * 4);
-///     assert!(points.contains(&Vector::new(50.0, 0.0)));
-///     assert!(points.contains(&Vector::new(150.0, 200.0)));
+///     assert!(points.contains(&Vector::new(-50.0, -100.0)));
+///     assert!(points.contains(&Vector::new(50.0, 100.0)));
 ///
 ///     let segments = grid.connect_points(&points);
 ///
-///     let horizontal_segment = Segment::from(((0.0, 100.0), (200.0, 100.0)));
-///     let vertical_segment = Segment::from(((100.0, 0.0), (100.0, 200.0)));
+///     let horizontal_segment = Segment::from(((-100.0, 0.0), (100.0, 0.0)));
+///     let vertical_segment = Segment::from(((0.0, -100.0), (0.0, 100.0)));
 ///     assert!(segments.contains(&horizontal_segment));
 ///     assert!(segments.contains(&vertical_segment));
 /// }
 /// ```
 pub trait MosaicShape: Debug + MosaicShapeBase {
-    /// Sets up primary key points of mosaic shape.
+    /// Sets up primary key points of mosaic shape. All key points shape should be contained
+    /// within size of mosaic and centered origin (0.0, 0.0).
     ///
     /// # Arguments
     ///
-    /// * `image_size`: width and height of mosaic (and mosaic images one creates).
-    /// * `center`: position of center of mosaic shape in mosaic.
-    /// * `rotation_angle`: rotation angle of mosaic shape (pattern), in radians.
-    /// * `scale`: scale of mosaic shape.
+    /// * `image_width`: width of mosaic (and mosaic images one creates).
+    /// * `image_height`: height of mosaic (and mosaic images one creates).
     ///
     /// returns: `Vec<`[`Vector`]`>` - set of basic key points of mosaic shape that fits into
-    /// size of mosaic and positioned, rotated and scaled appropriately.
+    /// size of mosaic and centered around origin (0.0, 0.0).
     ///
     /// # See also
     ///
     /// * [`MosaicShape`].
     ///
-    fn set_up_points(
-        &self,
-        image_size: (u32, u32),
-        center: Vector,
-        rotation_angle: f64,
-        scale: f64,
-    ) -> Vec<Vector>;
+    fn set_up_points(&self, image_width: u32, image_height: u32) -> Vec<Vector>;
 
     /// Connects primary key points with line segments to form mosaic shape.
     ///
