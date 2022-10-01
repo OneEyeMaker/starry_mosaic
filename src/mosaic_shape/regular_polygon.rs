@@ -46,15 +46,9 @@ impl Default for RegularPolygon {
 }
 
 impl MosaicShape for RegularPolygon {
-    fn set_up_points(
-        &self,
-        image_size: (u32, u32),
-        center: Vector,
-        rotation_angle: f64,
-        scale: f64,
-    ) -> Vec<Vector> {
-        let radius = image_size.0.min(image_size.1) as f64 * 0.5 * scale;
-        helpers::set_up_polygon_points(self.corners_count, radius, center, rotation_angle)
+    fn set_up_points(&self, image_width: u32, image_height: u32) -> Vec<Vector> {
+        let radius = image_width.min(image_height) as f64 * 0.5;
+        helpers::set_up_polygon_points(self.corners_count, radius, 0.0)
     }
 
     fn connect_points(&self, shape_points: &Vec<Vector>) -> Vec<Segment> {
@@ -93,51 +87,59 @@ mod tests {
     #[test]
     fn set_up_points() {
         let polygon = RegularPolygon::new(8);
-        let points = polygon.set_up_points(
-            (400, 400),
-            Vector::new(200.0, 200.0),
-            consts::FRAC_PI_8,
-            0.5,
-        );
+        let points = polygon.set_up_points(400, 400);
         assert_eq!(points.len(), 8);
         for index in 0..8 {
-            let angle = consts::FRAC_PI_4 * (index as f64 - 1.0);
+            let angle = consts::FRAC_PI_4 * (index as f64 + 0.5) - consts::FRAC_PI_2;
             assert_eq!(
                 points[index],
-                Vector::new(200.0 + 100.0 * angle.cos(), 200.0 + 100.0 * angle.sin())
+                Vector::new(200.0 * angle.cos(), 200.0 * angle.sin())
             );
         }
     }
     #[test]
     fn connect_points() {
         let polygon = RegularPolygon::new(8);
-        let points = polygon.set_up_points(
-            (400, 400),
-            Vector::new(200.0, 200.0),
-            consts::FRAC_PI_8,
-            0.5,
-        );
+        let points = polygon.set_up_points(400, 400);
         let segments = polygon.connect_points(&points);
         assert_eq!(segments.len(), 28);
-        let segment = Segment::from(((100.0, 200.0), (300.0, 200.0)));
+        let segment = Segment::from((
+            (
+                200.0 * consts::FRAC_PI_8.cos(),
+                200.0 * consts::FRAC_PI_8.sin(),
+            ),
+            (
+                200.0 * (5.0 * consts::FRAC_PI_8).cos(),
+                200.0 * (5.0 * consts::FRAC_PI_8).sin(),
+            ),
+        ));
         assert!(segments.contains(&segment));
-        let segment = Segment::from(((200.0, 100.0), (200.0, 300.0)));
+        let segment = Segment::from((
+            (
+                200.0 * (3.0 * consts::FRAC_PI_8).cos(),
+                200.0 * (3.0 * consts::FRAC_PI_8).sin(),
+            ),
+            (
+                200.0 * (7.0 * consts::FRAC_PI_8).cos(),
+                200.0 * (7.0 * consts::FRAC_PI_8).sin(),
+            ),
+        ));
         assert!(segments.contains(&segment));
     }
     #[test]
     fn intersect_segments_with_even_corners_count() {
         let polygon = RegularPolygon::new(8);
-        let points = polygon.set_up_points((400, 400), Vector::new(200.0, 200.0), 0.0, 0.5);
+        let points = polygon.set_up_points(400, 400);
         let segments = polygon.connect_points(&points);
         let intersections = polygon.intersect_segments(&segments);
-        assert!(intersections.contains(&Vector::new(200.0, 200.0)));
+        assert!(intersections.contains(&Vector::new(0.0, 0.0)));
     }
     #[test]
     fn intersect_segments_with_odd_corners_count() {
         let polygon = RegularPolygon::new(9);
-        let points = polygon.set_up_points((400, 400), Vector::new(200.0, 200.0), 0.0, 0.5);
+        let points = polygon.set_up_points(400, 400);
         let segments = polygon.connect_points(&points);
         let intersections = polygon.intersect_segments(&segments);
-        assert!(!intersections.contains(&Vector::new(200.0, 200.0)));
+        assert!(!intersections.contains(&Vector::new(0.0, 0.0)));
     }
 }
