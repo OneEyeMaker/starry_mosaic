@@ -31,7 +31,7 @@ let mosaic = MosaicBuilder::default()
     .set_regular_polygon_shape(13)
     .set_image_size(800, 800)
     .set_center(Vector::new(400.0, 400.0))
-    .set_scale(0.75)
+    .set_uniform_scale(0.75)
     .build_star()
     .unwrap();
 

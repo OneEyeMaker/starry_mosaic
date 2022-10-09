@@ -5,7 +5,10 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssi
 use robust::Coord;
 use voronoice::Point;
 
-use super::utility;
+use super::{
+    transform::{Scale, Transform, Transformation},
+    utility,
+};
 
 /// Represents 2D vector.
 ///
@@ -328,7 +331,7 @@ impl Vector {
     /// ```
     #[inline(always)]
     pub fn scale(&self, horizontal_scale: f64, vertical_scale: f64) -> Self {
-        *self * (horizontal_scale, vertical_scale)
+        *self * Scale::new(horizontal_scale, vertical_scale)
     }
 
     /// Shears current point by specified factors.
@@ -447,7 +450,7 @@ impl PartialOrd for Vector {
 
 impl Add for Vector {
     type Output = Vector;
-    fn add(self, vector: Vector) -> Self::Output {
+    fn add(self, vector: Self) -> Self::Output {
         Vector {
             x: self.x + vector.x,
             y: self.y + vector.y,
@@ -456,7 +459,7 @@ impl Add for Vector {
 }
 impl Sub for Vector {
     type Output = Vector;
-    fn sub(self, vector: Vector) -> Self::Output {
+    fn sub(self, vector: Self) -> Self::Output {
         Vector {
             x: self.x - vector.x,
             y: self.y - vector.y,
@@ -472,6 +475,22 @@ impl Mul<f64> for Vector {
         }
     }
 }
+impl Mul<(f64, f64)> for Vector {
+    type Output = Vector;
+    #[inline(always)]
+    fn mul(self, scale: (f64, f64)) -> Self::Output {
+        self * Scale::from(scale)
+    }
+}
+impl Mul<Scale> for Vector {
+    type Output = Vector;
+    fn mul(self, scale: Scale) -> Self::Output {
+        Vector {
+            x: self.x * scale.x,
+            y: self.y * scale.y,
+        }
+    }
+}
 impl Mul<Vector> for f64 {
     type Output = Vector;
     fn mul(self, vector: Vector) -> Self::Output {
@@ -481,21 +500,19 @@ impl Mul<Vector> for f64 {
         }
     }
 }
-impl Mul<(f64, f64)> for Vector {
+impl Mul<Vector> for (f64, f64) {
     type Output = Vector;
-    fn mul(self, scale: (f64, f64)) -> Self::Output {
-        Vector {
-            x: self.x * scale.0,
-            y: self.y * scale.1,
-        }
+    #[inline(always)]
+    fn mul(self, vector: Vector) -> Self::Output {
+        Scale::from(self) * vector
     }
 }
-impl Mul<Vector> for (f64, f64) {
+impl Mul<Vector> for Scale {
     type Output = Vector;
     fn mul(self, vector: Vector) -> Self::Output {
         Vector {
-            x: self.0 * vector.x,
-            y: self.1 * vector.y,
+            x: self.x * vector.x,
+            y: self.y * vector.y,
         }
     }
 }
@@ -510,10 +527,17 @@ impl Div<f64> for Vector {
 }
 impl Div<(f64, f64)> for Vector {
     type Output = Vector;
+    #[inline(always)]
     fn div(self, scale: (f64, f64)) -> Self::Output {
+        self / Scale::from(scale)
+    }
+}
+impl Div<Scale> for Vector {
+    type Output = Vector;
+    fn div(self, scale: Scale) -> Self::Output {
         Vector {
-            x: self.x / scale.0,
-            y: self.y / scale.1,
+            x: self.x / scale.x,
+            y: self.y / scale.y,
         }
     }
 }
@@ -529,39 +553,43 @@ impl Neg for Vector {
 }
 
 impl AddAssign for Vector {
-    fn add_assign(&mut self, vector: Vector) {
+    fn add_assign(&mut self, vector: Self) {
         self.x += vector.x;
         self.y += vector.y;
     }
 }
 impl SubAssign for Vector {
-    fn sub_assign(&mut self, vector: Vector) {
+    fn sub_assign(&mut self, vector: Self) {
         self.x -= vector.x;
         self.y -= vector.y;
     }
 }
-impl MulAssign<f64> for Vector {
-    fn mul_assign(&mut self, scale: f64) {
-        self.x *= scale;
-        self.y *= scale;
+impl<ScaleLike> MulAssign<ScaleLike> for Vector
+where
+    ScaleLike: Into<Scale>,
+{
+    fn mul_assign(&mut self, scale: ScaleLike) {
+        let scale = scale.into();
+        self.x *= scale.x;
+        self.y *= scale.y;
     }
 }
-impl MulAssign<(f64, f64)> for Vector {
-    fn mul_assign(&mut self, scale: (f64, f64)) {
-        self.x *= scale.0;
-        self.y *= scale.1;
+impl<ScaleLike> DivAssign<ScaleLike> for Vector
+where
+    ScaleLike: Into<Scale>,
+{
+    fn div_assign(&mut self, scale: ScaleLike) {
+        let scale = scale.into();
+        self.x /= scale.x;
+        self.y /= scale.y;
     }
 }
-impl DivAssign<f64> for Vector {
-    fn div_assign(&mut self, scale: f64) {
-        self.x /= scale;
-        self.y /= scale;
-    }
-}
-impl DivAssign<(f64, f64)> for Vector {
-    fn div_assign(&mut self, scale: (f64, f64)) {
-        self.x /= scale.0;
-        self.y /= scale.1;
+
+impl Transform for Vector {
+    fn transform(&self, transformation: &Transformation) -> Self {
+        (self.shear(transformation.shear.x, transformation.shear.y) * transformation.scale)
+            .rotate(transformation.rotation_angle)
+            + transformation.translation
     }
 }
 
@@ -780,5 +808,59 @@ mod tests {
         vector /= (0.5, 0.25);
         assert_eq!(vector.x, 2.5);
         assert_eq!(vector.y, 6.0);
+    }
+    #[test]
+    fn transform_translate_rotate() {
+        let transformation = Transformation {
+            translation: Vector::new(100.0, -100.0),
+            rotation_angle: consts::FRAC_PI_4,
+            scale: Scale::default(),
+            shear: Vector::default(),
+        };
+        let vector = Vector::new(100.0, 0.0);
+        let transformed_vector = vector.transform(&transformation);
+        assert_eq!(
+            transformed_vector,
+            Vector::new(50.0 * 2.0f64.sqrt() + 100.0, 50.0 * 2.0f64.sqrt() - 100.0)
+        );
+    }
+    #[test]
+    fn transform_rotate_scale() {
+        let transformation = Transformation {
+            translation: Vector::default(),
+            rotation_angle: consts::FRAC_PI_4,
+            scale: Scale::new(2.0, 3.0),
+            shear: Vector::default(),
+        };
+        let vector = Vector::new(100.0, 50.0);
+        let transformed_vector = vector.transform(&transformation);
+        assert_eq!(
+            transformed_vector,
+            Vector::new(25.0 * 2.0f64.sqrt(), 175.0 * 2.0f64.sqrt())
+        );
+    }
+    #[test]
+    fn transform_scale_shear() {
+        let transformation = Transformation {
+            translation: Vector::default(),
+            rotation_angle: 0.0,
+            scale: Scale::new(3.0, -2.0),
+            shear: Vector::new(0.5, 1.0),
+        };
+        let vector = Vector::new(50.0, 200.0);
+        let transformed_vector = vector.transform(&transformation);
+        assert_eq!(transformed_vector, Vector::new(450.0, -500.0));
+    }
+    #[test]
+    fn transform_complex() {
+        let transformation = Transformation {
+            translation: Vector::new(-150.0, 50.0),
+            rotation_angle: consts::FRAC_PI_2,
+            scale: Scale::new(-1.5, 2.0),
+            shear: Vector::new(0.25, 0.75),
+        };
+        let vector = Vector::new(100.0, 100.0);
+        let transformed_vector = vector.transform(&transformation);
+        assert_eq!(transformed_vector, Vector::new(-500.0, -137.5));
     }
 }

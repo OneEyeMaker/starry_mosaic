@@ -1,7 +1,12 @@
 use image::RgbImage;
 use palette::{IntoColor, LinSrgb, Mix, Shade};
 
-use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
+use super::{
+    coloring_method::*,
+    mosaic_shape::MosaicShape,
+    transform::{Transformation, TryToTransform},
+    vector::Vector,
+};
 
 /// Represents mosaic and allows to create mosaic images painted with different
 /// [methods][`ColoringMethod`].
@@ -19,6 +24,7 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 /// use starry_mosaic::{
 ///     coloring_method::ColoringMethod,
 ///     mosaic_shape::MosaicShape,
+///     transform::{Scale, Transformation, TryToTransform},
 ///     Mosaic,
 ///     MosaicBuilder,
 ///     Vector
@@ -28,9 +34,7 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 /// struct DottedMosaic {
 ///     key_points: Vec<Vector>,
 ///     image_size: (u32, u32),
-///     center: Vector,
-///     rotation_angle: f64,
-///     scale: f64,
+///     transformation: Transformation,
 ///     shape: Box<dyn MosaicShape>,
 ///     dot_radius: i32,
 /// }
@@ -38,17 +42,13 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 ///     fn new(
 ///         key_points: Vec<Vector>,
 ///         image_size: (u32, u32),
-///         center: Vector,
-///         rotation_angle: f64,
-///         scale: f64,
+///         transformation: Transformation,
 ///         shape: Box<dyn MosaicShape>,
 ///     ) -> Self {
 ///         Self {
 ///             key_points,
 ///             image_size,
-///             center,
-///             rotation_angle,
-///             scale,
+///             transformation,
 ///             shape,
 ///             dot_radius: 5,
 ///         }
@@ -110,17 +110,18 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 ///     fn image_size(&self) -> (u32, u32) {
 ///         self.image_size
 ///     }
-///     fn center(&self) -> Vector {
-///         self.center
-///     }
-///     fn rotation_angle(&self) -> f64 {
-///         self.rotation_angle
-///     }
-///     fn scale(&self) -> f64 {
-///         self.scale
+///     fn transformation(&self) -> &Transformation {
+///         &self.transformation
 ///     }
 ///     fn shape(&self) -> &Box<dyn MosaicShape> {
 ///         &self.shape
+///     }
+/// }
+/// impl TryToTransform for DottedMosaic {
+///     fn try_to_transform(&self, transformation: &Transformation) -> Option<Self> {
+///         Some(MosaicBuilder::from(self)
+///             .set_transformation(transformation)
+///             .build_from_key_points(DottedMosaic::new))
 ///     }
 /// }
 ///
@@ -129,20 +130,20 @@ use super::{coloring_method::*, mosaic_shape::MosaicShape, vector::Vector};
 ///         .set_image_size(1024, 1024)
 ///         .set_center(Vector::new(512.0, 512.0))
 ///         .set_rotation_angle(45.0f64.to_radians())
-///         .set_scale(0.75)
+///         .set_uniform_scale(0.75)
 ///         .build_from_key_points(DottedMosaic::new);
 ///
 ///     assert_eq!(dotted_mosaic.image_size(), (1024, 1024));
-///     assert_eq!(dotted_mosaic.center(), Vector::new(512.0, 512.0));
-///     assert_eq!(dotted_mosaic.rotation_angle(), 45.0f64.to_radians());
-///     assert_eq!(dotted_mosaic.scale(), 0.75);
+///     assert_eq!(dotted_mosaic.transformation().translation, Vector::new(512.0, 512.0));
+///     assert_eq!(dotted_mosaic.transformation().rotation_angle, 45.0f64.to_radians());
+///     assert_eq!(dotted_mosaic.transformation().scale, Scale::new_uniform(0.75));
 ///
 ///     // let blue_mosaic_image = dotted_mosaic.draw(LinSrgb::new(0.0f64, 0.0, 1.0));
 ///     // let save_result = blue_mosaic_image.save("target/dotted_mosaic.png");
 ///     // assert!(save_result.is_ok());
 /// }
 /// ```
-pub trait Mosaic {
+pub trait Mosaic: TryToTransform {
     /// Creates mosaic image painted with specified coloring method.
     ///
     /// This method transforms abstract [mosaic shape][`MosaicShape`] (with its key points)
@@ -167,14 +168,14 @@ pub trait Mosaic {
     /// Width and height of mosaic and mosaic image it creates.
     fn image_size(&self) -> (u32, u32);
 
+    /// Transformation (position, rotation, scale and shear) of [mosaic shape][`Mosaic::shape`]
+    /// in mosaic.
+    fn transformation(&self) -> &Transformation;
+
     /// Position of center of [mosaic shape][`Mosaic::shape`] in mosaic.
-    fn center(&self) -> Vector;
-
-    /// Rotation angle (in radians) of [mosaic shape][`Mosaic::shape`] in this mosaic.
-    fn rotation_angle(&self) -> f64;
-
-    /// Scale of [mosaic shape][`Mosaic::shape`] in this mosaic.
-    fn scale(&self) -> f64;
+    fn center(&self) -> Vector {
+        self.transformation().translation
+    }
 
     /// Shape (pattern) of mosaic.
     fn shape(&self) -> &Box<dyn MosaicShape>;

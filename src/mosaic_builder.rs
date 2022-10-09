@@ -3,8 +3,12 @@ use std::cmp::Ordering;
 use voronoice::{BoundingBox, Point, Voronoi, VoronoiBuilder};
 
 use super::{
-    mosaic::Mosaic, mosaic_shape::*, polygonal_mosaic::PolygonalMosaic,
-    starry_mosaic::StarryMosaic, vector::Vector,
+    mosaic::Mosaic,
+    mosaic_shape::*,
+    polygonal_mosaic::PolygonalMosaic,
+    starry_mosaic::StarryMosaic,
+    transform::{Scale, Transform, Transformation},
+    vector::Vector,
 };
 
 /// Builds different mosaics from set of its properties.
@@ -17,13 +21,13 @@ use super::{
 ///
 /// ```
 /// use palette::LinSrgb;
-/// use starry_mosaic::{Mosaic, MosaicBuilder, Vector};
+/// use starry_mosaic::{transform::Scale, Mosaic, MosaicBuilder, Vector};
 ///
 /// let starry_mosaic = MosaicBuilder::default()
 ///     .set_image_size(1024, 1024)
 ///     .set_center(Vector::new(512.0, 512.0))
 ///     .set_rotation_angle(22.5f64.to_radians())
-///     .set_scale(0.5)
+///     .set_uniform_scale(0.5)
 ///     .build_star();
 ///
 /// assert!(starry_mosaic.is_some());
@@ -31,9 +35,9 @@ use super::{
 /// let starry_mosaic = starry_mosaic.unwrap();
 ///
 /// assert_eq!(starry_mosaic.image_size(), (1024, 1024));
-/// assert_eq!(starry_mosaic.center(), Vector::new(512.0, 512.0));
-/// assert_eq!(starry_mosaic.rotation_angle(), 22.5f64.to_radians());
-/// assert_eq!(starry_mosaic.scale(), 0.5);
+/// assert_eq!(starry_mosaic.transformation().translation, Vector::new(512.0, 512.0));
+/// assert_eq!(starry_mosaic.transformation().rotation_angle, 22.5f64.to_radians());
+/// assert_eq!(starry_mosaic.transformation().scale, Scale::new_uniform(0.5));
 ///
 /// // let orange_image = starry_mosaic.draw(LinSrgb::new(1.0f64, 0.5, 0.0));
 /// // let save_result = orange_image.save("target/orange_starry_mosaic.png");
@@ -43,9 +47,7 @@ use super::{
 pub struct MosaicBuilder {
     shape: Box<dyn MosaicShape>,
     image_size: (u32, u32),
-    center: Vector,
-    rotation_angle: f64,
-    scale: f64,
+    transformation: Transformation,
 }
 
 impl MosaicBuilder {
@@ -85,7 +87,7 @@ impl MosaicBuilder {
         self
     }
 
-    /// Sets shape of mosaic to grid (implemented using [tilted grid][`PolygonalStar`]).
+    /// Sets shape of mosaic to grid.
     ///
     /// # Arguments
     ///
@@ -96,43 +98,11 @@ impl MosaicBuilder {
     ///
     /// # See Also
     ///
-    /// * [`MosaicBuilder::set_tilted_grid_shape`].
     /// * [`MosaicBuilder::set_shape`].
-    /// * [`TiltedGrid::new`].
+    /// * [`Grid::new`].
     ///
     pub fn set_grid_shape(mut self, rows_count: u32, columns_count: u32) -> Self {
-        self.shape = Box::new(TiltedGrid::new(rows_count, columns_count));
-        self
-    }
-
-    /// Sets shape of mosaic to [tilted grid][`PolygonalStar`].
-    ///
-    /// # Arguments
-    ///
-    /// * `rows_count`: number of grid rows; should be at least 1.
-    /// * `columns_count`: number of grid columns; should be at least 1.
-    /// * `horizontal_factor`: tilt factor along X axis; value of 1.0 shifts the grid by its width.
-    /// * `vertical_factor`: tilt factor along Y axis; value of 1.0 shifts the grid by its height.
-    ///
-    /// returns: [`MosaicBuilder`] - builder with mosaic shape set to tilted grid.
-    ///
-    /// # See Also
-    ///
-    /// * [`MosaicBuilder::set_grid_shape`].
-    /// * [`MosaicBuilder::set_shape`].
-    /// * [`TiltedGrid::new`].
-    ///
-    pub fn set_tilted_grid_shape(
-        mut self,
-        rows_count: u32,
-        columns_count: u32,
-        horizontal_tilt_factor: f64,
-        vertical_tilt_factor: f64,
-    ) -> Self {
-        self.shape = Box::new(
-            TiltedGrid::new(rows_count, columns_count)
-                .tilt(horizontal_tilt_factor, vertical_tilt_factor),
-        );
+        self.shape = Box::new(Grid::new(rows_count, columns_count));
         self
     }
 
@@ -175,8 +145,12 @@ impl MosaicBuilder {
     ///
     /// returns: [`MosaicBuilder`] - builder with configured center of mosaic shape.
     ///
+    /// # See also
+    ///
+    /// * [`MosaicBuilder::set_transformation`].
+    ///
     pub fn set_center(mut self, center: Vector) -> Self {
-        self.center = Vector::new(
+        self.transformation.translation = Vector::new(
             center.x.clamp(0.0, self.image_size.0 as f64),
             center.y.clamp(0.0, self.image_size.1 as f64),
         );
@@ -191,8 +165,12 @@ impl MosaicBuilder {
     ///
     /// returns: [`MosaicBuilder`] - builder with configured rotation of mosaic shape.
     ///
+    /// # See also
+    ///
+    /// * [`MosaicBuilder::set_transformation`].
+    ///
     pub fn set_rotation_angle(mut self, rotation_angle: f64) -> Self {
-        self.rotation_angle = rotation_angle;
+        self.transformation.rotation_angle = rotation_angle;
         self
     }
 
@@ -200,13 +178,81 @@ impl MosaicBuilder {
     ///
     /// # Arguments
     ///
-    /// * `scale`: scale of mosaic shape in created images; should be at least 0.001.
+    /// * `horizontal_scale`: horizontal scale of mosaic shape in created images; should be
+    /// at least 0.001 and at most 1000.0.
+    /// * `vertical_scale`: vertical scale of mosaic shape in created images; should be
+    /// at least 0.001 and at most 1000.0.
     ///
     /// returns: [`MosaicBuilder`] - builder with configured scale of mosaic shape.
     ///
-    pub fn set_scale(mut self, scale: f64) -> Self {
-        self.scale = scale.max(0.001);
+    /// # See also
+    ///
+    /// * [`MosaicBuilder::set_uniform_scale`].
+    /// * [`MosaicBuilder::set_transformation`].
+    ///
+    pub fn set_scale(mut self, horizontal_scale: f64, vertical_scale: f64) -> Self {
+        self.transformation.scale =
+            Scale::new(horizontal_scale, vertical_scale).clamp(0.001, 1000.0);
         self
+    }
+
+    /// Sets scale of shape of mosaic.
+    ///
+    /// # Arguments
+    ///
+    /// * `scale`: uniform horizontal and vertical scale of mosaic shape in created images;
+    /// should be at least 0.001 and at most 1000.0.
+    ///
+    /// returns: [`MosaicBuilder`] - builder with configured scale of mosaic shape.
+    ///
+    /// # See also
+    ///
+    /// * [`MosaicBuilder::set_scale`].
+    /// * [`MosaicBuilder::set_transformation`].
+    ///
+    pub fn set_uniform_scale(mut self, scale: f64) -> Self {
+        self.transformation.scale = Scale::new_uniform(scale).clamp(0.001, 1000.0);
+        self
+    }
+
+    /// Sets shear (skew) of shape of mosaic.
+    ///
+    /// # Arguments
+    ///
+    /// * `horizontal_shear`: horizontal shear factor of mosaic shape in created images.
+    /// * `vertical_shear`: vertical shear factor of mosaic shape in created images.
+    ///
+    /// returns: [`MosaicBuilder`] - builder with configured shear (skew) of mosaic shape.
+    ///
+    /// # See also
+    ///
+    /// * [`MosaicBuilder::set_transformation`].
+    ///
+    pub fn set_shear(mut self, horizontal_shear: f64, vertical_shear: f64) -> Self {
+        self.transformation.shear = Vector::new(horizontal_shear, vertical_shear);
+        self
+    }
+
+    /// Sets transformation (position, rotation, scale and shear) of shape of mosaic.
+    ///
+    /// # Arguments
+    ///
+    /// * `transformation`: transformation of mosaic shape in created images.
+    ///
+    /// returns: [`MosaicBuilder`] - builder with configured transformation of mosaic shape.
+    ///
+    /// # See also
+    ///
+    /// * [`MosaicBuilder::set_center`].
+    /// * [`MosaicBuilder::set_rotation_angle`].
+    /// * [`MosaicBuilder::set_scale`].
+    /// * [`MosaicBuilder::set_shear`].
+    ///
+    pub fn set_transformation(mut self, transformation: &Transformation) -> Self {
+        self.transformation.rotation_angle = transformation.rotation_angle;
+        self.transformation.scale = transformation.scale.clamp(0.001, 1000.0);
+        self.transformation.shear = transformation.shear;
+        self.set_center(transformation.translation)
     }
 
     /// Builds [starry mosaic][`StarryMosaic`] with current configuration of builder.
@@ -248,9 +294,7 @@ impl MosaicBuilder {
     /// * `constructor`: constructor function of mosaic; this function takes next arguments:
     ///     * instance of [Voronoi diagram][`Voronoi`],
     ///     * width and height of mosaic (and created images),
-    ///     * center point of shape of mosaic,
-    ///     * rotation angle of shape of mosaic, in radians,
-    ///     * scale of shape of mosaic,
+    ///     * transformation (position, rotation, scale and shear) of mosaic shape,
     ///     * mosaic shape with which mosaic images will be created.
     ///
     /// returns: `Option<MosaicImplementation>` - configured mosaic based on Voronoi diagram.
@@ -267,9 +311,7 @@ impl MosaicBuilder {
         Constructor: FnOnce(
             Voronoi,
             (u32, u32),
-            Vector,
-            f64,
-            f64,
+            Transformation,
             Box<dyn MosaicShape>,
         ) -> MosaicImplementation,
     {
@@ -291,9 +333,7 @@ impl MosaicBuilder {
             Some(voronoi) => Some(constructor(
                 voronoi,
                 self.image_size,
-                self.center,
-                self.rotation_angle,
-                self.scale,
+                self.transformation,
                 self.shape,
             )),
             None => None,
@@ -311,9 +351,7 @@ impl MosaicBuilder {
     /// * `constructor`: constructor function of mosaic; this function takes next arguments:
     ///     * set of key points calculated by constructing mosaic shape,
     ///     * width and height of mosaic (and created images),
-    ///     * center point of shape of mosaic,
-    ///     * rotation angle of shape of mosaic, in radians,
-    ///     * scale of shape of mosaic,
+    ///     * transformation (position, rotation, scale and shear) of mosaic shape,
     ///     * mosaic shape with which mosaic images will be created.
     ///
     /// returns: `Option<MosaicImplementation>` - configured mosaic based on set of key point
@@ -328,37 +366,25 @@ impl MosaicBuilder {
         Constructor: FnOnce(
             Vec<Vector>,
             (u32, u32),
-            Vector,
-            f64,
-            f64,
+            Transformation,
             Box<dyn MosaicShape>,
         ) -> MosaicImplementation,
     {
         let points = self.construct_shape();
-        constructor(
-            points,
-            self.image_size,
-            self.center,
-            self.rotation_angle,
-            self.scale,
-            self.shape,
-        )
+        constructor(points, self.image_size, self.transformation, self.shape)
     }
 
     fn construct_shape(&self) -> Vec<Vector> {
-        let mut initial_points = self.shape.set_up_points(
-            self.image_size,
-            self.center,
-            self.rotation_angle,
-            self.scale,
-        );
+        let mut initial_points = self
+            .shape
+            .set_up_points(self.image_size.0, self.image_size.1);
         let shape_segments = self.shape.connect_points(&initial_points);
         let mut shape_points = self.shape.intersect_segments(&shape_segments);
         shape_points.append(&mut initial_points);
-        shape_points.sort_by(|left, right| left.partial_cmp(right).unwrap_or(Ordering::Equal));
         shape_points
             .iter_mut()
-            .for_each(|point| *point = point.round_to_epsilon());
+            .for_each(|point| *point = point.transform(&self.transformation).round_to_epsilon());
+        shape_points.sort_by(|left, right| left.partial_cmp(right).unwrap_or(Ordering::Equal));
         shape_points.dedup();
         shape_points
     }
@@ -369,9 +395,12 @@ impl Default for MosaicBuilder {
         Self {
             shape: Box::new(RegularPolygon::default()),
             image_size: (640, 640),
-            center: Vector::new(320.0, 320.0),
-            rotation_angle: 0.0,
-            scale: 1.0,
+            transformation: Transformation {
+                translation: Vector::new(320.0, 320.0),
+                rotation_angle: 0.0,
+                scale: Scale::default(),
+                shear: Vector::default(),
+            },
         }
     }
 }
@@ -384,9 +413,7 @@ where
         Self {
             shape: mosaic.shape().clone(),
             image_size: mosaic.image_size(),
-            center: mosaic.center(),
-            rotation_angle: mosaic.rotation_angle(),
-            scale: mosaic.scale(),
+            transformation: mosaic.transformation().clone(),
         }
     }
 }
@@ -411,27 +438,40 @@ mod tests {
     #[test]
     fn set_center() {
         let builder = MosaicBuilder::default().set_center(Vector::new(320.0, 160.0));
-        assert_eq!(builder.center, Vector::new(320.0, 160.0));
+        assert_eq!(
+            builder.transformation.translation,
+            Vector::new(320.0, 160.0)
+        );
     }
     #[test]
     fn set_center_out_of_bounds() {
         let builder = MosaicBuilder::default().set_center(Vector::new(-320.0, 10240.0));
-        assert_eq!(builder.center.x, 0.0);
-        assert_eq!(builder.center.y, builder.image_size.1 as f64);
+        assert_eq!(builder.transformation.translation.x, 0.0);
+        assert_eq!(
+            builder.transformation.translation.y,
+            builder.image_size.1 as f64
+        );
     }
     #[test]
     fn set_rotation() {
         let builder = MosaicBuilder::default().set_rotation_angle(consts::FRAC_PI_4);
-        assert_eq!(builder.rotation_angle, consts::FRAC_PI_4);
+        assert_eq!(builder.transformation.rotation_angle, consts::FRAC_PI_4);
     }
     #[test]
     fn set_scale() {
-        let builder = MosaicBuilder::default().set_scale(1.25);
-        assert_eq!(builder.scale, 1.25);
+        let builder = MosaicBuilder::default().set_scale(1.25, 0.75);
+        assert_eq!(builder.transformation.scale.x, 1.25);
+        assert_eq!(builder.transformation.scale.y, 0.75);
     }
     #[test]
-    fn set_zero_scale() {
-        let builder = MosaicBuilder::default().set_scale(0.0);
-        assert!(builder.scale > 0.0);
+    fn set_incorrect_scale() {
+        let builder = MosaicBuilder::default().set_scale(0.0, 10000.0);
+        assert!(builder.transformation.scale.x > 0.0);
+        assert!(builder.transformation.scale.y < 10000.0);
+    }
+    #[test]
+    fn set_shear() {
+        let builder = MosaicBuilder::default().set_shear(0.5, -0.75);
+        assert_eq!(builder.transformation.shear, Vector::new(0.5, -0.75));
     }
 }

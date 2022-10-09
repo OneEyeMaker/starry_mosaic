@@ -23,7 +23,7 @@ where
         .set_shape(shape)
         .set_image_size(1600, 1600)
         .set_center(Vector::new(800.0, 800.0))
-        .set_scale(0.75)
+        .set_uniform_scale(0.75)
         .build_star()
         .unwrap();
     mosaic.draw(RadialGradient::new(
@@ -78,7 +78,7 @@ fn tilted_grid_benchmark(instance: &mut Criterion) {
             BenchmarkId::from_parameter(cells_count),
             &cells_count,
             |bencher, &cells_count| {
-                bencher.iter(|| create_image(TiltedGrid::new(cells_count, cells_count)));
+                bencher.iter(|| create_image(Grid::new(cells_count, cells_count)));
             },
         );
     }
