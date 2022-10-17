@@ -1,6 +1,6 @@
 [package]
 name = "starry_mosaic"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Alexander Anishin <oneeyemaker@gmail.com>"]
 license = "MIT"
 description = "A library for generating colorful mosaic images with various geometrical patterns."
@@ -10,11 +10,11 @@ readme = "README.md"
 keywords = ["starry", "mosaic", "image"]
 categories = ["graphics", "multimedia::images"]
 edition = "2021"
-exclude = ["/benches/", "/images/", "/tests/"]
+exclude = ["/images/", "/tests/"]
 
 [dependencies]
 float-cmp = "0.9.0"
-image = "0.24.3"
+image = "0.24.4"
 palette = "0.6.1"
 robust = "0.2.3"
 voronoice = "0.2.0"
